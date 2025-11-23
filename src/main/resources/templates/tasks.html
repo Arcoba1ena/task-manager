@@ -246,6 +246,17 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
+
+/* Стили для номера задачи */
+.task-id {
+    font-size: 0.8em;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.task-title {
+    margin-top: 2px;
+}
     </style>
 </head>
 <body>
@@ -329,13 +340,17 @@
                              (${task.priority.name() == 'MEDIUM'} ? 'priority-medium' : 'priority-low')">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="card-title mb-0" th:text="${task.title}">Название задачи</h6>
+                        <div>
+                            <div class="task-id">Задача: #<span th:text="${task.id}">ID</span></div>
+                            <h6 class="card-title mb-0 task-title" th:text="${task.title}">Название задачи</h6>
+                        </div>
                         <div class="task-actions">
                             <button class="btn btn-sm btn-outline-primary me-1 edit-task-btn"
                                     th:attr="data-task-id=${task.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <!-- Скрываем кнопку удаления для исполнителя -->
+
+                            <!-- Кнопка удаления - только для не-исполнителей -->
                             <button class="btn btn-sm btn-outline-danger delete-task-btn"
                                     th:attr="data-task-id=${task.id}"
                                     th:data-task-title="${task.title}"
@@ -1096,13 +1111,22 @@ function openCommentsModal(taskId) {
     document.getElementById('commentTaskId').value = taskId;
     document.getElementById('commentForm').reset();
 
-    // Обновляем заголовок
-    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`).closest('.task-card');
+    // Обновляем заголовок с номером задачи
+    const taskCard = document.querySelector(`.edit-task-btn[data-task-id="${taskId}"]`).closest('.task-card');
     if (taskCard) {
         const taskTitle = taskCard.querySelector('.card-title').textContent;
-        document.getElementById('commentsModalTitle').textContent = `Комментарии к задаче: ${taskTitle}`;
+        const taskIdElement = taskCard.querySelector('small.text-muted span');
+        const taskId = taskIdElement ? taskIdElement.textContent : taskId;
+
+        const commentsModalTitle = document.getElementById('commentsModalTitle');
+        if (commentsModalTitle) {
+            commentsModalTitle.textContent = `Комментарии к задаче: #${taskId}`;
+        }
     } else {
-        document.getElementById('commentsModalTitle').textContent = `Комментарии к задаче #${taskId}`;
+        const commentsModalTitle = document.getElementById('commentsModalTitle');
+        if (commentsModalTitle) {
+            commentsModalTitle.textContent = `Комментарии к задаче: #${taskId}`;
+        }
     }
 
     loadComments(taskId);
@@ -1683,24 +1707,6 @@ function editTask(taskId) {
     currentTaskId = taskId;
     currentTaskIdForAttachments = taskId;
 
-    // Безопасно получаем элементы
-    const modalTitle = document.getElementById('taskModalTitle');
-    const deleteTaskBtn = document.getElementById('deleteTaskBtn');
-    const executorEditMessage = document.getElementById('executorEditMessage');
-
-    if (modalTitle) {
-        modalTitle.textContent = 'Редактирование задачи';
-    }
-
-    // Для исполнителя показываем сообщение и ограничиваем права
-    if (isExecutor) {
-        if (deleteTaskBtn) deleteTaskBtn.style.display = 'none';
-        if (executorEditMessage) executorEditMessage.style.display = 'block';
-    } else {
-        if (deleteTaskBtn) deleteTaskBtn.style.display = 'block';
-        if (executorEditMessage) executorEditMessage.style.display = 'none';
-    }
-
     // Загружаем данные задачи
     fetch('/api/tasks/' + taskId)
         .then(response => {
@@ -1711,6 +1717,25 @@ function editTask(taskId) {
         })
         .then(task => {
             console.log('Task data loaded:', task);
+
+            // Безопасно получаем элементы
+            const modalTitle = document.getElementById('taskModalTitle');
+            const deleteTaskBtn = document.getElementById('deleteTaskBtn');
+            const executorEditMessage = document.getElementById('executorEditMessage');
+
+            // Обновляем заголовок модального окна с номером задачи
+            if (modalTitle) {
+                modalTitle.textContent = 'Редактирование задачи: #' + task.id;
+            }
+
+            // Для исполнителя показываем сообщение и ограничиваем права
+            if (isExecutor) {
+                if (deleteTaskBtn) deleteTaskBtn.style.display = 'none';
+                if (executorEditMessage) executorEditMessage.style.display = 'block';
+            } else {
+                if (deleteTaskBtn) deleteTaskBtn.style.display = 'block';
+                if (executorEditMessage) executorEditMessage.style.display = 'none';
+            }
 
             // Безопасно заполняем форму данными задачи
             const taskIdInput = document.getElementById('taskId');
@@ -1773,25 +1798,47 @@ function editTask(taskId) {
 // Обновляем функцию showCreateTaskForm
 function showCreateTaskForm() {
     if (isExecutor) {
-        alert('У вас нет прав для создания задач. Обратитесь к менеджеру.');
+        showToast('У вас нет прав для создания задач. Обратитесь к менеджеру.', 'error');
         return;
     }
 
     currentTaskId = null;
-    currentTaskIdForAttachments = null; // Сбрасываем для новой задачи
-    document.getElementById('taskModalTitle').textContent = 'Создание новой задачи';
+    currentTaskIdForAttachments = null;
+
+    // Безопасно получаем элементы
+    const modalTitle = document.getElementById('taskModalTitle');
+    if (modalTitle) {
+        modalTitle.textContent = 'Создание новой задачи';
+    }
+
     document.getElementById('taskForm').reset();
-    document.getElementById('deleteTaskBtn').style.display = 'none';
+
+    const deleteTaskBtn = document.getElementById('deleteTaskBtn');
+    if (deleteTaskBtn) {
+        deleteTaskBtn.style.display = 'none';
+    }
+
     document.getElementById('taskStatus').value = 'TO_DO';
     document.getElementById('taskPriority').value = 'MEDIUM';
-    document.getElementById('executorEditMessage').style.display = 'none';
+
+    const executorEditMessage = document.getElementById('executorEditMessage');
+    if (executorEditMessage) {
+        executorEditMessage.style.display = 'none';
+    }
 
     // Очищаем список вложений
-    document.getElementById('attachmentsList').innerHTML = '';
-    document.getElementById('noAttachmentsMessage').style.display = 'block';
-    document.getElementById('attachmentsCount').textContent = '0';
+    const attachmentsList = document.getElementById('attachmentsList');
+    const noAttachmentsMessage = document.getElementById('noAttachmentsMessage');
+    if (attachmentsList) attachmentsList.innerHTML = '';
+    if (noAttachmentsMessage) noAttachmentsMessage.style.display = 'block';
+
+    const attachmentsCount = document.getElementById('attachmentsCount');
+    if (attachmentsCount) attachmentsCount.textContent = '0';
+
     document.getElementById('fileInput').value = '';
-    document.getElementById('uploadProgress').style.display = 'none';
+
+    const uploadProgress = document.getElementById('uploadProgress');
+    if (uploadProgress) uploadProgress.style.display = 'none';
 
     enableAllFields();
     taskModal.show();
@@ -2101,12 +2148,20 @@ let taskToDelete = {
 
 // Функция для показа модального окна удаления
 function showDeleteTaskModal(taskId, taskTitle) {
+    if (isExecutor) {
+        showToast('У вас нет прав для удаления задач. Обратитесь к менеджеру.', 'error');
+        return;
+    }
+
     taskToDelete.id = taskId;
     taskToDelete.title = taskTitle;
 
-    // Устанавливаем сообщение
-    document.getElementById('confirmDeleteTaskMessage').textContent =
-        `Вы уверены, что хотите удалить задачу "${taskTitle}"?`;
+    // Устанавливаем сообщение с номером задачи
+    const confirmDeleteTaskMessage = document.getElementById('confirmDeleteTaskMessage');
+    if (confirmDeleteTaskMessage) {
+        confirmDeleteTaskMessage.textContent =
+            `Вы уверены, что хотите удалить задачу #${taskId} "${taskTitle}"?`;
+    }
 
     // Показываем модальное окно
     const modal = new bootstrap.Modal(document.getElementById('confirmDeleteTaskModal'));
