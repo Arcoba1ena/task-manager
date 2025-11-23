@@ -9,10 +9,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .task-card {
-            transition: all 0.3s ease;
-            border-left: 4px solid #007bff;
-            margin-bottom: 1rem;
-        }
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.task-card[style*="display: none"] {
+    display: none !important;
+}
         .task-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -377,7 +378,7 @@
             </span>
                 <input type="text" class="form-control" id="taskSearch"
                        placeholder="Поиск по номеру задачи или названию..."
-                       oninput="filterTasks()">
+                       oninput="debouncedApplyAll()">
                 <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -391,12 +392,97 @@
         </div>
     </div>
 
+    <!-- Фильтры -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-filter me-2"></i>Фильтры задач
+                    </h6>
+                    <div class="row g-3">
+                        <!-- Фильтр по статусу -->
+                        <div class="col-md-2">
+                            <label for="filterStatus" class="form-label">Статус</label>
+                            <select class="form-select" id="filterStatus" onchange="applyAll()">
+                                <option value="">Все статусы</option>
+                                <option value="TO_DO">К выполнению</option>
+                                <option value="IN_PROGRESS">В работе</option>
+                                <option value="DONE">Выполнено</option>
+                            </select>
+                        </div>
+
+                        <!-- Фильтр по приоритету -->
+                        <div class="col-md-2">
+                            <label for="filterPriority" class="form-label">Приоритет</label>
+                            <select class="form-select" id="filterPriority" onchange="applyAll()">
+                                <option value="">Все приоритеты</option>
+                                <option value="LOW">Низкий</option>
+                                <option value="MEDIUM">Средний</option>
+                                <option value="HIGH">Высокий</option>
+                            </select>
+                        </div>
+
+                        <!-- Фильтр по проекту -->
+                        <div class="col-md-2">
+                            <label for="filterProject" class="form-label">Проект</label>
+                            <select class="form-select" id="filterProject" onchange="applyAll()">
+                                <option value="">Все проекты</option>
+                                <!-- Динамически заполняем проекты -->
+                                <option th:each="project : ${projects}"
+                                        th:value="${project.id}"
+                                        th:text="${project.name}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Фильтр по исполнителю (скрыт для исполнителя) -->
+                        <div class="col-md-2" th:if="${!isExecutor}">
+                            <label for="filterExecutor" class="form-label">Исполнитель</label>
+                            <select class="form-select" id="filterExecutor" onchange="applyAll()">
+                                <option value="">Все исполнители</option>
+                                <!-- Динамически заполняем исполнителей -->
+                                <option th:each="executor : ${executors}"
+                                        th:value="${executor.id}"
+                                        th:text="${executor.fullName}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Сортировка по сроку выполнения -->
+                        <div class="col-md-2">
+                            <label for="sortDeadline" class="form-label">По сроку выполнения</label>
+                            <select class="form-select" id="sortDeadline" onchange="applyAll()">
+                                <option value="">Без сортировки</option>
+                                <option value="asc">Сначала старые</option>
+                                <option value="desc">Сначала новые</option>
+                            </select>
+                        </div>
+
+                        <!-- Кнопка сброса фильтров -->
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                                <i class="fas fa-times me-1"></i>Сбросить фильтры
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Список задач -->
     <div class="row" id="tasksContainer">
         <div th:each="task : ${tasks}" class="col-md-6 col-lg-4 mb-4">
             <div class="card task-card h-100"
                  th:classappend="${task.priority.name() == 'HIGH'} ? 'priority-high' :
-                             (${task.priority.name() == 'MEDIUM'} ? 'priority-medium' : 'priority-low')">
+                         (${task.priority.name() == 'MEDIUM'} ? 'priority-medium' : 'priority-low')"
+                 th:data-task-id="${task.id}"
+                 th:data-task-status="${task.status}"
+                 th:data-task-priority="${task.priority}"
+                 th:data-task-project="${task.project?.id}"
+                 th:data-task-executor="${task.executor?.id}"
+                 th:data-task-deadline="${task.deadline != null ? #temporals.format(task.deadline, 'yyyy-MM-dd''T''HH:mm') : ''}">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
@@ -2079,7 +2165,7 @@ function handleTaskOpeningFromNotification() {
                 // Пытаемся найти и выделить задачу в списке
                 highlightTaskInList(openTaskId);
             }
-        }, 100); // Уменьшено с 800мс до 100мс
+        }, 100);
     }
 }
 
@@ -2362,7 +2448,7 @@ function filterTasks() {
     updateFilteredTasksCount(visibleCount);
 
     // Показываем сообщение, если ничего не найдено
-    showNoResultsMessage(visibleCount === 0 && searchTerm !== '');
+    showNoResultsMessage(visibleCount === 0 && (searchTerm !== '' || Object.values(activeFilters).some(f => f) || currentSort));
 
     debugSearch();
 }
@@ -2424,19 +2510,6 @@ function updateFilteredTasksCount(count) {
     }
 }
 
-// Функция очистки поиска
-function clearSearch() {
-    const searchInput = document.getElementById('taskSearch');
-    if (searchInput) {
-        searchInput.value = '';
-        currentSearchTerm = '';
-        filterTasks();
-
-        // Фокус на поле поиска после очистки
-        searchInput.focus();
-    }
-}
-
 // Функция показа сообщения "ничего не найдено"
 function showNoResultsMessage(show) {
     let noResultsElement = document.getElementById('noResultsMessage');
@@ -2450,19 +2523,41 @@ function showNoResultsMessage(show) {
         noResultsElement = document.createElement('div');
         noResultsElement.id = 'noResultsMessage';
         noResultsElement.className = 'text-center py-5';
-        noResultsElement.innerHTML = `
-            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-            <h4 class="text-muted">Задачи не найдены</h4>
-            <p class="text-muted">По запросу "<strong>${escapeHtml(currentSearchTerm)}</strong>" ничего не найдено</p>
-            <button class="btn btn-outline-primary mt-2" onclick="clearSearch()">
-                <i class="fas fa-times me-1"></i>Очистить поиск
+
+        const hasActiveFilters = Object.values(activeFilters).some(f => f) || currentSort;
+        const searchTerm = document.getElementById('taskSearch').value;
+
+        let messageHtml = '';
+        if (searchTerm && hasActiveFilters) {
+            messageHtml = `
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Задачи не найдены</h4>
+                <p class="text-muted">По запросу "<strong>${escapeHtml(searchTerm)}</strong>" и выбранным фильтрам ничего не найдено</p>
+            `;
+        } else if (searchTerm) {
+            messageHtml = `
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Задачи не найдены</h4>
+                <p class="text-muted">По запросу "<strong>${escapeHtml(searchTerm)}</strong>" ничего не найдено</p>
+            `;
+        } else if (hasActiveFilters) {
+            messageHtml = `
+                <i class="fas fa-filter fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Задачи не найдены</h4>
+                <p class="text-muted">По выбранным фильтрам ничего не найдено</p>
+            `;
+        }
+
+        noResultsElement.innerHTML = messageHtml + `
+            <button class="btn btn-outline-primary mt-2" onclick="resetFilters()">
+                <i class="fas fa-times me-1"></i>Сбросить все фильтры
             </button>
         `;
 
-        // Вставляем сообщение после строки поиска
-        const searchRow = document.querySelector('.row.mb-4');
-        if (searchRow) {
-            searchRow.parentNode.insertBefore(noResultsElement, searchRow.nextSibling);
+        // Вставляем сообщение после контейнера задач
+        const tasksContainer = document.getElementById('tasksContainer');
+        if (tasksContainer) {
+            tasksContainer.parentNode.insertBefore(noResultsElement, tasksContainer.nextSibling);
         }
     }
 }
@@ -2534,6 +2629,176 @@ function debugSearch() {
 
     console.log('Visible count:', visibleCount);
     console.log('===================');
+}
+// ========== FILTER AND SORT SYSTEM ==========
+let activeFilters = {
+    status: '',
+    priority: '',
+    project: '',
+    executor: ''
+};
+let currentSort = '';
+let originalTaskOrder = []; // Сохраняем исходный порядок
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    const taskColumns = document.querySelectorAll('#tasksContainer > .col-md-6.col-lg-4');
+    originalTaskOrder = Array.from(taskColumns);
+    console.log('Original task order saved:', originalTaskOrder.length);
+});
+
+// Основная функция применения фильтров и сортировки
+function applyAll() {
+    console.log('=== APPLYING FILTERS AND SORTING ===');
+
+    // Получаем значения фильтров
+    activeFilters = {
+        status: document.getElementById('filterStatus').value,
+        priority: document.getElementById('filterPriority').value,
+        project: document.getElementById('filterProject').value,
+        executor: document.getElementById('filterExecutor') ? document.getElementById('filterExecutor').value : ''
+    };
+
+    currentSort = document.getElementById('sortDeadline').value;
+    const searchTerm = document.getElementById('taskSearch').value.toLowerCase().trim();
+
+    console.log('Active filters:', activeFilters);
+    console.log('Current sort:', currentSort);
+    console.log('Search term:', searchTerm);
+
+    const container = document.getElementById('tasksContainer');
+    const taskColumns = Array.from(container.querySelectorAll('.col-md-6.col-lg-4.mb-4'));
+    let visibleCount = 0;
+    const visibleColumns = [];
+
+    const allFiltersEmpty = !activeFilters.status && !activeFilters.priority &&
+                           !activeFilters.project && !activeFilters.executor &&
+                           !currentSort && !searchTerm;
+
+    taskColumns.forEach(column => {
+        const card = column.querySelector('.task-card');
+        if (!card) {
+            column.style.display = 'none';
+            return;
+        }
+
+        // Получаем данные из data-атрибутов
+        const taskStatus = card.getAttribute('data-task-status');
+        const taskPriority = card.getAttribute('data-task-priority');
+        const taskProject = card.getAttribute('data-task-project') || '';
+        const taskExecutor = card.getAttribute('data-task-executor') || '';
+        const taskDeadline = card.getAttribute('data-task-deadline') || '';
+
+        // Фильтры
+        const matchesStatus = !activeFilters.status || taskStatus === activeFilters.status;
+        const matchesPriority = !activeFilters.priority || taskPriority === activeFilters.priority;
+        const matchesProject = !activeFilters.project || taskProject === activeFilters.project;
+        const matchesExecutor = !activeFilters.executor || taskExecutor === activeFilters.executor;
+
+        // Поиск
+        let matchesSearch = true;
+        if (searchTerm) {
+            const taskIdElement = card.querySelector('.task-id span');
+            const taskTitleElement = card.querySelector('.card-title');
+            if (taskIdElement && taskTitleElement) {
+                const taskId = taskIdElement.textContent;
+                const taskTitle = taskTitleElement.textContent.toLowerCase();
+                const searchNumbers = searchTerm.replace(/\D/g, '');
+                const matchesId = searchNumbers && taskId.includes(searchNumbers);
+                const matchesTitle = taskTitle.includes(searchTerm);
+                matchesSearch = matchesId || matchesTitle;
+
+                if (matchesSearch) {
+                    highlightSearchTerms(card, searchTerm, searchNumbers);
+                } else {
+                    removeHighlights(card);
+                }
+            }
+        } else {
+            removeHighlights(card);
+        }
+
+        const shouldShow = matchesStatus && matchesPriority && matchesProject && matchesExecutor && matchesSearch;
+
+        if (shouldShow) {
+            column.style.display = '';
+            visibleColumns.push({ column, deadline: taskDeadline });
+            visibleCount++;
+        } else {
+            column.style.display = 'none';
+        }
+    });
+
+    // Сортировка только видимых
+    if (currentSort && visibleColumns.length > 0) {
+        visibleColumns.sort((a, b) => {
+            const dA = a.deadline ? new Date(a.deadline) : null;
+            const dB = b.deadline ? new Date(b.deadline) : null;
+
+            if (!dA && !dB) return 0;
+            if (!dA) return 1;
+            if (!dB) return -1;
+
+            return currentSort === 'asc' ? dA - dB : dB - dA;
+        });
+
+        // Перестраиваем порядок
+        const fragment = document.createDocumentFragment();
+        visibleColumns.forEach(item => fragment.appendChild(item.column));
+        container.appendChild(fragment);
+    } else if (!allFiltersEmpty) {
+        // Если есть фильтры, но сортировки нет — просто порядок по DOM
+        // Ничего не делаем, display уже управляется
+    } else {
+        // Если всё пусто — восстанавливаем исходный порядок
+        const fragment = document.createDocumentFragment();
+        originalTaskOrder.forEach(col => {
+            if (col.parentNode) col.parentNode.removeChild(col);
+            fragment.appendChild(col);
+        });
+        container.appendChild(fragment);
+    }
+
+    updateFilteredTasksCount(visibleCount);
+    showNoResultsMessage(visibleCount === 0 && !allFiltersEmpty);
+}
+
+// Сброс фильтров
+function resetFilters() {
+    console.log('Resetting filters...');
+
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterPriority').value = '';
+    document.getElementById('filterProject').value = '';
+    if (document.getElementById('filterExecutor')) {
+        document.getElementById('filterExecutor').value = '';
+    }
+    document.getElementById('sortDeadline').value = '';
+    document.getElementById('taskSearch').value = '';
+
+    activeFilters = { status: '', priority: '', project: '', executor: '' };
+    currentSort = '';
+    currentSearchTerm = '';
+
+    applyAll();
+    showToast('Фильтры сброшены', 'info');
+}
+
+// Очистка поиска
+function clearSearch() {
+    const searchInput = document.getElementById('taskSearch');
+    if (searchInput) {
+        searchInput.value = '';
+        currentSearchTerm = '';
+        applyAll();
+        searchInput.focus();
+    }
+}
+
+let debounceTimer;
+function debouncedApplyAll() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(applyAll, 300);
 }
 </script>
 <div id="userRoleInfo"
