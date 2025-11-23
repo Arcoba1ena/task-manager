@@ -257,6 +257,42 @@
 .task-title {
     margin-top: 2px;
 }
+
+/* Стили для поиска */
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+/* Анимация для плавного появления/скрытия */
+.task-card {
+    transition: all 0.3s ease;
+}
+
+.task-card.hidden {
+    display: none !important;
+}
+
+#filteredTasksCount {
+    font-weight: bold;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+/* Гарантируем правильное выравнивание сетки */
+.container .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.col-md-6, .col-lg-4 {
+    padding-right: 15px;
+    padding-left: 15px;
+}
     </style>
 </head>
 <body>
@@ -323,7 +359,7 @@
     <div class="row mb-4">
         <div class="col-md-8">
             <h2><i class="fas fa-list-check me-2"></i>Управление задачами</h2>
-            <p class="text-muted">Всего задач: <span th:text="${tasksCount}">0</span></p>
+            <p class="text-muted">Всего задач: <span th:text="${tasksCount}">0</span> | Найдено: <span id="filteredTasksCount" th:text="${tasksCount}">0</span></p>
         </div>
         <div class="col-md-4 text-end" th:if="${canCreateTasks}">
             <button class="btn btn-primary" onclick="showCreateTaskForm()">
@@ -332,8 +368,31 @@
         </div>
     </div>
 
+    <!-- Поле поиска -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+            <span class="input-group-text">
+                <i class="fas fa-search"></i>
+            </span>
+                <input type="text" class="form-control" id="taskSearch"
+                       placeholder="Поиск по номеру задачи или названию..."
+                       oninput="filterTasks()">
+                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="form-text">
+                <small>
+                    <i class="fas fa-info-circle me-1"></i>
+                    Ищите по номеру или названию задачи.
+                </small>
+            </div>
+        </div>
+    </div>
+
     <!-- Список задач -->
-    <div class="row">
+    <div class="row" id="tasksContainer">
         <div th:each="task : ${tasks}" class="col-md-6 col-lg-4 mb-4">
             <div class="card task-card h-100"
                  th:classappend="${task.priority.name() == 'HIGH'} ? 'priority-high' :
@@ -350,14 +409,13 @@
                                 <i class="fas fa-edit"></i>
                             </button>
 
-                            <!-- Кнопка удаления - только для не-исполнителей -->
                             <button class="btn btn-sm btn-outline-danger delete-task-btn"
                                     th:attr="data-task-id=${task.id}"
                                     th:data-task-title="${task.title}"
                                     th:if="${!isExecutor}">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            <!-- Кнопка для комментариев -->
+
                             <button class="btn btn-sm btn-outline-info comments-btn"
                                     th:attr="data-task-id=${task.id}"
                                     th:onclick="'openCommentsModal(' + ${task.id} + ')'">
@@ -415,13 +473,12 @@
         </div>
     </div>
 
-    <!-- Сообщение если задач нет -->
-    <div th:if="${tasksCount == 0}" class="text-center py-5">
+    <!-- Сообщение если задач нет (изначально) -->
+    <div th:if="${tasksCount == 0}" class="text-center py-5" id="initialNoTasks">
         <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
         <h4 class="text-muted">Задачи не найдены</h4>
         <p class="text-muted">Создайте первую задачу, нажав на кнопку "Создать задачу"</p>
     </div>
-</div>
 
 <!-- Модальное окно для создания/редактирования задачи -->
 <div class="modal fade" id="taskModal" tabindex="-1">
@@ -736,6 +793,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+      // Инициализация поиска
+    setupSearchHotkeys();
+
+    // Добавляем обработчик для поля поиска при нажатии Enter
+    const searchInput = document.getElementById('taskSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterTasks();
+            }
+        });
+    }
+
+    console.log('Page initialization complete');
     console.log('Page initialized. isExecutor:', isExecutor);
 });
 
@@ -2227,6 +2298,242 @@ function deleteTask() {
     const taskTitle = document.getElementById('taskTitle').value;
 
     showDeleteTaskModal(taskId, taskTitle);
+}
+
+// ========== SEARCH SYSTEM ==========
+let currentSearchTerm = '';
+
+// Функция фильтрации задач
+function filterTasks() {
+    const searchTerm = document.getElementById('taskSearch').value.toLowerCase().trim();
+    currentSearchTerm = searchTerm;
+
+    const taskColumns = document.querySelectorAll('.col-md-6.col-lg-4.mb-4');
+    let visibleCount = 0;
+
+    if (!searchTerm) {
+        // Если поиск пустой, показываем все задачи
+        taskColumns.forEach(column => {
+            column.style.display = 'block';
+            const card = column.querySelector('.task-card');
+            if (card) removeHighlights(card);
+        });
+        visibleCount = taskColumns.length;
+    } else {
+        // Фильтруем задачи
+        taskColumns.forEach(column => {
+            const card = column.querySelector('.task-card');
+            if (!card) {
+                column.style.display = 'none';
+                return;
+            }
+
+            const taskIdElement = card.querySelector('.task-id span');
+            const taskTitleElement = card.querySelector('.card-title');
+
+            if (!taskIdElement || !taskTitleElement) {
+                column.style.display = 'none';
+                return;
+            }
+
+            const taskId = taskIdElement.textContent;
+            const taskTitle = taskTitleElement.textContent.toLowerCase();
+
+            // Ищем по номеру задачи (только цифры) и по названию
+            const searchNumbers = searchTerm.replace(/\D/g, ''); // Оставляем только цифры
+            const matchesId = searchNumbers && taskId.includes(searchNumbers);
+            const matchesTitle = taskTitle.includes(searchTerm);
+
+            if (matchesId || matchesTitle) {
+                column.style.display = 'block';
+                highlightSearchTerms(card, searchTerm, searchNumbers);
+                visibleCount++;
+            } else {
+                column.style.display = 'none';
+                removeHighlights(card);
+            }
+        });
+
+        // Перестраиваем сетку для правильного выравнивания
+        rearrangeTaskGrid();
+    }
+
+    // Обновляем счетчик
+    updateFilteredTasksCount(visibleCount);
+
+    // Показываем сообщение, если ничего не найдено
+    showNoResultsMessage(visibleCount === 0 && searchTerm !== '');
+
+    debugSearch();
+}
+
+// Функция для подсветки найденных терминов
+function highlightSearchTerms(card, searchTerm, searchNumbers) {
+    const titleElement = card.querySelector('.card-title');
+    const titleText = titleElement.textContent;
+
+    // Подсвечиваем в названии
+    const highlightedTitle = titleText.replace(
+        new RegExp(escapeRegExp(searchTerm), 'gi'),
+        match => `<span class="search-highlight">${match}</span>`
+    );
+    titleElement.innerHTML = highlightedTitle;
+
+    // Подсвечиваем в номере задачи если есть цифры для поиска
+    if (searchNumbers) {
+        const taskIdElement = card.querySelector('.task-id span');
+        const taskId = taskIdElement.textContent;
+        if (taskId.includes(searchNumbers)) {
+            taskIdElement.innerHTML = taskId.replace(
+                new RegExp(escapeRegExp(searchNumbers), 'gi'),
+                match => `<span class="search-highlight">${match}</span>`
+            );
+        }
+    }
+}
+
+// Функция для экранирования специальных символов в регулярных выражениях
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Функция для удаления подсветки
+function removeHighlights(card) {
+    const titleElement = card.querySelector('.card-title');
+    const taskIdElement = card.querySelector('.task-id span');
+
+    if (titleElement) {
+        titleElement.innerHTML = titleElement.textContent;
+    }
+    if (taskIdElement) {
+        taskIdElement.innerHTML = taskIdElement.textContent;
+    }
+}
+
+// Функция обновления счетчика найденных задач
+function updateFilteredTasksCount(count) {
+    const counterElement = document.getElementById('filteredTasksCount');
+    if (counterElement) {
+        counterElement.textContent = count;
+
+        // Добавляем класс для анимации
+        counterElement.classList.add('text-success');
+        setTimeout(() => {
+            counterElement.classList.remove('text-success');
+        }, 1000);
+    }
+}
+
+// Функция очистки поиска
+function clearSearch() {
+    const searchInput = document.getElementById('taskSearch');
+    if (searchInput) {
+        searchInput.value = '';
+        currentSearchTerm = '';
+        filterTasks();
+
+        // Фокус на поле поиска после очистки
+        searchInput.focus();
+    }
+}
+
+// Функция показа сообщения "ничего не найдено"
+function showNoResultsMessage(show) {
+    let noResultsElement = document.getElementById('noResultsMessage');
+
+    // Удаляем существующее сообщение если есть
+    if (noResultsElement) {
+        noResultsElement.remove();
+    }
+
+    if (show) {
+        noResultsElement = document.createElement('div');
+        noResultsElement.id = 'noResultsMessage';
+        noResultsElement.className = 'text-center py-5';
+        noResultsElement.innerHTML = `
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Задачи не найдены</h4>
+            <p class="text-muted">По запросу "<strong>${escapeHtml(currentSearchTerm)}</strong>" ничего не найдено</p>
+            <button class="btn btn-outline-primary mt-2" onclick="clearSearch()">
+                <i class="fas fa-times me-1"></i>Очистить поиск
+            </button>
+        `;
+
+        // Вставляем сообщение после строки поиска
+        const searchRow = document.querySelector('.row.mb-4');
+        if (searchRow) {
+            searchRow.parentNode.insertBefore(noResultsElement, searchRow.nextSibling);
+        }
+    }
+}
+
+// Обработка горячих клавиш
+function setupSearchHotkeys() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+F или / для фокуса на поиске
+        if ((e.ctrlKey && e.key === 'f') || e.key === '/') {
+            e.preventDefault();
+            const searchInput = document.getElementById('taskSearch');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }
+
+        // ESC для очистки поиска
+        if (e.key === 'Escape') {
+            const searchInput = document.getElementById('taskSearch');
+            if (searchInput && searchInput.value) {
+                clearSearch();
+            }
+        }
+    });
+}
+
+// Функция для перестроения сетки задач
+function rearrangeTaskGrid() {
+    const container = document.querySelector('.container .row:last-child');
+    if (!container) return;
+
+    // Собираем все видимые колонки
+    const visibleColumns = Array.from(container.querySelectorAll('.col-md-6.col-lg-4.mb-4[style="display: block"]'));
+
+    // Временно удаляем все колонки из контейнера
+    const allColumns = Array.from(container.querySelectorAll('.col-md-6.col-lg-4.mb-4'));
+    allColumns.forEach(column => column.remove());
+
+    // Добавляем обратно только видимые колонки в правильном порядке
+    visibleColumns.forEach(column => {
+        container.appendChild(column);
+    });
+}
+
+// Функция для отладки поиска
+function debugSearch() {
+    console.log('=== SEARCH DEBUG ===');
+    console.log('Search term:', currentSearchTerm);
+
+    const taskColumns = document.querySelectorAll('.col-md-6.col-lg-4.mb-4');
+    console.log('Total columns:', taskColumns.length);
+
+    let visibleCount = 0;
+    taskColumns.forEach((column, index) => {
+        const isVisible = column.style.display !== 'none';
+        if (isVisible) visibleCount++;
+
+        const card = column.querySelector('.task-card');
+        const taskId = card ? card.querySelector('.task-id span')?.textContent : 'no card';
+        const taskTitle = card ? card.querySelector('.card-title')?.textContent : 'no card';
+
+        console.log(`Column ${index}:`, {
+            visible: isVisible,
+            taskId: taskId,
+            taskTitle: taskTitle
+        });
+    });
+
+    console.log('Visible count:', visibleCount);
+    console.log('===================');
 }
 </script>
 <div id="userRoleInfo"

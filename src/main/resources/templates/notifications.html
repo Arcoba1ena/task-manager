@@ -317,7 +317,7 @@ function displayNotifications(notifications) {
     }
 }
 
-// Создание элемента уведомления
+// Функция создания элемента уведомления
 function createNotificationElement(notification) {
     const div = document.createElement('div');
     div.className = `card notification-item mb-3 ${notification.read ? 'notification-read' : 'unread'}`;
@@ -341,7 +341,8 @@ function createNotificationElement(notification) {
                             ${formatDate(notification.createdAt)}
                         </small>
                         ${hasTask ? `
-                        <button class="btn btn-sm btn-outline-primary ms-2"
+                        <!-- Кнопка "Перейти к задаче" всегда отображается если есть taskId -->
+                        <button class="btn btn-sm btn-outline-primary ms-2 task-link-btn"
                                 onclick="openTaskFromNotification(${notification.taskId}, ${notification.id})">
                             <i class="fas fa-external-link-alt me-1"></i>Перейти к задаче
                         </button>
@@ -350,17 +351,15 @@ function createNotificationElement(notification) {
                 </div>
                 <div class="notification-actions">
                     ${!isRead ? `
-                    <button class="btn btn-sm btn-outline-primary"
+                    <button class="btn btn-sm btn-outline-primary mark-as-read-btn"
                             onclick="markAsRead(${notification.id})"
                             title="Пометить как прочитанное">
                         <i class="fas fa-eye"></i>
                     </button>
                     ` : `
-                    <button class="btn btn-sm btn-outline-secondary" disabled title="Прочитано">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <!-- УБИРАЕМ дублирующую серую кнопку для прочитанных уведомлений -->
                     `}
-                    <button class="btn btn-sm btn-outline-danger ms-1"
+                    <button class="btn btn-sm btn-outline-danger ms-1 delete-notification-btn"
                             onclick="confirmDeleteNotification(${notification.id})"
                             title="Удалить уведомление">
                         <i class="fas fa-trash"></i>
@@ -399,7 +398,7 @@ async function markAsRead(notificationId) {
     let markAsReadButton = null;
 
     if (notificationElement) {
-        markAsReadButton = notificationElement.querySelector('.btn-outline-primary');
+        markAsReadButton = notificationElement.querySelector('.mark-as-read-btn');
         if (markAsReadButton) {
             // Показываем индикатор загрузки
             markAsReadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -408,7 +407,7 @@ async function markAsRead(notificationId) {
     }
 
     try {
-        // Оптимистичное обновление UI
+        // Оптимистичное обновление UI - убираем кнопку сразу
         updateNotificationUI(notificationId);
 
         const response = await fetch(`/notifications/api/notifications/${notificationId}/read`, {
@@ -439,11 +438,22 @@ async function markAsRead(notificationId) {
         showToast('Ошибка: ' + error.message, 'error');
 
         // В случае ошибки - возвращаем исходное состояние
-        if (markAsReadButton) {
+        if (markAsReadButton && notificationElement) {
             markAsReadButton.innerHTML = '<i class="fas fa-eye"></i>';
             markAsReadButton.disabled = false;
+
+            // Возвращаем бейдж "Новое"
+            notificationElement.classList.add('unread');
+            notificationElement.classList.remove('notification-read');
+
+            const titleElement = notificationElement.querySelector('.card-title');
+            if (titleElement && !titleElement.querySelector('.badge.bg-primary')) {
+                const newBadge = document.createElement('span');
+                newBadge.className = 'badge bg-primary ms-2';
+                newBadge.textContent = 'Новое';
+                titleElement.appendChild(newBadge);
+            }
         }
-        revertNotificationUI(notificationId);
     }
 }
 
@@ -529,7 +539,7 @@ async function markAllAsRead() {
     });
 }
 
-// Обновление UI уведомления
+// Обновление UI уведомления при пометке как прочитанное
 function updateNotificationUI(notificationId) {
     const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
     if (notificationElement) {
@@ -543,15 +553,10 @@ function updateNotificationUI(notificationId) {
             newBadge.remove();
         }
 
-        // Немедленно обновляем кнопку
-        const markAsReadButton = notificationElement.querySelector('.btn-outline-primary');
+        // Немедленно УДАЛЯЕМ кнопку "Пометить как прочитанное"
+        const markAsReadButton = notificationElement.querySelector('.mark-as-read-btn');
         if (markAsReadButton) {
-            markAsReadButton.innerHTML = '<i class="fas fa-eye"></i>';
-            markAsReadButton.classList.replace('btn-outline-primary', 'btn-outline-secondary');
-            markAsReadButton.disabled = true;
-            markAsReadButton.title = 'Прочитано';
-            // Убираем обработчик, чтобы нельзя было нажать снова
-            markAsReadButton.onclick = null;
+            markAsReadButton.remove();
         }
 
         console.log('UI updated for notification:', notificationId);
