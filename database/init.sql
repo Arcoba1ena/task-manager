@@ -76,16 +76,16 @@ TRUNCATE TABLE users CASCADE;
 
 -- Вставка тестовых данных с ПРОСТЫМИ паролями (для тестирования)
 INSERT INTO users (username, password, email, role, full_name) VALUES
-('admin', 'password123', 'admin@company.com', 'ADMIN', 'Администратор Системы'),
-('manager', 'password123', 'manager@company.com', 'MANAGER', 'Менеджер Проектов'),
-('executor1', 'password123', 'executor1@company.com', 'EXECUTOR', 'Исполнитель 1'),
-('executor2', 'password123', 'executor2@company.com', 'EXECUTOR', 'Исполнитель 2');
+('admin', 'password123', 'admin@company.ru', 'ADMIN', 'Администратор Системы'),
+('manager', 'password123', 'manager@company.ru', 'MANAGER', 'Менеджер Проектов'),
+('executor1', 'password123', 'executor1@company.ru', 'EXECUTOR', 'Исполнитель 1'),
+('executor2', 'password123', 'executor2@company.ru', 'EXECUTOR', 'Исполнитель 2');
 
 INSERT INTO projects (name, description, created_by) VALUES
-('Разработка TaskManager', 'Создание системы управления задачами', 2),
+('Разработка', 'Создание системы управления задачами', 2),
 ('Техническая поддержка', 'Обслуживание клиентов', 2);
 
 INSERT INTO tasks (title, description, status, priority, deadline, project_id, author_id, executor_id) VALUES
-('Настроить базу данных', 'Настроить PostgreSQL и подключить к приложению', 'TO_DO', 'HIGH', '2024-02-01 18:00:00', 1, 2, 3),
-('Разработать интерфейс', 'Создать пользовательский интерфейс для управления задачами', 'IN_PROGRESS', 'MEDIUM', '2024-02-10 18:00:00', 1, 2, 3),
-('Протестировать приложение', 'Провести тестирование всех функций', 'TO_DO', 'MEDIUM', '2024-02-15 18:00:00', 1, 2, 4);
+('Настроить базу данных', 'Настроить базу данных', 'TO_DO', 'HIGH', '2025-11-01 12:00:00', 1, 2, 3),
+('Разработать интерфейс', 'Создать пользовательский интерфейс', 'IN_PROGRESS', 'MEDIUM', '2025-12-10 18:00:00', 1, 2, 3),
+('Протестировать приложение', 'Провести тестирование всех функций', 'TO_DO', 'MEDIUM', '2025-12-15 19:30:00', 1, 2, 4);
