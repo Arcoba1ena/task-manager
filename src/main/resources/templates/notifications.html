@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">TaskManager - Уведомления</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .notification-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid #007bff;
+        margin-bottom: 1rem;
+         }
+        .notification-item.unread {
+            border-left-color: #dc3545;
+            background-color: #f8f9fa;
+        }
+         .notification-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .notification-read {
+            opacity: 0.7;
+        }
+         .notification-item.unread {
+        border-left-color: #007bff;
+        background-color: #f8f9fa;
+        }
+        .notification-item.notification-read {
+        border-left-color: #6c757d;
+        opacity: 0.8;
+         }
+        .notification-type-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+        }
+
+        .toast-container {
+        min-width: 350px;
+        max-width: 500px;
+        }
+        .toast {
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        margin-bottom: 10px;
+        }
+        .toast-body {
+        font-weight: 500;
+        padding: 12px 16px;
+        }
+        .toast.show {
+        animation: toastSlideIn 0.3s ease-out;
+        }
+        @keyframes toastSlideIn {
+        from {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    @media (max-width: 576px) {
+        .toast-container {
+            min-width: 90%;
+            max-width: 95%;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+        }
+    }
+
+.notification-item {
+    transition: all 0.3s ease;
+}
+
+.notification-item.fade-out {
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+.notification-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.notification-item:hover .notification-actions {
+    opacity: 1;
+}
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-tasks me-2"></i>TaskManager
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-white" href="/dashboard">
+                <i class="fas fa-tachometer-alt me-1"></i>Панель управления
+            </a>
+            <a class="nav-link text-white" href="/tasks">
+                <i class="fas fa-list-check me-1"></i>Задачи
+            </a>
+            <a class="nav-link text-white" href="/projects"
+               th:if="${#authentication != null && (#authentication.principal.role != 'EXECUTOR')}">
+                <i class="fas fa-folder me-1"></i>Проекты
+            </a>
+            <a class="nav-link text-white active" href="/notifications">
+                <i class="fas fa-bell me-1"></i>Уведомления
+                <span class="badge bg-danger notification-counter" style="display: none;">0</span>
+            </a>
+            <a class="nav-link text-white" href="/admin/users"
+               th:if="${#authentication != null && (#authentication.principal.role == 'ADMIN')}">
+                <i class="fas fa-users me-1"></i>Пользователи
+            </a>
+            <div class="nav-item dropdown">
+                <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user me-1"></i>
+                    <span th:text="${#authentication.name}">Пользователь</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><span class="dropdown-item-text">
+                        Пользователь: <strong><span th:text="${#authentication.name}">Имя</span></strong>
+                    </span></li>
+                    <li><span class="dropdown-item-text">
+                        Роль: <strong><span th:text="${#authentication.principal.role}">Роль</span></strong>
+                    </span></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt me-2"></i>Выйти
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-bell me-2"></i>Уведомления</h2>
+            <p class="text-muted">
+                Непрочитанных: <span th:text="${unreadCount}">0</span>
+                <span th:if="${unreadCount > 0}">
+                    | <a href="#" class="text-decoration-none" onclick="markAllAsRead()">Прочитать все</a>
+                </span>
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group">
+                <button class="btn btn-outline-primary" onclick="loadNotifications('all')">
+                    <i class="fas fa-list me-1"></i>Все
+                </button>
+                <button class="btn btn-outline-danger" onclick="loadNotifications('unread')">
+                    <i class="fas fa-envelope me-1"></i>Непрочитанные
+                </button>
+                <button class="btn btn-outline-danger" onclick="confirmDeleteAllRead()">
+                    <i class="fas fa-trash me-1"></i>Удалить прочитанные
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationsList">
+        <!-- Уведомления будут загружаться здесь -->
+    </div>
+
+    <div id="noNotifications" class="text-center py-5" style="display: none;">
+        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Уведомлений нет</h4>
+        <p class="text-muted">Здесь будут появляться уведомления о новых задачах и изменениях</p>
+    </div>
+
+    <div id="loadingSpinner" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="text-muted mt-2">Загрузка уведомлений...</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ========== NOTIFICATION SYSTEM ==========
+let currentFilter = 'all';
+let notificationsUpdateInterval;
+
+// Обертка для fetch с обработкой ошибок
+async function apiFetch(url, options = {}) {
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            ...options
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response;
+    } catch (error) {
+        console.error('API fetch error:', error);
+        throw error;
+    }
+}
+
+// Инициализация системы уведомлений
+function initNotificationSystem() {
+    console.log('Initializing fixed notification system...');
+
+    // Загружаем уведомления при открытии страницы
+    loadNotifications('all');
+
+    // Обновляем счетчик каждые 30 секунд
+    notificationsUpdateInterval = setInterval(() => {
+        updateNotificationCounter();
+    }, 30000);
+}
+
+// Загрузка уведомлений с улучшенной обработкой ошибок
+async function loadNotifications(filter) {
+    console.log('Loading notifications with filter:', filter);
+
+    currentFilter = filter;
+    const url = filter === 'unread' ? '/notifications/api/notifications/unread' : '/notifications/api/notifications';
+
+    showLoading(true);
+    hideError();
+    hideNoNotifications();
+
+    try {
+        console.log('Fetching from URL:', url);
+        const response = await fetch(url);
+
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+        }
+
+        const notifications = await response.json();
+        console.log('Received notifications:', notifications);
+
+        // Проверяем, что notifications - массив
+        if (!Array.isArray(notifications)) {
+            throw new Error('Server returned non-array response: ' + typeof notifications);
+        }
+
+        displayNotifications(notifications);
+
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+        showError('Ошибка загрузки уведомлений: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Отображение уведомлений с защитой от ошибок
+function displayNotifications(notifications) {
+    console.log('Displaying notifications:', notifications);
+
+    const container = document.getElementById('notificationsList');
+    const noNotifications = document.getElementById('noNotifications');
+
+    if (!container) {
+        console.error('Notifications container not found!');
+        return;
+    }
+
+    // Очищаем контейнер
+    container.innerHTML = '';
+
+    if (!notifications || notifications.length === 0) {
+        console.log('No notifications to display');
+        showNoNotifications();
+        return;
+    }
+
+    hideNoNotifications();
+
+    try {
+        // Создаем HTML для каждого уведомления
+        notifications.forEach(notification => {
+            try {
+                const notificationElement = createNotificationElement(notification);
+                container.appendChild(notificationElement);
+            } catch (elementError) {
+                console.error('Error creating notification element:', elementError);
+                // Создаем fallback элемент
+                const fallbackElement = createFallbackNotificationElement(notification);
+                container.appendChild(fallbackElement);
+            }
+        });
+
+        console.log('Successfully displayed', notifications.length, 'notifications');
+
+    } catch (displayError) {
+        console.error('Error in displayNotifications:', displayError);
+        showError('Ошибка отображения уведомлений: ' + displayError.message);
+    }
+}
+
+// Создание элемента уведомления
+function createNotificationElement(notification) {
+    const div = document.createElement('div');
+    div.className = `card notification-item mb-3 ${notification.read ? 'notification-read' : 'unread'}`;
+    div.setAttribute('data-notification-id', notification.id);
+
+    const isRead = notification.read === true;
+    const hasTask = notification.taskId != null;
+
+    div.innerHTML = `
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas ${getNotificationIcon(notification.type)} text-primary notification-type-icon"></i>
+                        <h5 class="card-title mb-0">${escapeHtml(notification.title || 'Без заголовка')}</h5>
+                        ${!isRead ? '<span class="badge bg-primary ms-2">Новое</span>' : ''}
+                    </div>
+                    <p class="card-text">${escapeHtml(notification.message || '')}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            ${formatDate(notification.createdAt)}
+                        </small>
+                        ${hasTask ? `
+                        <button class="btn btn-sm btn-outline-primary ms-2"
+                                onclick="openTaskFromNotification(${notification.taskId}, ${notification.id})">
+                            <i class="fas fa-external-link-alt me-1"></i>Перейти к задаче
+                        </button>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    ${!isRead ? `
+                    <button class="btn btn-sm btn-outline-primary"
+                            onclick="markAsRead(${notification.id})"
+                            title="Пометить как прочитанное">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ` : `
+                    <button class="btn btn-sm btn-outline-secondary" disabled title="Прочитано">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    `}
+                    <button class="btn btn-sm btn-outline-danger ms-1"
+                            onclick="confirmDeleteNotification(${notification.id})"
+                            title="Удалить уведомление">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return div;
+}
+
+// Fallback элемент для ошибок
+function createFallbackNotificationElement(notification) {
+    const div = document.createElement('div');
+    div.className = 'card notification-item mb-3 bg-warning';
+    div.innerHTML = `
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>
+                    <h6 class="mb-1">Ошибка загрузки уведомления</h6>
+                    <small class="text-muted">ID: ${notification.id || 'unknown'}</small>
+                </div>
+            </div>
+        </div>
+    `;
+    return div;
+}
+
+// Пометить уведомление как прочитанное
+async function markAsRead(notificationId) {
+    console.log('Marking notification as read:', notificationId);
+
+    const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+    let markAsReadButton = null;
+
+    if (notificationElement) {
+        markAsReadButton = notificationElement.querySelector('.btn-outline-primary');
+        if (markAsReadButton) {
+            // Показываем индикатор загрузки
+            markAsReadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            markAsReadButton.disabled = true;
+        }
+    }
+
+    try {
+        // Оптимистичное обновление UI
+        updateNotificationUI(notificationId);
+
+        const response = await fetch(`/notifications/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Обновляем счетчики
+        await updateNotificationCounter();
+
+        // Если фильтр "непрочитанные", обновляем список
+        if (currentFilter === 'unread') {
+            setTimeout(() => loadNotifications('unread'), 300);
+        }
+
+        showToast('Уведомление помечено как прочитанное', 'success');
+
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        showToast('Ошибка: ' + error.message, 'error');
+
+        // В случае ошибки - возвращаем исходное состояние
+        if (markAsReadButton) {
+            markAsReadButton.innerHTML = '<i class="fas fa-eye"></i>';
+            markAsReadButton.disabled = false;
+        }
+        revertNotificationUI(notificationId);
+    }
+}
+
+function revertNotificationUI(notificationId) {
+    const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+    if (notificationElement) {
+        notificationElement.classList.add('unread');
+        notificationElement.classList.remove('notification-read');
+
+        // Восстанавливаем бейдж "Новое"
+        const titleElement = notificationElement.querySelector('.card-title');
+        if (titleElement && !titleElement.querySelector('.badge.bg-primary')) {
+            const newBadge = document.createElement('span');
+            newBadge.className = 'badge bg-primary ms-2';
+            newBadge.textContent = 'Новое';
+            titleElement.appendChild(newBadge);
+        }
+
+        // Восстанавливаем кнопку
+        const markAsReadButton = notificationElement.querySelector('.btn-outline-secondary');
+        if (markAsReadButton) {
+            markAsReadButton.innerHTML = '<i class="fas fa-eye"></i>';
+            markAsReadButton.classList.replace('btn-outline-secondary', 'btn-outline-primary');
+            markAsReadButton.disabled = false;
+            markAsReadButton.title = 'Пометить как прочитанное';
+            markAsReadButton.onclick = function() { markAsRead(notificationId); };
+        }
+    }
+}
+
+// Пометить все уведомления как прочитанные
+async function markAllAsRead() {
+    const modal = new bootstrap.Modal(document.getElementById('confirmMarkAllModal'));
+    modal.show();
+
+    // Убираем предыдущие обработчики
+    const confirmBtn = document.getElementById('confirmMarkAllBtn');
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+    // Добавляем новый обработчик
+    newConfirmBtn.addEventListener('click', async function() {
+        modal.hide();
+
+        // Показываем индикатор загрузки на кнопке
+        const originalText = newConfirmBtn.innerHTML;
+        newConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Обработка...';
+        newConfirmBtn.disabled = true;
+
+        try {
+            const response = await fetch('/notifications/api/notifications/read-all', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            // Немедленно обновляем UI всех уведомлений
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                const notificationId = item.getAttribute('data-notification-id');
+                updateNotificationUI(notificationId);
+            });
+
+            // Перезагружаем уведомления
+            await loadNotifications(currentFilter);
+
+            showToast('Все уведомления помечены как прочитанные!', 'success');
+
+        } catch (error) {
+            console.error('Error marking all notifications as read:', error);
+            showToast('Ошибка: ' + error.message, 'error');
+        } finally {
+            // Восстанавливаем кнопку
+            newConfirmBtn.innerHTML = originalText;
+            newConfirmBtn.disabled = false;
+        }
+    });
+}
+
+// Обновление UI уведомления
+function updateNotificationUI(notificationId) {
+    const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+    if (notificationElement) {
+        // Немедленно обновляем стили
+        notificationElement.classList.remove('unread');
+        notificationElement.classList.add('notification-read');
+
+        // Немедленно убираем бейдж "Новое"
+        const newBadge = notificationElement.querySelector('.badge.bg-primary');
+        if (newBadge) {
+            newBadge.remove();
+        }
+
+        // Немедленно обновляем кнопку
+        const markAsReadButton = notificationElement.querySelector('.btn-outline-primary');
+        if (markAsReadButton) {
+            markAsReadButton.innerHTML = '<i class="fas fa-eye"></i>';
+            markAsReadButton.classList.replace('btn-outline-primary', 'btn-outline-secondary');
+            markAsReadButton.disabled = true;
+            markAsReadButton.title = 'Прочитано';
+            // Убираем обработчик, чтобы нельзя было нажать снова
+            markAsReadButton.onclick = null;
+        }
+
+        console.log('UI updated for notification:', notificationId);
+    }
+}
+
+// Обновление счетчика уведомлений
+async function updateNotificationCounter() {
+    try {
+        console.log('Updating notification counter...');
+        const response = await fetch('/notifications/api/notifications/count');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const count = await response.json();
+        console.log('Notification count received:', count);
+
+        // Обновляем все счетчики на странице
+        updateAllNotificationCounters(count);
+
+        return count;
+    } catch (error) {
+        console.error('Error updating notification counter:', error);
+        updateAllNotificationCounters(0);
+        return 0;
+    }
+}
+
+// Обновление всех счетчиков на странице
+function updateAllNotificationCounters(count) {
+    // Счетчик в навигации
+    const navCounters = document.querySelectorAll('.notification-counter');
+    navCounters.forEach(counter => {
+        if (count > 0) {
+            counter.textContent = count > 99 ? '99+' : count;
+            counter.style.display = 'inline';
+        } else {
+            counter.style.display = 'none';
+        }
+    });
+
+    // Счетчик на странице уведомлений
+    const pageCounter = document.querySelector('p.text-muted span');
+    if (pageCounter) {
+        pageCounter.textContent = count;
+    }
+}
+
+// Вспомогательные функции UI
+function showLoading(show) {
+    const loadingElement = document.getElementById('loadingSpinner');
+    if (loadingElement) {
+        loadingElement.style.display = show ? 'block' : 'none';
+    }
+}
+
+function showError(message) {
+    const container = document.getElementById('notificationsList');
+    if (container) {
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${escapeHtml(message)}
+            </div>
+        `;
+    }
+    hideLoading();
+    hideNoNotifications();
+}
+
+function hideError() {
+    const container = document.getElementById('notificationsList');
+    if (container) {
+        const alert = container.querySelector('.alert-danger');
+        if (alert) {
+            alert.remove();
+        }
+    }
+}
+
+function showNoNotifications() {
+    const element = document.getElementById('noNotifications');
+    if (element) {
+        element.style.display = 'block';
+    }
+}
+
+function hideNoNotifications() {
+    const element = document.getElementById('noNotifications');
+    if (element) {
+        element.style.display = 'none';
+    }
+}
+
+function hideLoading() {
+    showLoading(false);
+}
+
+// Утилиты
+function getNotificationIcon(type) {
+    const iconMap = {
+        'TASK_CREATED': 'fa-plus-circle',
+        'TASK_UPDATED': 'fa-edit',
+        'STATUS_CHANGED': 'fa-exchange-alt',
+        'ASSIGNED_TO_TASK': 'fa-user-plus',
+        'TASK_COMPLETED': 'fa-check-circle',
+        'ERROR': 'fa-exclamation-triangle'
+    };
+    return iconMap[type] || 'fa-bell';
+}
+
+function escapeHtml(text) {
+    if (text == null) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatDate(dateTimeString) {
+    try {
+        if (!dateTimeString) return 'Дата неизвестна';
+
+        // Обработка LocalDateTime из Java (формат: "2024-01-15T10:30:00")
+        const date = new Date(dateTimeString);
+
+        if (isNaN(date.getTime())) {
+            // Попробуем обработать как LocalDateTime без времени
+            const localDate = new Date(dateTimeString + 'T00:00:00');
+            return !isNaN(localDate.getTime()) ?
+                localDate.toLocaleDateString('ru-RU') :
+                'Неверная дата';
+        }
+
+        return date.toLocaleString('ru-RU');
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Ошибка даты';
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toastTypes = {
+        'success': {
+            element: document.getElementById('successToast'),
+            icon: 'fa-check-circle',
+            className: 'text-bg-success'
+        },
+        'error': {
+            element: document.getElementById('errorToast'),
+            icon: 'fa-exclamation-circle',
+            className: 'text-bg-danger'
+        },
+        'danger': {
+            element: document.getElementById('errorToast'),
+            icon: 'fa-exclamation-circle',
+            className: 'text-bg-danger'
+        },
+        'info': {
+            element: document.getElementById('infoToast'),
+            icon: 'fa-info-circle',
+            className: 'text-bg-info'
+        }
+    };
+
+    const toastConfig = toastTypes[type] || toastTypes.info;
+    const toastElement = toastConfig.element;
+
+    if (!toastElement) {
+        console.error('Toast element not found for type:', type);
+        return;
+    }
+
+    // Устанавливаем сообщение
+    const messageElement = toastElement.querySelector('.toast-message');
+    if (messageElement) {
+        messageElement.textContent = message;
+    }
+
+    // Устанавливаем иконку
+    const iconElement = toastElement.querySelector('.fas');
+    if (iconElement) {
+        iconElement.className = `fas ${toastConfig.icon} me-2`;
+    }
+
+    // Создаем экземпляр toast
+    const toast = new bootstrap.Toast(toastElement, {
+        autohide: true,
+        delay: 4000
+    });
+
+    // Показываем toast
+    toast.show();
+
+    console.log(`Toast shown: ${type} - ${message}`);
+}
+
+function showAlert(message, type) {
+    // Простая реализация алерта
+    alert(message);
+}
+
+// Открытие задачи из уведомления с автоматической пометкой как прочитанного
+async function openTaskFromNotification(taskId, notificationId) {
+    console.log('Opening task from notification. Task:', taskId, 'Notification:', notificationId);
+
+    try {
+        // Если есть notificationId, помечаем уведомление как прочитанное
+        if (notificationId) {
+            console.log('Marking notification as read before opening task:', notificationId);
+
+            // Оптимистичное обновление UI
+            updateNotificationUI(notificationId);
+
+            // Отправляем запрос, но не ждем ответа для ускорения перехода
+            fetch(`/notifications/api/notifications/${notificationId}/read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Notification marked as read successfully');
+                    updateNotificationCounter();
+                }
+            }).catch(error => {
+                console.warn('Failed to mark notification as read:', error);
+            });
+        }
+
+        // Немедленный переход к задаче
+        window.location.href = `/tasks?openTask=${taskId}`;
+
+    } catch (error) {
+        console.error('Error in openTaskFromNotification:', error);
+        // В случае ошибки все равно переходим к задаче
+        window.location.href = `/tasks?openTask=${taskId}`;
+    }
+}
+
+// Вспомогательная функция для получения notificationId из элемента
+function getNotificationIdFromElement(element) {
+    const notificationItem = element.closest('.notification-item');
+    return notificationItem ? notificationItem.getAttribute('data-notification-id') : null;
+}
+
+// Обработчик для всех ссылок, ведущих к задачам из уведомлений
+document.addEventListener('click', function(e) {
+    const taskLink = e.target.closest('[data-task-link][data-notification-id]');
+    if (taskLink) {
+        e.preventDefault();
+        const taskId = taskLink.getAttribute('data-task-id');
+        const notificationId = taskLink.getAttribute('data-notification-id');
+        openTaskFromNotification(taskId, notificationId);
+    }
+});
+
+// Переменные для хранения ID уведомлений для удаления
+let notificationToDelete = null;
+
+// Подтверждение удаления одного уведомления
+function confirmDeleteNotification(notificationId) {
+    notificationToDelete = notificationId;
+    const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    modal.show();
+}
+
+// Подтверждение удаления всех прочитанных уведомлений
+function confirmDeleteAllRead() {
+    const modal = new bootstrap.Modal(document.getElementById('confirmDeleteAllReadModal'));
+    modal.show();
+}
+
+// Удаление одного уведомления
+async function deleteNotification() {
+    if (!notificationToDelete) return;
+
+    try {
+        const response = await apiFetch(`/notifications/api/notifications/${notificationToDelete}`, {
+            method: 'DELETE'
+        });
+
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal'));
+        modal.hide();
+
+        // Удаляем уведомление из UI
+        const notificationElement = document.querySelector(`[data-notification-id="${notificationToDelete}"]`);
+        if (notificationElement) {
+            notificationElement.style.opacity = '0';
+            setTimeout(() => {
+                notificationElement.remove();
+
+                // Проверяем, не пустой ли список
+                const notifications = document.querySelectorAll('.notification-item');
+                if (notifications.length === 0) {
+                    showNoNotifications();
+                }
+            }, 300);
+        }
+
+        // Обновляем счетчик
+        await updateNotificationCounter();
+
+        showToast('Уведомление удалено', 'success');
+
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        showToast('Ошибка при удалении уведомления: ' + error.message, 'error');
+    } finally {
+        notificationToDelete = null;
+    }
+}
+
+// Удаление всех прочитанных уведомлений
+async function deleteAllReadNotifications() {
+    try {
+        const response = await apiFetch('/notifications/api/notifications/read', {
+            method: 'DELETE'
+        });
+
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteAllReadModal'));
+        modal.hide();
+
+        // Удаляем прочитанные уведомления из UI
+        document.querySelectorAll('.notification-item.notification-read').forEach(item => {
+            item.style.opacity = '0';
+            setTimeout(() => item.remove(), 300);
+        });
+
+        // Обновляем счетчик
+        await updateNotificationCounter();
+
+        // Проверяем, не пустой ли список
+        const notifications = document.querySelectorAll('.notification-item');
+        if (notifications.length === 0) {
+            showNoNotifications();
+        }
+
+        showToast('Все прочитанные уведомления удалены', 'success');
+
+    } catch (error) {
+        console.error('Error deleting all read notifications:', error);
+        showToast('Ошибка при удалении прочитанных уведомлений: ' + error.message, 'error');
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing notification system...');
+    initNotificationSystem();
+
+    // Обработчик для удаления одного уведомления
+    document.getElementById('confirmDeleteBtn').addEventListener('click', deleteNotification);
+
+    // Обработчик для удаления всех прочитанных
+    document.getElementById('confirmDeleteAllReadBtn').addEventListener('click', deleteAllReadNotifications);
+
+    // Сброс переменных при закрытии модальных окон
+    document.getElementById('confirmDeleteModal').addEventListener('hidden.bs.modal', function () {
+        notificationToDelete = null;
+    });
+
+    // Очистка при закрытии страницы
+    window.addEventListener('beforeunload', function() {
+        if (notificationsUpdateInterval) {
+            clearInterval(notificationsUpdateInterval);
+        }
+    });
+});
+</script>
+
+<!-- Toast контейнер для уведомлений -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1100">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
+         aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+        </div>
+    </div>
+
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive"
+         aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+        </div>
+    </div>
+
+    <div id="infoToast" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="assertive"
+         aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-info-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения для "Прочитать все" -->
+<div class="modal fade" id="confirmMarkAllModal" tabindex="-1" aria-labelledby="confirmMarkAllModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmMarkAllModalLabel">
+                    <i class="fas fa-question-circle text-primary me-2"></i>
+                    Подтверждение
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-envelope-open-text fa-2x text-primary mb-3"></i>
+                <h6>Пометить все уведомления как прочитанные?</h6>
+                <p class="text-muted small">Это действие нельзя отменить</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Отмена
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmMarkAllBtn">
+                    <i class="fas fa-check me-1"></i>Да, прочитать все
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления уведомления -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Удаление уведомления
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-trash-alt fa-2x text-warning mb-3"></i>
+                <h6>Вы уверены, что хотите удалить это уведомление?</h6>
+                <p class="text-muted small">Это действие нельзя отменить</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Отмена
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления всех прочитанных -->
+<div class="modal fade" id="confirmDeleteAllReadModal" tabindex="-1" aria-labelledby="confirmDeleteAllReadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteAllReadModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Удаление прочитанных уведомлений
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-trash-alt fa-2x text-warning mb-3"></i>
+                <h6>Удалить все прочитанные уведомления?</h6>
+                <p class="text-muted small">Это действие нельзя отменить. Будут удалены все уведомления, помеченные как прочитанные.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Отмена
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteAllReadBtn">
+                    <i class="fas fa-trash me-1"></i>Удалить все прочитанные
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

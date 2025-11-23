@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">TaskManager - Задачи</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #007bff;
+            margin-bottom: 1rem;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .priority-high { border-left-color: #dc3545; }
+        .priority-medium { border-left-color: #ffc107; }
+        .priority-low { border-left-color: #28a745; }
+        .task-actions {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .task-card:hover .task-actions {
+            opacity: 1;
+        }
+
+.form-control:disabled, .form-select:disabled,
+.form-control[readonly], .form-select[readonly] {
+    background-color: #e9ecef !important;
+    color: #6c757d !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+.form-control:disabled::placeholder, .form-control[readonly]::placeholder {
+    color: #adb5bd !important;
+}
+
+.bg-light {
+    background-color: #e9ecef !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Стиль для активного поля статуса */
+#taskStatus:not(:disabled) {
+    background-color: white !important;
+    color: #212529 !important;
+    cursor: pointer !important;
+}
+
+/* Стили для комментариев */
+.comment-item {
+    border-left: 3px solid #007bff;
+    padding-left: 10px;
+    margin-bottom: 15px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.comment-header {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.comment-text {
+    margin-bottom: 5px;
+    white-space: pre-wrap;
+}
+
+.comment-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.comment-item:hover .comment-actions {
+    opacity: 1;
+}
+
+.comment-count {
+    font-size: 0.7em;
+    margin-left: 5px;
+}
+
+/* Стили для режима редактирования комментария */
+.comment-edit-mode .comment-text {
+    display: none;
+}
+
+.comment-edit-textarea {
+    width: 100%;
+    min-height: 80px;
+    margin-bottom: 10px;
+}
+
+.comment-edit-actions {
+    margin-top: 10px;
+}
+
+.comment-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.comment-item:hover .comment-actions {
+    opacity: 1;
+}
+
+/* Стили для вложений */
+.attachments-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.attachment-item {
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.attachment-item:hover {
+    background-color: #e9ecef;
+}
+
+.attachment-info {
+    flex: 1;
+}
+
+.attachment-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.attachment-meta {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.attachment-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.attachment-item:hover .attachment-actions {
+    opacity: 1;
+}
+
+.file-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    color: #6c757d;
+}
+
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.upload-area:hover {
+    border-color: #007bff;
+    background-color: #e7f3ff;
+}
+
+.upload-area.dragover {
+    border-color: #007bff;
+    background-color: #d1ecff;
+}
+
+#uploadForm button {
+    cursor: pointer;
+}
+
+/* Стили для Toast уведомлений */
+.toast-container {
+    min-width: 350px;
+    max-width: 500px;
+}
+
+.toast {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.toast-body {
+    font-weight: 500;
+    padding: 12px 16px;
+}
+
+.toast.show {
+    animation: toastSlideIn 0.3s ease-out;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 576px) {
+    .toast-container {
+        min-width: 90%;
+        max-width: 95%;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+}
+
+/* Дополнительные анимации для toast */
+.toast {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast.hide {
+    opacity: 0;
+    transform: translateY(100px) scale(0.8);
+}
+
+/* Эффект при наведении */
+.toast:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-tasks me-2"></i>TaskManager
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-white" href="/dashboard">
+                <i class="fas fa-tachometer-alt me-1"></i>Панель управления
+            </a>
+            <a class="nav-link text-white" href="/tasks">
+                <i class="fas fa-list-check me-1"></i>Задачи
+            </a>
+            <!-- Скрываем Проекты для исполнителя -->
+            <a class="nav-link text-white" href="/projects"
+               th:if="${#authentication != null && (#authentication.principal.role != 'EXECUTOR')}">
+                <i class="fas fa-folder me-1"></i>Проекты
+            </a>
+            <!-- Ссылка на уведомления (для всех авторизованных пользователей) -->
+            <a class="nav-link text-white" href="/notifications">
+                <i class="fas fa-bell me-1"></i>Уведомления
+                <span class="badge bg-danger notification-counter" style="display: none;">0</span>
+            </a>
+            <!-- Скрываем Пользователи для не-администраторов -->
+            <a class="nav-link text-white" href="/admin/users"
+               th:if="${#authentication != null && (#authentication.principal.role == 'ADMIN')}">
+                <i class="fas fa-users me-1"></i>Пользователи
+            </a>
+            <a class="nav-link text-white" href="/api/tasks" target="_blank">
+                <i class="fas fa-code me-1"></i>API
+            </a>
+            <div class="nav-item dropdown">
+                <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user me-1"></i>
+                    <span th:text="${#authentication.name}">Пользователь</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><span class="dropdown-item-text">
+                        Пользователь: <strong><span th:text="${#authentication.name}">Имя</span></strong>
+                    </span></li>
+                    <li><span class="dropdown-item-text">
+                        Роль: <strong><span th:text="${#authentication.principal.role}">Роль</span></strong>
+                    </span></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt me-2"></i>Выйти
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Заголовок и статистика -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-list-check me-2"></i>Управление задачами</h2>
+            <p class="text-muted">Всего задач: <span th:text="${tasksCount}">0</span></p>
+        </div>
+        <div class="col-md-4 text-end" th:if="${canCreateTasks}">
+            <button class="btn btn-primary" onclick="showCreateTaskForm()">
+                <i class="fas fa-plus me-1"></i>Создать задачу
+            </button>
+        </div>
+    </div>
+
+    <!-- Список задач -->
+    <div class="row">
+        <div th:each="task : ${tasks}" class="col-md-6 col-lg-4 mb-4">
+            <div class="card task-card h-100"
+                 th:classappend="${task.priority.name() == 'HIGH'} ? 'priority-high' :
+                             (${task.priority.name() == 'MEDIUM'} ? 'priority-medium' : 'priority-low')">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0" th:text="${task.title}">Название задачи</h6>
+                        <div class="task-actions">
+                            <button class="btn btn-sm btn-outline-primary me-1 edit-task-btn"
+                                    th:attr="data-task-id=${task.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <!-- Скрываем кнопку удаления для исполнителя -->
+                            <button class="btn btn-sm btn-outline-danger delete-task-btn"
+                                    th:attr="data-task-id=${task.id}"
+                                    th:data-task-title="${task.title}"
+                                    th:if="${!isExecutor}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <!-- Кнопка для комментариев -->
+                            <button class="btn btn-sm btn-outline-info comments-btn"
+                                    th:attr="data-task-id=${task.id}"
+                                    th:onclick="'openCommentsModal(' + ${task.id} + ')'">
+                                <i class="fas fa-comments me-1"></i>Комментарии
+                                <span class="badge bg-secondary comment-count"
+                                      th:attr="data-task-id=${task.id}">0</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="card-text text-muted small" th:text="${task.description} ?: 'Описание отсутствует'">
+                        Описание задачи</p>
+
+                    <div class="task-meta mb-3">
+                        <div class="mb-1">
+                            <small class="text-muted">
+                                <i class="fas fa-project-diagram me-1"></i>
+                                <span th:text="${task.project?.name} ?: 'Без проекта'">Проект</span>
+                            </small>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>
+                                <span th:text="${task.executor?.fullName} ?: 'Не назначен'">Исполнитель</span>
+                            </small>
+                        </div>
+                        <div th:if="${task.deadline}" class="mb-1">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                <span th:text="${#temporals.format(task.deadline, 'dd.MM.yyyy HH:mm')}">Дедлайн</span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge"
+                          th:classappend="${task.status.name() == 'TO_DO'} ? 'bg-secondary' :
+                                          (${task.status.name() == 'IN_PROGRESS'} ? 'bg-primary' :
+                                          (${task.status.name() == 'DONE'} ? 'bg-success' : 'bg-warning'))"
+                          th:text="${task.status.name() == 'TO_DO'} ? 'К выполнению' :
+                                   (${task.status.name() == 'IN_PROGRESS'} ? 'В работе' :
+                                   (${task.status.name() == 'DONE'} ? 'Выполнено' : 'На проверке'))">
+                        Статус
+                    </span>
+                        <span class="badge"
+                              th:classappend="${task.priority.name() == 'HIGH'} ? 'bg-danger' :
+                                          (${task.priority.name() == 'MEDIUM'} ? 'bg-warning' : 'bg-success')"
+                              th:text="${task.priority.name() == 'HIGH'} ? 'Высокий' :
+                                   (${task.priority.name() == 'MEDIUM'} ? 'Средний' : 'Низкий')">
+                        Приоритет
+                    </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сообщение если задач нет -->
+    <div th:if="${tasksCount == 0}" class="text-center py-5">
+        <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Задачи не найдены</h4>
+        <p class="text-muted">Создайте первую задачу, нажав на кнопку "Создать задачу"</p>
+    </div>
+</div>
+
+<!-- Модальное окно для создания/редактирования задачи -->
+<div class="modal fade" id="taskModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskModalTitle">Создание новой задачи</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Навигация по вкладкам -->
+                <ul class="nav nav-tabs" id="taskTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="details-tab" data-bs-toggle="tab"
+                                data-bs-target="#details" type="button" role="tab">
+                            <i class="fas fa-info-circle me-1"></i>Основное
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="attachments-tab" data-bs-toggle="tab"
+                                data-bs-target="#attachments" type="button" role="tab">
+                            <i class="fas fa-paperclip me-1"></i>Вложения
+                            <span class="badge bg-secondary ms-1" id="attachmentsCount">0</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Содержимое вкладок -->
+                <div class="tab-content p-3" id="taskTabsContent">
+                    <!-- Вкладка с основными данными -->
+                    <div class="tab-pane fade show active" id="details" role="tabpanel">
+                        <form id="taskForm">
+                            <input type="hidden" id="taskId" name="id">
+
+                            <!-- Общее сообщение для исполнителя -->
+                            <div class="alert alert-info" id="executorEditMessage" style="display: none;">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Вы можете изменять только статус задачи. Для изменения других параметров обратитесь к менеджеру.
+                                </small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="taskTitle" class="form-label">Название задачи *</label>
+                                        <input type="text" class="form-control" id="taskTitle" name="title" required
+                                               placeholder="Введите название задачи">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="taskPriority" class="form-label">Приоритет *</label>
+                                        <select class="form-select" id="taskPriority" name="priority" required>
+                                            <option value="LOW">Низкий</option>
+                                            <option value="MEDIUM" selected>Средний</option>
+                                            <option value="HIGH">Высокий</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="taskDescription" class="form-label">Описание</label>
+                                <textarea class="form-control" id="taskDescription" name="description" rows="3"
+                                          placeholder="Подробное описание задачи..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="taskStatus" class="form-label">Статус *</label>
+                                        <select class="form-select" id="taskStatus" name="status" required>
+                                            <option value="TO_DO">К выполнению</option>
+                                            <option value="IN_PROGRESS">В работе</option>
+                                            <option value="DONE">Выполнено</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="taskDeadline" class="form-label">Дедлайн</label>
+                                        <input type="datetime-local" class="form-control" id="taskDeadline" name="deadline">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="taskProject" class="form-label">Проект</label>
+                                        <select class="form-select" id="taskProject" name="projectId">
+                                            <option value="">Без проекта</option>
+                                            <!-- Динамически заполняем проекты -->
+                                            <option th:each="project : ${projects}"
+                                                    th:value="${project.id}"
+                                                    th:text="${project.name}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="taskExecutor" class="form-label">Исполнитель</label>
+                                        <select class="form-select" id="taskExecutor" name="executorId">
+                                            <option value="">Не назначен</option>
+                                            <!-- Динамически заполняем исполнителей -->
+                                            <option th:each="executor : ${executors}"
+                                                    th:value="${executor.id}"
+                                                    th:text="${executor.fullName} + ' (' + ${executor.role} + ')'">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Вкладка с вложениями -->
+                    <div class="tab-pane fade" id="attachments" role="tabpanel">
+                        <div id="attachmentsSection">
+                            <!-- Область загрузки файлов -->
+                            <div class="mb-4">
+                                <h6>Добавить вложение</h6>
+
+                                <!-- Drag & Drop область -->
+                                <div class="upload-area" id="uploadArea">
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-3"></i>
+                                        <p class="mb-2">Перетащите файлы сюда или нажмите для выбора</p>
+                                        <p class="small text-muted">Разрешены: txt, docx, xlsx, jpg, jpeg, png (макс. 10MB)</p>
+                                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="selectFilesBtn">
+                                            <i class="fas fa-folder-open me-1"></i>Выбрать файлы
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Скрытый input для выбора файлов -->
+                                <input class="d-none" type="file" id="fileInput"
+                                       accept=".txt,.docx,.xlsx,.jpg,.jpeg,.png" multiple>
+
+                                <!-- Прогресс загрузки -->
+                                <div id="uploadProgress" class="mt-3" style="display: none;">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="text-center small mt-1">
+                                        <span id="uploadStatus">Загрузка...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Список вложений -->
+                            <div>
+                                <h6>Прикрепленные файлы</h6>
+                                <div id="attachmentsList" class="attachments-container">
+                                    <!-- Вложения будут загружаться здесь -->
+                                </div>
+                                <div id="noAttachmentsMessage" class="text-center text-muted py-4">
+                                    <i class="fas fa-paperclip fa-2x mb-2"></i>
+                                    <p>Нет прикрепленных файлов</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="deleteTaskBtn"
+                        th:if="${!isExecutor}" style="display: none;" onclick="deleteTask()">Удалить</button>
+                <button type="button" class="btn btn-primary" onclick="saveTask()">Сохранить задачу</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно для комментариев -->
+<div class="modal fade" id="commentsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="commentsModalTitle">Комментарии к задаче</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="commentsList" class="mb-3" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Комментарии будут загружаться здесь -->
+                </div>
+
+                <form id="commentForm">
+                    <input type="hidden" id="commentTaskId">
+                    <div class="mb-3">
+                        <label for="commentText" class="form-label">Новый комментарий</label>
+                        <textarea class="form-control" id="commentText" rows="3"
+                                  placeholder="Введите ваш комментарий..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Отправить
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно подтверждения удаления комментария -->
+<div class="modal fade" id="deleteCommentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот комментарий?</p>
+                <p class="text-muted small">Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteCommentBtn">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно подтверждения удаления задачи -->
+<div class="modal fade" id="confirmDeleteTaskModal" tabindex="-1" aria-labelledby="confirmDeleteTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteTaskModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Удаление задачи
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-trash-alt fa-2x text-warning mb-3"></i>
+                <h6 id="confirmDeleteTaskMessage">Вы уверены, что хотите удалить эту задачу?</h6>
+                <p class="text-muted small">Это действие нельзя отменить</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Отмена
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteTaskBtn">
+                    <i class="fas fa-trash me-1"></i>Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentTaskId = null;
+let isExecutor = false;
+let taskModal = null;
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Сначала получаем информацию о роли пользователя
+    const userRoleInfo = document.getElementById('userRoleInfo');
+    if (userRoleInfo) {
+        isExecutor = userRoleInfo.getAttribute('data-is-executor') === 'true';
+    }
+
+    // Отладочная информация - теперь isExecutor уже инициализирована
+    console.log('=== TASK MANAGER DEBUG INFO ===');
+    console.log('isExecutor from Thymeleaf:', isExecutor);
+    console.log('User role element:', userRoleInfo);
+    console.log('User role data:', userRoleInfo ? userRoleInfo.getAttribute('data-is-executor') : 'not found');
+
+    // Инициализируем модальное окно
+    const modalElement = document.getElementById('taskModal');
+    if (modalElement) {
+        taskModal = new bootstrap.Modal(modalElement);
+
+        // Добавляем обработчик на открытие модального окна для двойной проверки
+        modalElement.addEventListener('show.bs.modal', function() {
+            console.log('Modal opened, checking permissions...');
+            if (isExecutor && currentTaskId) {
+                console.log('Double-checking disabled fields for executor');
+                disableFieldsExceptStatus();
+            }
+        });
+
+    // Обработчик для кнопки подтверждения удаления задачи
+    document.getElementById('confirmDeleteTaskBtn').addEventListener('click', performTaskDeletion);
+
+    // Сброс данных при закрытии модального окна
+    document.getElementById('confirmDeleteTaskModal').addEventListener('hidden.bs.modal', function () {
+        taskToDelete.id = null;
+        taskToDelete.title = null;
+    });
+    }
+
+    // Добавляем обработчики событий для кнопок редактирования и удаления
+    document.querySelectorAll('.edit-task-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            editTask(taskId);
+        });
+    });
+
+    document.querySelectorAll('.delete-task-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            const taskTitle = this.getAttribute('data-task-title');
+            deleteTaskDirect(taskId, taskTitle);
+        });
+    });
+
+    console.log('Page initialized. isExecutor:', isExecutor);
+});
+
+// Функция для удаления задачи
+function deleteTaskDirect(taskId, taskTitle) {
+    if (isExecutor) {
+        showToast('У вас нет прав для удаления задач. Обратитесь к менеджеру.', 'error');
+        return;
+    }
+
+    if (confirm('Вы уверены, что хотите удалить задачу "' + taskTitle + '"?')) {
+        fetch('/api/tasks/' + taskId, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                showToast('Задача успешно удалена!', 'success');
+                // Обновляем счетчик уведомлений
+                setTimeout(() => {
+                    updateNotificationCounter();
+                }, 500);
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                throw new Error('Ошибка при удалении');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting task:', error);
+            showToast('Ошибка при удалении задачи: ' + error.message, 'error');
+        });
+    }
+}
+
+// Основная функция редактирования
+function editTask(taskId) {
+    console.log('editTask called with ID:', taskId, 'isExecutor:', isExecutor);
+
+    if (!taskModal) {
+        console.error('Modal not initialized');
+        alert('Ошибка инициализации модального окна');
+        return;
+    }
+
+    currentTaskId = taskId;
+    document.getElementById('taskModalTitle').textContent = 'Редактирование задачи';
+
+    // Сразу применяем ограничения, если это исполнитель
+    if (isExecutor) {
+        document.getElementById('deleteTaskBtn').style.display = 'none';
+        document.getElementById('executorEditMessage').style.display = 'block';
+        // Предварительно отключаем поля
+        disableFieldsExceptStatus();
+    } else {
+        document.getElementById('deleteTaskBtn').style.display = 'block';
+        document.getElementById('executorEditMessage').style.display = 'none';
+        enableAllFields();
+    }
+
+    // Загружаем данные задачи
+    fetch('/api/tasks/' + taskId)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Задача не найдена');
+            }
+            return response.json();
+        })
+        .then(task => {
+            console.log('Task data loaded:', task);
+
+            // Заполняем форму данными задачи
+            document.getElementById('taskId').value = task.id;
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskStatus').value = task.status;
+            document.getElementById('taskPriority').value = task.priority;
+
+            if (task.deadline) {
+                const deadline = new Date(task.deadline);
+                document.getElementById('taskDeadline').value = deadline.toISOString().slice(0, 16);
+            } else {
+                document.getElementById('taskDeadline').value = '';
+            }
+
+            // Устанавливаем проект если есть
+            if (task.project && task.project.id) {
+                document.getElementById('taskProject').value = task.project.id;
+            } else {
+                document.getElementById('taskProject').value = '';
+            }
+
+            // Устанавливаем исполнителя если есть
+            if (task.executor && task.executor.id) {
+                document.getElementById('taskExecutor').value = task.executor.id;
+            } else {
+                document.getElementById('taskExecutor').value = '';
+            }
+
+            // Финальная проверка прав доступа
+            if (isExecutor) {
+                console.log('Final check: applying restrictions for executor');
+                disableFieldsExceptStatus();
+            } else {
+                console.log('Final check: enabling all fields for manager/admin');
+                enableAllFields();
+            }
+
+            // Показываем модальное окно
+            taskModal.show();
+        })
+        .catch(error => {
+            console.error('Error loading task:', error);
+            alert('Ошибка при загрузке задачи: ' + error.message);
+        });
+}
+
+function disableFieldsExceptStatus() {
+    console.log('Disabling fields for executor (except status)...');
+
+    // Список полей, которые нужно отключить для исполнителя
+    const fieldsToDisable = [
+        'taskTitle', 'taskDescription', 'taskPriority',
+        'taskDeadline', 'taskProject', 'taskExecutor'
+    ];
+
+    fieldsToDisable.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.disabled = true;
+            field.readOnly = true;
+            field.classList.add('bg-light', 'text-muted');
+            field.style.cursor = 'not-allowed';
+            console.log('✓ Disabled field:', fieldId);
+        }
+    });
+
+    // Статус оставляем доступным для исполнителя
+    const statusField = document.getElementById('taskStatus');
+    if (statusField) {
+        statusField.disabled = false;
+        statusField.readOnly = false;
+        statusField.classList.remove('bg-light', 'text-muted');
+        statusField.style.cursor = 'pointer';
+        console.log('✓ Enabled field: taskStatus for executor');
+    }
+}
+
+function enableAllFields() {
+    console.log('Enabling all fields...');
+
+    const allFields = [
+        'taskTitle', 'taskDescription', 'taskPriority',
+        'taskStatus', 'taskDeadline', 'taskProject', 'taskExecutor'
+    ];
+
+    allFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.disabled = false;
+            field.readOnly = false;
+            field.classList.remove('bg-light', 'text-muted');
+            field.style.cursor = 'default';
+            field.style.pointerEvents = 'auto';
+            console.log('✓ Enabled field:', fieldId);
+        }
+    });
+}
+
+function showCreateTaskForm() {
+    if (isExecutor) {
+        alert('У вас нет прав для создания задач. Обратитесь к менеджеру.');
+        return;
+    }
+
+    currentTaskId = null;
+    document.getElementById('taskModalTitle').textContent = 'Создание новой задачи';
+    document.getElementById('taskForm').reset();
+    document.getElementById('deleteTaskBtn').style.display = 'none';
+    document.getElementById('taskStatus').value = 'TO_DO';
+    document.getElementById('taskPriority').value = 'MEDIUM';
+    document.getElementById('executorEditMessage').style.display = 'none';
+
+    enableAllFields();
+    taskModal.show();
+}
+
+function saveTask() {
+    let formData = {};
+
+    if (isExecutor && currentTaskId) {
+        // Исполнитель может отправлять только статус
+        formData = {
+            status: document.getElementById('taskStatus').value
+        };
+    } else {
+        // Менеджер и администратор отправляют все поля
+        formData = {
+            title: document.getElementById('taskTitle').value,
+            description: document.getElementById('taskDescription').value,
+            status: document.getElementById('taskStatus').value,
+            priority: document.getElementById('taskPriority').value,
+            deadline: document.getElementById('taskDeadline').value || null,
+            projectId: document.getElementById('taskProject').value || null,
+            executorId: document.getElementById('taskExecutor').value || null
+        };
+
+        if (!formData.title.trim()) {
+            alert('Пожалуйста, введите название задачи');
+            return;
+        }
+    }
+
+    const url = currentTaskId ? '/api/tasks/' + currentTaskId : '/api/tasks';
+    const method = currentTaskId ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            return response.json().then(error => {
+                throw new Error(error.message || 'Ошибка сервера');
+            });
+        }
+    })
+    .then(data => {
+        taskModal.hide();
+        showToast('Задача успешно сохранена!', 'success');
+        setTimeout(() => {
+            updateNotificationCounter();
+        }, 500);
+
+          setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Error saving task:', error);
+        alert('Ошибка при сохранении задачи: ' + error.message);
+    });
+}
+
+function deleteTask() {
+    if (isExecutor) {
+        showToast('У вас нет прав для удаления задач. Обратитесь к менеджеру.');
+        return;
+    }
+
+    if (confirm('Вы уверены, что хотите удалить эту задачу?')) {
+        fetch('/api/tasks/' + currentTaskId, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                taskModal.hide();
+                showToast('Задача успешно удалена!', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                throw new Error('Ошибка при удалении');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting task:', error);
+            alert('Ошибка при удалении задачи: ' + error.message);
+        });
+    }
+}
+
+function showToast(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    const container = document.querySelector('.container');
+    if (container) {
+        container.prepend(alertDiv);
+    }
+
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.parentNode.removeChild(alertDiv);
+        }
+    }, 3000);
+}
+
+// ========== COMMENT SYSTEM ==========
+let currentCommentsTaskId = null;
+let commentsModal = null;
+let deleteCommentModal = null;
+let commentToDelete = null;
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== COMMENTS SYSTEM INITIALIZATION ===');
+
+    // Инициализируем модальное окно комментариев
+    const commentsModalElement = document.getElementById('commentsModal');
+    if (commentsModalElement) {
+        commentsModal = new bootstrap.Modal(commentsModalElement);
+        console.log('✓ Comments modal initialized');
+    } else {
+        console.error('✗ Comments modal element not found!');
+    }
+
+    // Инициализируем модальное окно удаления комментария
+    const deleteCommentModalElement = document.getElementById('deleteCommentModal');
+    if (deleteCommentModalElement) {
+        deleteCommentModal = new bootstrap.Modal(deleteCommentModalElement);
+        console.log('✓ Delete comment modal initialized');
+    } else {
+        console.error('✗ Delete comment modal element not found!');
+    }
+
+    // Обработчики для кнопок комментариев
+    document.querySelectorAll('.comments-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            console.log('Comments button clicked for task:', taskId);
+            openCommentsModal(taskId);
+        });
+    });
+
+    // Обработчик формы комментариев
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitComment();
+        });
+        console.log('✓ Comment form handler attached');
+    } else {
+        console.error('✗ Comment form not found!');
+    }
+
+    // Обработчик кнопки подтверждения удаления
+    const confirmDeleteBtn = document.getElementById('confirmDeleteCommentBtn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (commentToDelete) {
+                deleteCommentFromServer(commentToDelete);
+            }
+        });
+    }
+
+    loadCommentCounts();
+    console.log('=== COMMENTS SYSTEM READY ===');
+});
+
+// Функция для открытия модального окна комментариев
+function openCommentsModal(taskId) {
+    console.log('Opening comments modal for task:', taskId);
+
+    if (!commentsModal) {
+        console.error('Comments modal is not initialized!');
+        alert('Ошибка инициализации модального окна');
+        return;
+    }
+
+    currentCommentsTaskId = taskId;
+    document.getElementById('commentTaskId').value = taskId;
+    document.getElementById('commentForm').reset();
+
+    // Обновляем заголовок
+    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`).closest('.task-card');
+    if (taskCard) {
+        const taskTitle = taskCard.querySelector('.card-title').textContent;
+        document.getElementById('commentsModalTitle').textContent = `Комментарии к задаче: ${taskTitle}`;
+    } else {
+        document.getElementById('commentsModalTitle').textContent = `Комментарии к задаче #${taskId}`;
+    }
+
+    loadComments(taskId);
+    commentsModal.show();
+}
+
+// Функция загрузки комментариев
+function loadComments(taskId) {
+    console.log('Loading comments for task:', taskId);
+
+    fetch(`/api/tasks/${taskId}/comments`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка загрузки комментариев: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(comments => {
+            console.log('Comments loaded:', comments);
+            displayComments(comments);
+            updateCommentCount(taskId, comments.length);
+        })
+        .catch(error => {
+            console.error('Error loading comments:', error);
+            document.getElementById('commentsList').innerHTML =
+                '<div class="alert alert-danger">Ошибка загрузки комментариев: ' + error.message + '</div>';
+        });
+}
+
+// Функция отображения комментариев
+function displayComments(comments) {
+    const commentsList = document.getElementById('commentsList');
+
+    if (comments.length === 0) {
+        commentsList.innerHTML = '<p class="text-muted text-center">Комментариев пока нет</p>';
+        return;
+    }
+
+    commentsList.innerHTML = comments.map(comment => `
+        <div class="comment-item" data-comment-id="${comment.id}">
+            <div class="comment-header">
+                <strong>${comment.author.fullName}</strong>
+                (${comment.author.role}) •
+                ${new Date(comment.createdAt).toLocaleString('ru-RU')}
+            </div>
+            <div class="comment-text">${escapeHtml(comment.text)}</div>
+            <div class="comment-edit-area" style="display: none;">
+                <textarea class="form-control comment-edit-textarea" rows="3">${escapeHtml(comment.text)}</textarea>
+                <div class="comment-edit-actions">
+                    <button class="btn btn-sm btn-success save-edit-btn me-1">
+                        <i class="fas fa-check me-1"></i>Сохранить
+                    </button>
+                    <button class="btn btn-sm btn-secondary cancel-edit-btn">
+                        <i class="fas fa-times me-1"></i>Отмена
+                    </button>
+                </div>
+            </div>
+            ${comment.canEdit || comment.canDelete ? `
+            <div class="comment-actions">
+                ${comment.canEdit ? `
+                <button class="btn btn-sm btn-outline-primary me-1 edit-comment-btn">
+                    <i class="fas fa-edit"></i>
+                </button>
+                ` : ''}
+                ${comment.canDelete ? `
+                <button class="btn btn-sm btn-outline-danger delete-comment-btn">
+                    <i class="fas fa-trash"></i>
+                </button>
+                ` : ''}
+            </div>
+            ` : ''}
+        </div>
+    `).join('');
+
+    // Добавляем обработчики событий для кнопок
+    commentsList.querySelectorAll('.edit-comment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const commentItem = this.closest('.comment-item');
+            const commentId = commentItem.getAttribute('data-comment-id');
+            enableCommentEdit(commentId);
+        });
+    });
+
+    commentsList.querySelectorAll('.delete-comment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const commentItem = this.closest('.comment-item');
+            const commentId = commentItem.getAttribute('data-comment-id');
+            showDeleteConfirmation(commentId);
+        });
+    });
+
+    commentsList.querySelectorAll('.save-edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const commentItem = this.closest('.comment-item');
+            const commentId = commentItem.getAttribute('data-comment-id');
+            saveCommentEdit(commentId);
+        });
+    });
+
+    commentsList.querySelectorAll('.cancel-edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const commentItem = this.closest('.comment-item');
+            const commentId = commentItem.getAttribute('data-comment-id');
+            cancelCommentEdit(commentId);
+        });
+    });
+}
+
+// Функция включения режима редактирования комментария
+function enableCommentEdit(commentId) {
+    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+    commentItem.classList.add('comment-edit-mode');
+    commentItem.querySelector('.comment-text').style.display = 'none';
+    commentItem.querySelector('.comment-edit-area').style.display = 'block';
+    commentItem.querySelector('.comment-actions').style.display = 'none';
+}
+
+// Функция сохранения отредактированного комментария
+function saveCommentEdit(commentId) {
+    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+    const newText = commentItem.querySelector('.comment-edit-textarea').value.trim();
+
+    if (!newText) {
+        alert('Комментарий не может быть пустым');
+        return;
+    }
+
+    const commentDTO = {
+        text: newText
+    };
+
+    fetch(`/api/comments/${commentId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentDTO)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(error => { throw new Error(error.message); });
+        }
+        return response.json();
+    })
+    .then(comment => {
+        loadComments(currentCommentsTaskId);
+    })
+    .catch(error => {
+        console.error('Error updating comment:', error);
+        alert('Ошибка при обновлении комментария: ' + error.message);
+    });
+}
+
+// Функция отмены редактирования комментария
+function cancelCommentEdit(commentId) {
+    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+    commentItem.classList.remove('comment-edit-mode');
+    commentItem.querySelector('.comment-text').style.display = 'block';
+    commentItem.querySelector('.comment-edit-area').style.display = 'none';
+    commentItem.querySelector('.comment-actions').style.display = '';
+}
+
+// Функция показа подтверждения удаления
+function showDeleteConfirmation(commentId) {
+    commentToDelete = commentId;
+    if (deleteCommentModal) {
+        deleteCommentModal.show();
+    } else {
+        // Fallback на стандартное подтверждение
+        if (confirm('Вы уверены, что хотите удалить этот комментарий?')) {
+            deleteCommentFromServer(commentId);
+        }
+    }
+}
+
+// Функция удаления комментария с сервера
+function deleteCommentFromServer(commentId) {
+    fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(error => { throw new Error(error.message); });
+        }
+        if (deleteCommentModal) {
+            deleteCommentModal.hide();
+        }
+        loadComments(currentCommentsTaskId);
+        commentToDelete = null;
+    })
+    .catch(error => {
+        console.error('Error deleting comment:', error);
+        alert('Ошибка при удалении комментария: ' + error.message);
+    });
+}
+
+// Функция отправки нового комментария
+function submitComment() {
+    const commentText = document.getElementById('commentText').value.trim();
+    if (!commentText) {
+        alert('Введите текст комментария');
+        return;
+    }
+
+    const commentDTO = {
+        text: commentText,
+        taskId: currentCommentsTaskId
+    };
+
+    console.log('Submitting comment:', commentDTO);
+
+    fetch(`/api/tasks/${currentCommentsTaskId}/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentDTO)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(error => { throw new Error(error.message); });
+        }
+        return response.json();
+    })
+    .then(comment => {
+        console.log('Comment created:', comment);
+        document.getElementById('commentText').value = '';
+        loadComments(currentCommentsTaskId);
+    })
+    .catch(error => {
+        console.error('Error creating comment:', error);
+        alert('Ошибка при создании комментария: ' + error.message);
+    });
+}
+
+// Функция обновления счетчика комментариев
+function updateCommentCount(taskId, count) {
+    const badge = document.querySelector(`.comment-count[data-task-id="${taskId}"]`);
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+}
+
+// Вспомогательная функция для экранирования HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Функция для загрузки счетчиков комментариев при загрузке страницы
+function loadCommentCounts() {
+    document.querySelectorAll('.comments-btn').forEach(btn => {
+        const taskId = btn.getAttribute('data-task-id');
+        fetch(`/api/tasks/${taskId}/comments`)
+            .then(response => response.json())
+            .then(comments => {
+                updateCommentCount(taskId, comments.length);
+            })
+            .catch(error => console.error('Error loading comment count for task ' + taskId + ':', error));
+    });
+}
+
+// ========== ATTACHMENT SYSTEM ==========
+let currentTaskIdForAttachments = null;
+
+// Функция для загрузки вложений при открытии вкладки
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик переключения вкладок
+    const attachmentsTab = document.getElementById('attachments-tab');
+    if (attachmentsTab) {
+        attachmentsTab.addEventListener('click', function() {
+            if (currentTaskIdForAttachments) {
+                loadAttachments(currentTaskIdForAttachments);
+            }
+        });
+    }
+
+    // Настройка обработчиков для загрузки файлов
+    setupFileUpload();
+});
+
+// Настройка загрузки файлов
+function setupFileUpload() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const selectFilesBtn = document.getElementById('selectFilesBtn');
+
+    // Обработчик для кнопки выбора файлов
+    if (selectFilesBtn) {
+        selectFilesBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInput.click();
+        });
+    }
+
+    // Обработчик выбора файлов
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                handleFiles(this.files);
+            }
+        });
+    }
+
+    // Drag and drop для файлов
+    if (uploadArea) {
+        // Предотвращаем стандартное поведение
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Подсветка области при перетаскивании
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Обработка сброса файлов
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        // Клик по области загрузки (кроме кнопки)
+        uploadArea.addEventListener('click', function(e) {
+            if (e.target === uploadArea || e.target.classList.contains('upload-content')) {
+                fileInput.click();
+            }
+        });
+    }
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight() {
+        uploadArea.classList.add('dragover');
+    }
+
+    function unhighlight() {
+        uploadArea.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+}
+
+// Обработка выбранных файлов
+function handleFiles(files) {
+    if (!currentTaskIdForAttachments) {
+        alert('Сначала сохраните задачу, затем добавьте вложения');
+        return;
+    }
+
+    // Проверяем каждый файл
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Проверка размера файла (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert(`Файл "${file.name}" слишком большой. Максимальный размер: 10MB`);
+            continue;
+        }
+
+        // Загружаем файл
+        uploadFile(file);
+    }
+
+    // Очищаем input
+    document.getElementById('fileInput').value = '';
+}
+
+// Функция загрузки файла
+function uploadFile(file) {
+    if (!currentTaskIdForAttachments) {
+        alert('Ошибка: задача не определена');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Показываем индикатор загрузки
+    const uploadProgress = document.getElementById('uploadProgress');
+    const progressBar = uploadProgress.querySelector('.progress-bar');
+    const uploadStatus = document.getElementById('uploadStatus');
+
+    uploadProgress.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressBar.classList.remove('bg-success', 'bg-danger');
+    progressBar.classList.add('progress-bar-animated');
+    uploadStatus.textContent = `Загрузка: ${file.name}`;
+
+    fetch(`/api/tasks/${currentTaskIdForAttachments}/attachments`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(error => { throw new Error(error.message); });
+        }
+        return response.json();
+    })
+    .then(attachment => {
+        console.log('File uploaded:', attachment);
+
+        // Обновляем прогресс
+        progressBar.style.width = '100%';
+        progressBar.classList.remove('progress-bar-animated');
+        progressBar.classList.add('bg-success');
+        uploadStatus.textContent = `Файл "${file.name}" успешно загружен`;
+
+        // Обновляем список вложений
+        loadAttachments(currentTaskIdForAttachments);
+
+        // Скрываем прогресс через 2 секунды
+        setTimeout(() => {
+            uploadProgress.style.display = 'none';
+        }, 2000);
+    })
+    .catch(error => {
+        console.error('Error uploading file:', error);
+
+        // Обновляем прогресс с ошибкой
+        progressBar.style.width = '100%';
+        progressBar.classList.remove('progress-bar-animated');
+        progressBar.classList.add('bg-danger');
+        uploadStatus.textContent = `Ошибка: ${error.message}`;
+
+        // Скрываем прогресс через 3 секунды
+        setTimeout(() => {
+            uploadProgress.style.display = 'none';
+        }, 3000);
+    });
+}
+
+// Функция загрузки вложений
+function loadAttachments(taskId) {
+    console.log('Loading attachments for task:', taskId);
+
+    fetch(`/api/tasks/${taskId}/attachments`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка загрузки вложений');
+            }
+            return response.json();
+        })
+        .then(attachments => {
+            console.log('Attachments loaded:', attachments);
+            displayAttachments(attachments);
+            updateAttachmentsCount(attachments.length);
+        })
+        .catch(error => {
+            console.error('Error loading attachments:', error);
+            document.getElementById('attachmentsList').innerHTML =
+                '<div class="alert alert-danger">Ошибка загрузки вложений: ' + error.message + '</div>';
+        });
+}
+
+// Функция отображения вложений
+function displayAttachments(attachments) {
+    const attachmentsList = document.getElementById('attachmentsList');
+    const noAttachmentsMessage = document.getElementById('noAttachmentsMessage');
+
+    if (attachments.length === 0) {
+        attachmentsList.innerHTML = '';
+        noAttachmentsMessage.style.display = 'block';
+        return;
+    }
+
+    noAttachmentsMessage.style.display = 'none';
+
+    attachmentsList.innerHTML = attachments.map(attachment => `
+        <div class="attachment-item d-flex align-items-center" data-attachment-id="${attachment.id}">
+            <div class="file-icon">
+                <i class="fas ${getFileIcon(attachment.fileType)}"></i>
+            </div>
+            <div class="attachment-info">
+                <div class="attachment-name">${escapeHtml(attachment.originalFilename)}</div>
+                <div class="attachment-meta">
+                    ${attachment.formattedFileSize} •
+                    ${new Date(attachment.uploadedAt).toLocaleString('ru-RU')} •
+                    ${attachment.uploadedBy.fullName}
+                </div>
+            </div>
+            <div class="attachment-actions ms-3">
+                <button class="btn btn-sm btn-outline-primary me-1"
+                        onclick="downloadAttachment(${attachment.id}, '${escapeHtml(attachment.originalFilename)}')">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                        onclick="deleteAttachment(${attachment.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Функция получения иконки для типа файла
+function getFileIcon(fileType) {
+    if (fileType.startsWith('image/')) {
+        return 'fa-file-image';
+    } else if (fileType === 'text/plain') {
+        return 'fa-file-alt';
+    } else if (fileType.includes('wordprocessingml') || fileType.includes('msword')) {
+        return 'fa-file-word';
+    } else if (fileType.includes('spreadsheetml') || fileType.includes('excel')) {
+        return 'fa-file-excel';
+    } else {
+        return 'fa-file';
+    }
+}
+
+// Функция обновления счетчика вложений
+function updateAttachmentsCount(count) {
+    const badge = document.getElementById('attachmentsCount');
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+}
+
+// Функция скачивания вложения
+function downloadAttachment(attachmentId, filename) {
+    // Создаем скрытую ссылку для скачивания
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = `/api/attachments/${attachmentId}/download`;
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Функция удаления вложения
+function deleteAttachment(attachmentId) {
+    if (!confirm('Вы уверены, что хотите удалить этот файл?')) {
+        return;
+    }
+
+    fetch(`/api/attachments/${attachmentId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(error => { throw new Error(error.message); });
+        }
+        // Обновляем список вложений
+        loadAttachments(currentTaskIdForAttachments);
+        showToast('Файл успешно удален!', 'success');
+    })
+    .catch(error => {
+        console.error('Error deleting attachment:', error);
+        alert('Ошибка при удалении файла: ' + error.message);
+    });
+}
+
+//editTask для установки currentTaskIdForAttachments
+function editTask(taskId) {
+    console.log('editTask called with ID:', taskId, 'isExecutor:', isExecutor);
+
+    if (!taskModal) {
+        console.error('Modal not initialized');
+        showToast('Ошибка инициализации модального окна', 'error');
+        return;
+    }
+
+    currentTaskId = taskId;
+    currentTaskIdForAttachments = taskId;
+
+    // Безопасно получаем элементы
+    const modalTitle = document.getElementById('taskModalTitle');
+    const deleteTaskBtn = document.getElementById('deleteTaskBtn');
+    const executorEditMessage = document.getElementById('executorEditMessage');
+
+    if (modalTitle) {
+        modalTitle.textContent = 'Редактирование задачи';
+    }
+
+    // Для исполнителя показываем сообщение и ограничиваем права
+    if (isExecutor) {
+        if (deleteTaskBtn) deleteTaskBtn.style.display = 'none';
+        if (executorEditMessage) executorEditMessage.style.display = 'block';
+    } else {
+        if (deleteTaskBtn) deleteTaskBtn.style.display = 'block';
+        if (executorEditMessage) executorEditMessage.style.display = 'none';
+    }
+
+    // Загружаем данные задачи
+    fetch('/api/tasks/' + taskId)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Задача не найдена');
+            }
+            return response.json();
+        })
+        .then(task => {
+            console.log('Task data loaded:', task);
+
+            // Безопасно заполняем форму данными задачи
+            const taskIdInput = document.getElementById('taskId');
+            const taskTitleInput = document.getElementById('taskTitle');
+            const taskDescriptionInput = document.getElementById('taskDescription');
+            const taskStatusSelect = document.getElementById('taskStatus');
+            const taskPrioritySelect = document.getElementById('taskPriority');
+            const taskDeadlineInput = document.getElementById('taskDeadline');
+            const taskProjectSelect = document.getElementById('taskProject');
+            const taskExecutorSelect = document.getElementById('taskExecutor');
+
+            if (taskIdInput) taskIdInput.value = task.id;
+            if (taskTitleInput) taskTitleInput.value = task.title;
+            if (taskDescriptionInput) taskDescriptionInput.value = task.description || '';
+            if (taskStatusSelect) taskStatusSelect.value = task.status;
+            if (taskPrioritySelect) taskPrioritySelect.value = task.priority;
+
+            if (task.deadline) {
+                const deadline = new Date(task.deadline);
+                if (taskDeadlineInput) taskDeadlineInput.value = deadline.toISOString().slice(0, 16);
+            } else {
+                if (taskDeadlineInput) taskDeadlineInput.value = '';
+            }
+
+            // Устанавливаем проект если есть
+            if (task.project && task.project.id) {
+                if (taskProjectSelect) taskProjectSelect.value = task.project.id;
+            } else {
+                if (taskProjectSelect) taskProjectSelect.value = '';
+            }
+
+            // Устанавливаем исполнителя если есть
+            if (task.executor && task.executor.id) {
+                if (taskExecutorSelect) taskExecutorSelect.value = task.executor.id;
+            } else {
+                if (taskExecutorSelect) taskExecutorSelect.value = '';
+            }
+
+            // Загружаем вложения
+            loadAttachments(taskId);
+
+            // Применяем ограничения для исполнителя
+            if (isExecutor) {
+                console.log('Applying restrictions for executor');
+                disableFieldsExceptStatus();
+            } else {
+                console.log('Enabling all fields for manager/admin');
+                enableAllFields();
+            }
+
+            // Показываем модальное окно
+            taskModal.show();
+        })
+        .catch(error => {
+            console.error('Error loading task:', error);
+            showToast('Ошибка при загрузке задачи: ' + error.message, 'error');
+        });
+}
+
+// Обновляем функцию showCreateTaskForm
+function showCreateTaskForm() {
+    if (isExecutor) {
+        alert('У вас нет прав для создания задач. Обратитесь к менеджеру.');
+        return;
+    }
+
+    currentTaskId = null;
+    currentTaskIdForAttachments = null; // Сбрасываем для новой задачи
+    document.getElementById('taskModalTitle').textContent = 'Создание новой задачи';
+    document.getElementById('taskForm').reset();
+    document.getElementById('deleteTaskBtn').style.display = 'none';
+    document.getElementById('taskStatus').value = 'TO_DO';
+    document.getElementById('taskPriority').value = 'MEDIUM';
+    document.getElementById('executorEditMessage').style.display = 'none';
+
+    // Очищаем список вложений
+    document.getElementById('attachmentsList').innerHTML = '';
+    document.getElementById('noAttachmentsMessage').style.display = 'block';
+    document.getElementById('attachmentsCount').textContent = '0';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('uploadProgress').style.display = 'none';
+
+    enableAllFields();
+    taskModal.show();
+}
+
+// Обновляем функцию saveTask для установки taskId после создания
+function saveTask() {
+    let formData = {};
+
+    if (isExecutor && currentTaskId) {
+        // Исполнитель может отправлять только статус
+        formData = {
+            status: document.getElementById('taskStatus').value
+        };
+    } else {
+        // Менеджер и администратор отправляют все поля
+        formData = {
+            title: document.getElementById('taskTitle').value,
+            description: document.getElementById('taskDescription').value,
+            status: document.getElementById('taskStatus').value,
+            priority: document.getElementById('taskPriority').value,
+            deadline: document.getElementById('taskDeadline').value || null,
+            projectId: document.getElementById('taskProject').value || null,
+            executorId: document.getElementById('taskExecutor').value || null
+        };
+
+        if (!formData.title.trim()) {
+            alert('Пожалуйста, введите название задачи');
+            return;
+        }
+    }
+
+    const url = currentTaskId ? '/api/tasks/' + currentTaskId : '/api/tasks';
+    const method = currentTaskId ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            return response.json().then(error => {
+                throw new Error(error.message || 'Ошибка сервера');
+            });
+        }
+    })
+    .then(data => {
+        // После сохранения задачи, обновляем ID для вложений
+        if (!currentTaskId) {
+            currentTaskIdForAttachments = data.id; // Устанавливаем ID новой задачи
+        }
+
+        taskModal.hide();
+        showToast('Задача успешно сохранена!', 'success');
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Error saving task:', error);
+        alert('Ошибка при сохранении задачи: ' + error.message);
+    });
+}
+
+// ========== NOTIFICATION COUNTER ==========
+// Функция для обновления счетчика уведомлений
+async function updateNotificationCounter() {
+    try {
+        const response = await fetch('/notifications/api/notifications/count');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const count = await response.json();
+
+        // Обновляем все счетчики на странице
+        updateAllNotificationCounters(count);
+
+        return count;
+    } catch (error) {
+        console.error('Error updating notification counter:', error);
+        // В случае ошибки скрываем счетчики
+        updateAllNotificationCounters(0);
+        return 0;
+    }
+}
+
+// Обновление всех счетчиков на странице
+function updateAllNotificationCounters(count) {
+    const counters = document.querySelectorAll('.notification-counter');
+    counters.forEach(counter => {
+        if (count > 0) {
+            counter.textContent = count > 99 ? '99+' : count;
+            counter.style.display = 'inline';
+        } else {
+            counter.style.display = 'none';
+        }
+    });
+}
+
+// Функция для пометки уведомления как прочитанного (универсальная)
+async function markNotificationAsRead(notificationId) {
+    try {
+        const response = await fetch(`/notifications/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            await updateNotificationCounter();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        return false;
+    }
+}
+
+function initNotificationCounter() {
+    console.log('Initializing notification counter on tasks page...');
+
+    // Обновляем счетчик сразу при загрузке
+    updateNotificationCounter();
+
+    // Устанавливаем периодическое обновление каждые 30 секунд
+    const counterInterval = setInterval(updateNotificationCounter, 30000);
+
+    // Очистка интервала при закрытии страницы
+    window.addEventListener('beforeunload', () => {
+        clearInterval(counterInterval);
+    });
+
+    // Обновляем счетчик при возвращении на страницу (если она была в фоне)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            updateNotificationCounter();
+        }
+    });
+}
+
+// Обработка открытия задачи из уведомления
+function handleTaskOpeningFromNotification() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openTaskId = urlParams.get('openTask');
+
+    if (openTaskId) {
+        console.log('Auto-opening task from notification:', openTaskId);
+
+        // Убираем параметр из URL без перезагрузки страницы
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+
+        // Уменьшаем задержку с 800мс до 100мс для быстрого открытия
+        setTimeout(() => {
+            if (typeof editTask === 'function') {
+                console.log('Calling editTask for ID:', openTaskId);
+                editTask(openTaskId);
+            } else {
+                console.error('editTask function not available');
+                // Пытаемся найти и выделить задачу в списке
+                highlightTaskInList(openTaskId);
+            }
+        }, 100); // Уменьшено с 800мс до 100мс
+    }
+}
+
+// Функция для выделения задачи в списке, если модальное окно не открылось
+function highlightTaskInList(taskId) {
+    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (taskCard) {
+        // Добавляем класс для выделения
+        taskCard.classList.add('highlighted-task');
+
+        // Прокручиваем к задаче
+        taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Убираем выделение через 3 секунды
+        setTimeout(() => {
+            taskCard.classList.remove('highlighted-task');
+        }, 3000);
+
+        console.log('Task highlighted in list:', taskId);
+    } else {
+        console.warn('Task card not found for ID:', taskId);
+    }
+}
+
+// Добавляем стиль для выделенной задачи
+const style = document.createElement('style');
+style.textContent = `
+    .highlighted-task {
+        border: 2px solid #007bff !important;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5) !important;
+        transition: all 0.3s ease;
+    }
+`;
+
+document.head.appendChild(style);
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    handleTaskOpeningFromNotification();
+});
+
+// Обновляем счетчик при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Ждем немного дольше чтобы убедиться, что все инициализировано
+    setTimeout(() => {
+        const taskIdToOpen = localStorage.getItem('openTaskId');
+        const openTaskSource = localStorage.getItem('openTaskSource');
+
+        if (taskIdToOpen && openTaskSource === 'notification') {
+            localStorage.removeItem('openTaskId');
+            localStorage.removeItem('openTaskSource');
+
+            console.log('Opening task from notification (delayed):', taskIdToOpen);
+            if (typeof editTask === 'function') {
+                editTask(taskIdToOpen);
+            } else {
+                console.error('editTask function not found');
+            }
+        }
+    }, 1000);
+});
+
+// Запускаем инициализацию когда DOM полностью загружен
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNotificationCounter);
+} else {
+    initNotificationCounter();
+}
+
+// Функция для показа красивого toast-уведомления
+function showToast(message, type = 'info') {
+    const toastTypes = {
+        'success': {
+            element: document.getElementById('successToast'),
+            icon: 'fa-check-circle',
+            className: 'text-bg-success'
+        },
+        'error': {
+            element: document.getElementById('errorToast'),
+            icon: 'fa-exclamation-circle',
+            className: 'text-bg-danger'
+        },
+        'danger': {
+            element: document.getElementById('errorToast'),
+            icon: 'fa-exclamation-circle',
+            className: 'text-bg-danger'
+        },
+        'info': {
+            element: document.getElementById('infoToast'),
+            icon: 'fa-info-circle',
+            className: 'text-bg-info'
+        }
+    };
+
+    const toastConfig = toastTypes[type] || toastTypes.info;
+    const toastElement = toastConfig.element;
+
+    if (!toastElement) {
+        console.error('Toast element not found for type:', type);
+        return;
+    }
+
+    // Устанавливаем сообщение
+    const messageElement = toastElement.querySelector('.toast-message');
+    if (messageElement) {
+        messageElement.textContent = message;
+    }
+
+    // Устанавливаем иконку
+    const iconElement = toastElement.querySelector('.fas');
+    if (iconElement) {
+        iconElement.className = `fas ${toastConfig.icon} me-2`;
+    }
+
+    // Создаем экземпляр toast
+    const toast = new bootstrap.Toast(toastElement, {
+        autohide: true,
+        delay: 4000
+    });
+
+    // Показываем toast
+    toast.show();
+
+    console.log(`Toast shown: ${type} - ${message}`);
+}
+
+// Заменяем старую функцию showAlert
+function showAlert(message, type) {
+    showToast(message, type);
+}
+
+// Переменные для управления удалением задач
+let taskToDelete = {
+    id: null,
+    title: null
+};
+
+// Функция для показа модального окна удаления
+function showDeleteTaskModal(taskId, taskTitle) {
+    taskToDelete.id = taskId;
+    taskToDelete.title = taskTitle;
+
+    // Устанавливаем сообщение
+    document.getElementById('confirmDeleteTaskMessage').textContent =
+        `Вы уверены, что хотите удалить задачу "${taskTitle}"?`;
+
+    // Показываем модальное окно
+    const modal = new bootstrap.Modal(document.getElementById('confirmDeleteTaskModal'));
+    modal.show();
+}
+
+// Функция для выполнения удаления задачи
+function performTaskDeletion() {
+    if (!taskToDelete.id) return;
+
+    fetch('/api/tasks/' + taskToDelete.id, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            // Закрываем модальное окно
+            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteTaskModal'));
+            modal.hide();
+
+            showToast('Задача успешно удалена!', 'success');
+
+            // Обновляем счетчик уведомлений
+            setTimeout(() => {
+                updateNotificationCounter();
+            }, 500);
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            throw new Error('Ошибка при удалении');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting task:', error);
+        showToast('Ошибка при удалении задачи: ' + error.message, 'error');
+    })
+    .finally(() => {
+        // Сбрасываем данные
+        taskToDelete.id = null;
+        taskToDelete.title = null;
+    });
+}
+
+// Обновленная функция удаления из карточки
+function deleteTaskDirect(taskId, taskTitle) {
+    if (isExecutor) {
+        showToast('У вас нет прав для удаления задач. Обратитесь к менеджеру.', 'error');
+        return;
+    }
+
+    showDeleteTaskModal(taskId, taskTitle);
+}
+
+// Обновленная функция удаления из модального окна
+function deleteTask() {
+    if (isExecutor) {
+        showToast('У вас нет прав для удаления задач. Обратитесь к менеджеру.', 'error');
+        return;
+    }
+
+    const taskId = document.getElementById('taskId').value;
+    const taskTitle = document.getElementById('taskTitle').value;
+
+    showDeleteTaskModal(taskId, taskTitle);
+}
+</script>
+<div id="userRoleInfo"
+     th:attr="data-is-executor=${isExecutor}"
+     style="display: none;"
+     th:if="${isExecutor != null}">
+</div>
+<!-- Toast контейнер для уведомлений -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1100">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    <div id="infoToast" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-info-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Инициализация переменной isExecutor из Thymeleaf
+    var isExecutor = [[${isExecutor}]];
+    console.log('isExecutor from Thymeleaf:', isExecutor);
+    /*]]>*/
+</script>
+</body>
+</html>
