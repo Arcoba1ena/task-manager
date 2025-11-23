@@ -758,14 +758,16 @@ async function openTaskFromNotification(taskId, notificationId) {
     console.log('Opening task from notification. Task:', taskId, 'Notification:', notificationId);
 
     try {
+        // Сохраняем ID задачи для открытия после перехода
+        localStorage.setItem('openTaskId', taskId);
+        localStorage.setItem('openTaskSource', 'notification');
+
         // Если есть notificationId, помечаем уведомление как прочитанное
         if (notificationId) {
             console.log('Marking notification as read before opening task:', notificationId);
 
-            // Оптимистичное обновление UI
-            updateNotificationUI(notificationId);
-
-            // Отправляем запрос, но не ждем ответа для ускорения перехода
+            // НЕ обновляем UI сразу (чтобы не было мигания)
+            // Просто отправляем запрос на сервер в фоне
             fetch(`/notifications/api/notifications/${notificationId}/read`, {
                 method: 'POST',
                 headers: {
@@ -774,6 +776,7 @@ async function openTaskFromNotification(taskId, notificationId) {
             }).then(response => {
                 if (response.ok) {
                     console.log('Notification marked as read successfully');
+                    // Обновляем счетчик в фоне
                     updateNotificationCounter();
                 }
             }).catch(error => {
@@ -781,13 +784,15 @@ async function openTaskFromNotification(taskId, notificationId) {
             });
         }
 
-        // Немедленный переход к задаче
-        window.location.href = `/tasks?openTask=${taskId}`;
+        // Немедленный переход к задачам (без задержки)
+        window.location.href = '/tasks';
 
     } catch (error) {
         console.error('Error in openTaskFromNotification:', error);
         // В случае ошибки все равно переходим к задаче
-        window.location.href = `/tasks?openTask=${taskId}`;
+        localStorage.setItem('openTaskId', taskId);
+        localStorage.setItem('openTaskSource', 'notification');
+        window.location.href = '/tasks';
     }
 }
 
