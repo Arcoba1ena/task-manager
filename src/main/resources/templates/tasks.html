@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
     :root {
         --primary: #1e40af;
@@ -21,6 +20,12 @@
         --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         --glass-bg: rgba(255, 255, 255, 0.1);
         --glass-border: rgba(255, 255, 255, 0.2);
+        --success-light: rgba(34, 197, 94, 0.3);
+        --success-dark: #16a34a;
+        --warning-light: rgba(245, 158, 11, 0.3);
+        --warning-dark: #d97706;
+        --danger-light: rgba(239, 68, 68, 0.3);
+        --danger-dark: #dc2626;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -120,7 +125,7 @@
         border-radius: 12px;
         transition: var(--transition);
     }
-    .notification-bell:hover { background: rgba(255,255,255,0.15); }
+    .notification-bell:hover { background: #d55f5f; }
 
     .notification-counter {
         display: flex !important;
@@ -130,7 +135,7 @@
         position: absolute;
         top: -6px;
         right: -6px;
-        background: #ef4444;
+        background: #d55f5f;
         color: white;
         font-size: 0.7rem;
         font-weight: 700;
@@ -252,6 +257,7 @@
         font-weight: 600;
         font-size: 1.1rem;
         margin-bottom: 0.5rem;
+        color: #e2e8f0 !important;
     }
     .task-description {
         color: rgba(255,255,255,0.8);
@@ -282,6 +288,7 @@
         border-radius: 1rem;
         font-size: 0.8rem;
         font-weight: 500;
+        color: #e2e8f0 !important;
     }
     .status-todo { background: rgba(107, 114, 128, 0.3); }
     .status-inprogress { background: rgba(59, 130, 246, 0.3); }
@@ -291,10 +298,11 @@
         border-radius: 1rem;
         font-size: 0.8rem;
         font-weight: 500;
+        color: #e2e8f0 !important;
     }
-    .priority-high { background: rgba(239, 68, 68, 0.3); }
-    .priority-medium { background: rgba(245, 158, 11, 0.3); }
-    .priority-low { background: rgba(34, 197, 94, 0.3); }
+    .priority-high { background: rgb(196 93 93 / 30%); }
+    .priority-medium { background: #989386; }
+    .priority-low { background: var(--success-light); }
 
     /* Кнопки действий */
     .task-actions {
@@ -348,14 +356,14 @@
     }
 
     .btn-primary {
-        background: var(--glass-bg) !important;
+        background: rgba(59, 130, 246, 0.2) !important;
         color: white;
         border: 1px solid rgba(59, 130, 246, 0.3) !important;
     }
     .btn-primary:hover {
+        background: rgba(59, 130, 246, 0.3) !important;
         transform: translateY(-2px);
         box-shadow: 0 10px 20px rgba(59,130,246,0.2);
-        background: rgba(59, 130, 246, 0.2) !important;
     }
 
     .btn-secondary {
@@ -367,7 +375,7 @@
     }
 
     .btn-danger {
-        background: rgba(239, 68, 68, 0.1) !important;
+        background: var(--danger-light) !important;
         color: #fca5a5;
         border: 1px solid rgba(239, 68, 68, 0.3) !important;
     }
@@ -377,7 +385,7 @@
     }
 
     .btn-success {
-        background: rgba(34, 197, 94, 0.1) !important;
+        background: var(--success-light) !important;
         color: #86efac;
         border: 1px solid rgba(34, 197, 94, 0.3) !important;
     }
@@ -405,6 +413,7 @@
     .filters-title {
         font-weight: 600;
         font-size: 1.2rem;
+        color: #e2e8f0 !important;
     }
     .filters-grid {
         display: grid;
@@ -419,7 +428,7 @@
     .filter-label {
         font-size: 0.9rem;
         font-weight: 500;
-        color: #e2e8f0;
+        color: #e2e8f0 !important;
     }
 
     /* Исправленные стили для select и input */
@@ -441,10 +450,21 @@
         color: #e2e8f0 !important;
     }
 
+    /* Стили для выпадающих списков */
+    select.form-select, .filter-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e2e8f0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        padding-right: 2.5rem !important;
+    }
+
     /* Темные дропдауны и календарь */
     .filter-select option, .form-select option {
         background: #1e293b !important;
         color: #e2e8f0 !important;
+        padding: 0.5rem;
     }
 
     /* Календарь (datetime-local) */
@@ -454,11 +474,21 @@
         color: #e2e8f0 !important;
         border-radius: 0.75rem !important;
         padding: 0.75rem !important;
+        font-family: 'Inter', sans-serif;
     }
 
     input[type="datetime-local"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
         opacity: 0.7;
+        cursor: pointer;
+    }
+
+    input[type="datetime-local"]::-webkit-datetime-edit {
+        color: #e2e8f0;
+    }
+
+    input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+        color: #e2e8f0;
     }
 
     .search-container {
@@ -601,11 +631,6 @@
         color: rgba(255,255,255,0.6) !important;
     }
 
-    /* Замена иконки самолета на иконку отправки (стрелка вправо) */
-    .comment-submit-btn .fa-paper-plane::before {
-        content: "\f1d8"; /* Иконка комментария */
-    }
-
     .comment-item {
         border-left: 3px solid #3b82f6;
         padding-left: 15px;
@@ -627,6 +652,19 @@
         white-space: pre-wrap;
         color: #e2e8f0 !important;
         line-height: 1.4;
+    }
+
+    /* Кнопки в комментариях */
+    .comment-actions .btn {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: #cbd5e1 !important;
+        padding: 0.4rem 0.7rem;
+    }
+
+    .comment-actions .btn:hover {
+        background: rgba(255,255,255,0.2) !important;
+        color: #e2e8f0 !important;
     }
 
     /* Исправление раздела вложений */
@@ -681,6 +719,20 @@
         flex-shrink: 0;
     }
 
+    /* Кнопки вложений - исправленные */
+    .attachment-actions .btn {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: #cbd5e1 !important;
+        padding: 0.4rem 0.7rem;
+        margin-left: 0.5rem;
+    }
+
+    .attachment-actions .btn:hover {
+        background: rgba(255,255,255,0.2) !important;
+        color: #e2e8f0 !important;
+    }
+
     .upload-area {
         border: 2px dashed rgba(255,255,255,0.3) !important;
         border-radius: 8px;
@@ -718,6 +770,18 @@
 
     #noAttachmentsMessage p {
         color: #cbd5e1 !important;
+    }
+
+    /* Кнопка выбора файлов */
+    #selectFilesBtn {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: #cbd5e1 !important;
+    }
+
+    #selectFilesBtn:hover {
+        background: rgba(255,255,255,0.2) !important;
+        color: #e2e8f0 !important;
     }
 
     /* Красивое сообщение о необходимости сохранения задачи */
@@ -770,14 +834,17 @@
         max-width: 500px;
     }
     .toast {
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        border-radius: 8px;
+        backdrop-filter: blur(16px);
+        background: var(--card-bg) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 0.75rem;
         margin-bottom: 10px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     }
     .toast-body {
         font-weight: 500;
         padding: 12px 16px;
+        color: #e2e8f0;
     }
     .toast.show {
         animation: toastSlideIn 0.3s ease-out;
@@ -791,6 +858,25 @@
             transform: translateY(0);
             opacity: 1;
         }
+    }
+
+    /* Цвета для тостов */
+    .text-bg-success {
+        background: var(--success-light) !important;
+        color: #86efac !important;
+        border-color: rgba(34, 197, 94, 0.3) !important;
+    }
+
+    .text-bg-danger {
+        background: var(--danger-light) !important;
+        color: #fca5a5 !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .text-bg-info {
+        background: rgba(59, 130, 246, 0.1) !important;
+        color: #93c5fd !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
     }
 
     /* Адаптивность */
@@ -835,12 +921,11 @@
             <div class="profile-dropdown">
                 <button class="dropdown-toggle" onclick="toggleDropdown()">
                     <i data-lucide="user"></i>
-                    <i data-lucide="chevron-down" style="font-size:0.9rem;"></i>
                 </button>
                 <div class="dropdown-menu" id="profileMenu">
                     <div style="padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <div><strong th:text="${#authentication?.name}">Имя</strong></div>
-                        <div style="font-size:0.9rem; opacity:0.8;" th:text="${#authentication?.principal?.role}">Роль</div>
+                        <div><strong style="color: white;" th:text="${#authentication?.name}">Имя</strong></div>
+                        <div style="font-size:0.9rem; opacity:0.8; color: white;" th:text="${#authentication?.principal?.role}">Роль</div>
                     </div>
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" style="width:100%; text-align:left;">
@@ -856,7 +941,7 @@
 <main>
     <div class="container">
         <div class="page-header">
-            <h1>Управление задачами</h1>
+            <h1>Список задач</h1>
             <p>Добро пожаловать, <strong th:text="${#authentication?.name}">Пользователь</strong>!</p>
         </div>
 
@@ -1041,7 +1126,7 @@
                             <i class="fas fa-info-circle me-1"></i>Основное
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation" id="attachments-tab-li">
+                    <li class="nav-item" role="presentation" id="attachments-tab-li" style="display: none;">
                         <button class="nav-link" id="attachments-tab" data-bs-toggle="tab"
                                 data-bs-target="#attachments" type="button" role="tab">
                             <i class="fas fa-paperclip me-1"></i>Вложения
@@ -1613,107 +1698,6 @@ function showCreateTaskForm() {
 
     enableAllFields();
     taskModal.show();
-}
-
-function saveTask() {
-    let formData = {};
-
-    if (isExecutor && currentTaskId) {
-        formData = {
-            status: document.getElementById('taskStatus').value
-        };
-    } else {
-        formData = {
-            title: document.getElementById('taskTitle').value,
-            description: document.getElementById('taskDescription').value,
-            status: document.getElementById('taskStatus').value,
-            priority: document.getElementById('taskPriority').value,
-            deadline: document.getElementById('taskDeadline').value || null,
-            projectId: document.getElementById('taskProject').value || null,
-            executorId: document.getElementById('taskExecutor').value || null
-        };
-
-        if (!formData.title.trim()) {
-            showToast('Пожалуйста, введите название задачи');
-            return;
-        }
-    }
-
-    const url = currentTaskId ? '/api/tasks/' + currentTaskId : '/api/tasks';
-    const method = currentTaskId ? 'PUT' : 'POST';
-
-    fetch(url, {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            return response.json().then(error => {
-                throw new Error(error.message || 'Ошибка сервера');
-            });
-        }
-    })
-    .then(data => {
-        // После сохранения задачи, обновляем ID для вложений
-        if (!currentTaskId) {
-            currentTaskIdForAttachments = data.id;
-            // Скрываем сообщение и показываем область загрузки
-            document.getElementById('saveTaskMessage').style.display = 'none';
-            document.getElementById('uploadSection').style.display = 'block';
-        }
-
-        showToast('Задача успешно сохранена!', 'success');
-
-        // Если это новая задача, остаемся в модальном окне для добавления вложений
-        if (!currentTaskId) {
-            currentTaskId = data.id;
-            document.getElementById('taskModalTitle').textContent = 'Редактирование задачи: #' + data.id;
-            document.getElementById('taskId').value = data.id;
-            document.getElementById('deleteTaskBtn').style.display = 'block';
-        } else {
-            // Для существующей задачи перезагружаем страницу
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }
-    })
-    .catch(error => {
-        console.error('Error saving task:', error);
-        showToast('Ошибка при сохранении задачи: ' + error.message);
-    });
-}
-
-function deleteTask() {
-    if (isExecutor) {
-        showToast('У вас нет прав для удаления задач. Обратитесь к менеджеру.');
-        return;
-    }
-
-    if (confirm('Вы уверены, что хотите удалить эту задачу?')) {
-        fetch('/api/tasks/' + currentTaskId, {
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (response.ok) {
-                taskModal.hide();
-                showToast('Задача успешно удалена!', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                throw new Error('Ошибка при удалении');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting task:', error);
-            showToast('Ошибка при удалении задачи: ' + error.message);
-        });
-    }
 }
 
 function showToast(message, type) {
@@ -2414,19 +2398,13 @@ function editTask(taskId) {
     }
 
     currentTaskId = taskId;
-    currentTaskIdForAttachments = taskId;
 
-    // Сбрасываем состояние вкладок
-    document.getElementById('saveTaskMessage').style.display = 'none';
-    document.getElementById('uploadSection').style.display = 'block';
-
-    // Показываем вкладку вложений для существующих задач
-    document.getElementById('attachments-tab').style.display = 'block';
+    // Показываем вкладку "Вложения" только для существующих задач
     document.getElementById('attachments-tab-li').style.display = 'block';
 
     document.getElementById('taskModalTitle').textContent = 'Редактирование задачи';
 
-    // Сразу применяем ограничения, если это исполнитель
+    // Применяем ограничения для исполнителя
     if (isExecutor) {
         document.getElementById('deleteTaskBtn').style.display = 'none';
         document.getElementById('executorEditMessage').style.display = 'block';
@@ -2448,7 +2426,7 @@ function editTask(taskId) {
         .then(task => {
             console.log('Task data loaded:', task);
 
-            // Заполняем форму данными задачи
+            // Заполняем форму
             document.getElementById('taskId').value = task.id;
             document.getElementById('taskTitle').value = task.title;
             document.getElementById('taskDescription').value = task.description || '';
@@ -2462,31 +2440,23 @@ function editTask(taskId) {
                 document.getElementById('taskDeadline').value = '';
             }
 
-            // Устанавливаем проект если есть
-            if (task.project && task.project.id) {
-                document.getElementById('taskProject').value = task.project.id;
-            } else {
-                document.getElementById('taskProject').value = '';
-            }
+            document.getElementById('taskProject').value = task.project?.id || '';
+            document.getElementById('taskExecutor').value = task.executor?.id || '';
 
-            // Устанавливаем исполнителя если есть
-            if (task.executor && task.executor.id) {
-                document.getElementById('taskExecutor').value = task.executor.id;
-            } else {
-                document.getElementById('taskExecutor').value = '';
-            }
-
-            // Загружаем вложения для существующей задачи
-            loadAttachments(taskId);
-
-            // Финальная проверка прав доступа
+            // Финальная проверка прав
             if (isExecutor) {
-                console.log('Final check: applying restrictions for executor');
                 disableFieldsExceptStatus();
             } else {
-                console.log('Final check: enabling all fields for manager/admin');
                 enableAllFields();
             }
+
+            // ВАЖНО: Включаем функционал вложений при редактировании
+            document.getElementById('saveTaskMessage').style.display = 'none';
+            document.getElementById('uploadSection').style.display = 'block';
+            currentTaskIdForAttachments = taskId;
+
+            // Переключаемся на вкладку "Основное" (чтобы не было путаницы)
+            document.getElementById('details-tab').click();
 
             // Показываем модальное окно
             taskModal.show();
@@ -2505,7 +2475,6 @@ function showCreateTaskForm() {
     }
 
     currentTaskId = null;
-    currentTaskIdForAttachments = null;
 
     document.getElementById('taskModalTitle').textContent = 'Создание новой задачи';
     document.getElementById('taskForm').reset();
@@ -2514,15 +2483,10 @@ function showCreateTaskForm() {
     document.getElementById('taskPriority').value = 'MEDIUM';
     document.getElementById('executorEditMessage').style.display = 'none';
 
-    // Скрываем вкладку вложений при создании новой задачи
-    document.getElementById('attachments-tab').style.display = 'none';
+    // Полностью скрываем вкладку вложений
     document.getElementById('attachments-tab-li').style.display = 'none';
 
-    // Показываем сообщение о необходимости сохранения
-    document.getElementById('saveTaskMessage').style.display = 'block';
-    document.getElementById('uploadSection').style.display = 'none';
-
-    // Активируем вкладку "Основное"
+    // Убедимся, что активна вкладка "Основное"
     document.getElementById('details-tab').click();
 
     enableAllFields();
@@ -2534,14 +2498,14 @@ function saveTask() {
     let formData = {};
 
     if (isExecutor && currentTaskId) {
-        // Исполнитель может отправлять только статус
+        // Исполнитель может менять только статус
         formData = {
             status: document.getElementById('taskStatus').value
         };
     } else {
-        // Менеджер и администратор отправляют все поля
+        // Полная форма для менеджера/админа
         formData = {
-            title: document.getElementById('taskTitle').value,
+            title: document.getElementById('taskTitle').value.trim(),
             description: document.getElementById('taskDescription').value,
             status: document.getElementById('taskStatus').value,
             priority: document.getElementById('taskPriority').value,
@@ -2550,13 +2514,13 @@ function saveTask() {
             executorId: document.getElementById('taskExecutor').value || null
         };
 
-        if (!formData.title.trim()) {
+        if (!formData.title) {
             showToast('Пожалуйста, введите название задачи', 'error');
             return;
         }
     }
 
-    const url = currentTaskId ? '/api/tasks/' + currentTaskId : '/api/tasks';
+    const url = currentTaskId ? `/api/tasks/${currentTaskId}` : '/api/tasks';
     const method = currentTaskId ? 'PUT' : 'POST';
 
     fetch(url, {
@@ -2567,41 +2531,32 @@ function saveTask() {
         body: JSON.stringify(formData)
     })
     .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            return response.json().then(error => {
-                throw new Error(error.message || 'Ошибка сервера');
-            });
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.message || 'Ошибка сервера'); });
         }
+        return response.json();
     })
     .then(data => {
-        // После сохранения задачи, обновляем ID для вложений
+        // ВАЖНО: сохраняем ID задачи для системы вложений (нужно при редактировании!)
         if (!currentTaskId) {
-            currentTaskIdForAttachments = data.id;
             currentTaskId = data.id;
-
-            // Показываем вкладку вложений после сохранения
-            document.getElementById('attachments-tab').style.display = 'block';
-            document.getElementById('attachments-tab-li').style.display = 'block';
-
-            // Скрываем сообщение и показываем область загрузки
-            document.getElementById('saveTaskMessage').style.display = 'none';
-            document.getElementById('uploadSection').style.display = 'block';
-
-            // Обновляем заголовок и показываем кнопку удаления
-            document.getElementById('taskModalTitle').textContent = 'Редактирование задачи: #' + data.id;
-            document.getElementById('taskId').value = data.id;
-            document.getElementById('deleteTaskBtn').style.display = 'block';
-
-            showToast('Задача успешно создана! Теперь вы можете добавить вложения.', 'success');
-        } else {
-            taskModal.hide();
-            showToast('Задача успешно сохранена!', 'success');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            currentTaskIdForAttachments = data.id;  // ← Это нужно, чтобы вложения работали
         }
+
+        // Закрываем модальное окно
+        taskModal.hide();
+
+        // Простые тосты без лишних слов
+        if (!currentTaskId) {
+            showToast('Задача успешно создана!', 'success');
+        } else {
+            showToast('Задача успешно сохранена!', 'success');
+        }
+
+        // Перезагружаем страницу через секунду
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     })
     .catch(error => {
         console.error('Error saving task:', error);
