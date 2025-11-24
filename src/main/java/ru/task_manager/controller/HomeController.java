@@ -129,7 +129,10 @@ public class HomeController {
     }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model, @RequestParam(required = false) String error) {
+        if (error != null) {
+            model.addAttribute("loginError", true);
+        }
         return "login";
     }
 
