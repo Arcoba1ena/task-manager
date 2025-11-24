@@ -4,477 +4,812 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title}">TaskManager - Задачи</title>
+    <title th:text="${title}">Менеджер проектов - Задачи</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
     <style>
-        .task-card {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.task-card[style*="display: none"] {
-    display: none !important;
-}
-        .task-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .priority-high { border-left-color: #dc3545; }
-        .priority-medium { border-left-color: #ffc107; }
-        .priority-low { border-left-color: #28a745; }
-        .task-actions {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .task-card:hover .task-actions {
-            opacity: 1;
-        }
-
-.form-control:disabled, .form-select:disabled,
-.form-control[readonly], .form-select[readonly] {
-    background-color: #e9ecef !important;
-    color: #6c757d !important;
-    opacity: 1 !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
-}
-
-.form-control:disabled::placeholder, .form-control[readonly]::placeholder {
-    color: #adb5bd !important;
-}
-
-.bg-light {
-    background-color: #e9ecef !important;
-}
-
-.text-muted {
-    color: #6c757d !important;
-}
-
-/* Стиль для активного поля статуса */
-#taskStatus:not(:disabled) {
-    background-color: white !important;
-    color: #212529 !important;
-    cursor: pointer !important;
-}
-
-/* Стили для комментариев */
-.comment-item {
-    border-left: 3px solid #007bff;
-    padding-left: 10px;
-    margin-bottom: 15px;
-    background-color: #f8f9fa;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.comment-header {
-    font-size: 0.9em;
-    color: #6c757d;
-    margin-bottom: 5px;
-}
-
-.comment-text {
-    margin-bottom: 5px;
-    white-space: pre-wrap;
-}
-
-.comment-actions {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.comment-item:hover .comment-actions {
-    opacity: 1;
-}
-
-.comment-count {
-    font-size: 0.7em;
-    margin-left: 5px;
-}
-
-/* Стили для режима редактирования комментария */
-.comment-edit-mode .comment-text {
-    display: none;
-}
-
-.comment-edit-textarea {
-    width: 100%;
-    min-height: 80px;
-    margin-bottom: 10px;
-}
-
-.comment-edit-actions {
-    margin-top: 10px;
-}
-
-.comment-actions {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.comment-item:hover .comment-actions {
-    opacity: 1;
-}
-
-/* Стили для вложений */
-.attachments-container {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.attachment-item {
-    border: 1px solid #e9ecef;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: #f8f9fa;
-    transition: all 0.3s ease;
-}
-
-.attachment-item:hover {
-    background-color: #e9ecef;
-}
-
-.attachment-info {
-    flex: 1;
-}
-
-.attachment-name {
-    font-weight: 500;
-    margin-bottom: 2px;
-}
-
-.attachment-meta {
-    font-size: 0.8em;
-    color: #6c757d;
-}
-
-.attachment-actions {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.attachment-item:hover .attachment-actions {
-    opacity: 1;
-}
-
-.file-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
-    color: #6c757d;
-}
-
-.upload-area {
-    border: 2px dashed #dee2e6;
-    border-radius: 5px;
-    padding: 20px;
-    text-align: center;
-    background-color: #f8f9fa;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 15px;
-}
-
-.upload-area:hover {
-    border-color: #007bff;
-    background-color: #e7f3ff;
-}
-
-.upload-area.dragover {
-    border-color: #007bff;
-    background-color: #d1ecff;
-}
-
-#uploadForm button {
-    cursor: pointer;
-}
-
-/* Стили для Toast уведомлений */
-.toast-container {
-    min-width: 350px;
-    max-width: 500px;
-}
-
-.toast {
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.toast-body {
-    font-weight: 500;
-    padding: 12px 16px;
-}
-
-.toast.show {
-    animation: toastSlideIn 0.3s ease-out;
-}
-
-@keyframes toastSlideIn {
-    from {
-        transform: translateY(100px);
-        opacity: 0;
+    :root {
+        --primary: #1e40af;
+        --primary-light: #3b82f6;
+        --text: #e2e8f0;
+        --card-bg: rgba(255, 255, 255, 0.12);
+        --card-border: rgba(255, 255, 255, 0.15);
+        --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    to {
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e40af 100%);
+        min-height: 100vh;
+        color: var(--text);
+        overflow-x: hidden;
+    }
+
+    .bg-animation {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+    }
+    .bg-animation::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 15% 85%, rgba(30, 64, 175, 0.25) 0%, transparent 50%),
+            radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+        animation: breathe 22s ease-in-out infinite;
+    }
+    @keyframes breathe { 0%,100% { opacity: .6; transform: scale(1); } 50% { opacity: .9; transform: scale(1.03); } }
+
+    .content-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(1px);
+        z-index: -1;
+    }
+
+    /* Навигация */
+    nav {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 0.9rem 0;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+    }
+    .nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar-brand {
+        font-family: 'Manrope', sans-serif;
+        font-weight: 800;
+        font-size: 1.65rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        text-decoration: none;
+    }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .nav-menu {
+        display: flex;
+        gap: 0.8rem;
+        align-items: center;
+    }
+    .nav-menu a {
+        color: rgba(255,255,255,0.9);
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0.65rem 1.2rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: var(--transition);
+        white-space: nowrap;
+    }
+    .nav-menu a:hover {
+        background: rgba(255,255,255,0.15);
+        color: white;
+    }
+
+    .notification-bell {
+        position: relative;
+        padding: 0.65rem;
+        border-radius: 12px;
+        transition: var(--transition);
+    }
+    .notification-bell:hover { background: rgba(255,255,255,0.15); }
+
+    /* Центрирование цифры в уведомлениях */
+    .notification-counter {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #ef4444;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+    }
+
+    .profile-dropdown {
+        position: relative;
+    }
+    .dropdown-toggle {
+        background: none;
+        border: none;
+        color: white;
+        padding: 0.65rem 1.2rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .dropdown-toggle:hover { background: rgba(255,255,255,0.15); }
+
+    /* Исправление выпадающего меню пользователя */
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(30, 41, 59, 0.98) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        border-radius: 1rem;
+        min-width: 220px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1001;
+    }
+    .dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
         transform: translateY(0);
+    }
+    .dropdown-menu a, .dropdown-menu button {
+        display: block;
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        color: #e2e8f0 !important;
+        text-align: left;
+        background: none;
+        border: none;
+        font-size: 0.95rem;
+        transition: background 0.2s;
+    }
+    .dropdown-menu a:hover, .dropdown-menu button:hover {
+        background: rgba(255,255,255,0.1) !important;
+    }
+
+    main { padding-top: 100px; padding-bottom: 4rem; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+
+    /* Заголовок страницы */
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .page-header h1 {
+        font-family: 'Manrope', sans-serif;
+        font-size: 3.2rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #ffffff, #bfdbfe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Карточки задач */
+    .tasks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Исправление карточек задач */
+    .task-card {
+        background: rgba(30, 41, 59, 0.7) !important;
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        transition: var(--transition);
+        position: relative;
+    }
+    .task-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        border-color: rgba(59, 130, 246, 0.3) !important;
+    }
+
+    /* Убираем левую границу приоритета и добавляем верхнюю полоску */
+    .task-card.priority-high::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #ef4444;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .task-card.priority-medium::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #f59e0b;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .task-card.priority-low::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #10b981;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    .task-id {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.7);
+        margin-bottom: 0.25rem;
+    }
+    .task-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    .task-description {
+        color: rgba(255,255,255,0.8);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+    .task-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.7);
+    }
+    .task-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .task-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    .status-todo { background: rgba(107, 114, 128, 0.3); }
+    .status-inprogress { background: rgba(59, 130, 246, 0.3); }
+    .status-done { background: rgba(34, 197, 94, 0.3); }
+    .task-priority {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    .priority-high { background: rgba(239, 68, 68, 0.3); }
+    .priority-medium { background: rgba(245, 158, 11, 0.3); }
+    .priority-low { background: rgba(34, 197, 94, 0.3); }
+
+    /* Кнопки действий */
+    .task-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .task-card:hover .task-actions {
         opacity: 1;
     }
-}
-
-@media (max-width: 576px) {
-    .toast-container {
-        min-width: 90%;
-        max-width: 95%;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
+    .action-btn {
+        background: rgba(255,255,255,0.1);
+        border: none;
+        border-radius: 0.5rem;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: var(--transition);
     }
-}
+    .action-btn:hover {
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.1);
+    }
 
-/* Дополнительные анимации для toast */
-.toast {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    /* Фильтры и поиск */
+    .filters-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .filters-title {
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .filter-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #e2e8f0;
+    }
 
-.toast.hide {
-    opacity: 0;
-    transform: translateY(100px) scale(0.8);
-}
+    /* Исправленные стили для select и input */
+    .filter-select, .filter-input, .form-control, .form-select {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        border-radius: 0.75rem !important;
+        padding: 0.75rem !important;
+        color: #e2e8f0 !important;
+        font-size: 0.9rem !important;
+        transition: var(--transition) !important;
+    }
+    .filter-select:focus, .filter-input:focus, .form-control:focus, .form-select:focus {
+        outline: none !important;
+        border-color: #3b82f6 !important;
+        background: rgba(255,255,255,0.15) !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+        color: #e2e8f0 !important;
+    }
+    .filter-select option, .form-select option {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+    }
 
-/* Эффект при наведении */
-.toast:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-}
+    .search-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .search-input {
+        flex: 1;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+    .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255,255,255,0.15);
+    }
+    .search-input::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        color: white;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(59,130,246,0.4);
+    }
+    .btn-secondary {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.2);
+    }
 
-/* Стили для номера задачи */
-.task-id {
-    font-size: 0.8em;
-    color: #6c757d;
-    font-weight: 500;
-}
+    /* Сообщение об отсутствии задач */
+    .no-tasks {
+        text-align: center;
+        padding: 3rem;
+        color: rgba(255,255,255,0.7);
+    }
 
-.task-title {
-    margin-top: 2px;
-}
+    /* Счетчик задач */
+    .tasks-count {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: rgba(255,255,255,0.8);
+    }
+    .tasks-count strong {
+        color: white;
+        font-weight: 600;
+    }
 
-/* Стили для поиска */
-.search-highlight {
-    background-color: #fff3cd;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-weight: bold;
-}
+    /* Общие стили для модальных окон */
+    .modal-content {
+        background: rgba(30, 41, 59, 0.95) !important;
+        backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: #e2e8f0 !important;
+    }
+    .modal-header {
+        border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    .modal-footer {
+        border-top: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    .modal-title {
+        color: #e2e8f0 !important;
+    }
+    .form-label {
+        color: #e2e8f0 !important;
+    }
+    .btn-close {
+        filter: invert(1) !important;
+    }
 
-/* Анимация для плавного появления/скрытия */
-.task-card {
-    transition: all 0.3s ease;
-}
+    /* Исправление модального окна комментариев */
+    #commentsModal .modal-dialog {
+        max-width: 700px;
+    }
 
-.task-card.hidden {
-    display: none !important;
-}
+    #commentsModal .modal-content {
+        background: rgba(30, 41, 59, 0.95) !important;
+        backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+    }
 
-#filteredTasksCount {
-    font-weight: bold;
-    color: #007bff;
-    transition: color 0.3s ease;
-}
+    #commentsModal .modal-body {
+        color: #e2e8f0 !important;
+    }
 
-/* Гарантируем правильное выравнивание сетки */
-.container .row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-}
+    #commentsModal .form-control {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: #e2e8f0 !important;
+    }
 
-.col-md-6, .col-lg-4 {
-    padding-right: 15px;
-    padding-left: 15px;
-}
-    </style>
+    #commentsModal .form-control:focus {
+        background: rgba(255,255,255,0.15) !important;
+        border-color: #3b82f6 !important;
+        color: #e2e8f0 !important;
+    }
+
+    .comment-item {
+        border-left: 3px solid #3b82f6;
+        padding-left: 15px;
+        margin-bottom: 15px;
+        background-color: rgba(255,255,255,0.05);
+        padding: 12px;
+        border-radius: 8px;
+        color: #e2e8f0 !important;
+    }
+
+    .comment-header {
+        font-size: 0.9em;
+        color: #94a3b8 !important;
+        margin-bottom: 8px;
+    }
+
+    .comment-text {
+        margin-bottom: 8px;
+        white-space: pre-wrap;
+        color: #e2e8f0 !important;
+        line-height: 1.4;
+    }
+
+    /* Исправление раздела вложений */
+    #attachmentsSection {
+        color: #e2e8f0 !important;
+    }
+
+    .attachments-container {
+        max-height: 300px;
+        overflow-y: auto;
+        color: #e2e8f0 !important;
+    }
+
+    .attachment-item {
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        background-color: rgba(255,255,255,0.05);
+        transition: all 0.3s ease;
+        color: #e2e8f0 !important;
+        display: flex;
+        align-items: center;
+    }
+
+    .attachment-item:hover {
+        background-color: rgba(255,255,255,0.1);
+        border-color: rgba(59, 130, 246, 0.3) !important;
+    }
+
+    .attachment-info {
+        flex: 1;
+        color: #e2e8f0 !important;
+    }
+
+    .attachment-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: #e2e8f0 !important;
+    }
+
+    .attachment-meta {
+        font-size: 0.8em;
+        color: #94a3b8 !important;
+    }
+
+    .file-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 12px;
+        color: #3b82f6 !important;
+        flex-shrink: 0;
+    }
+
+    .upload-area {
+        border: 2px dashed rgba(255,255,255,0.3) !important;
+        border-radius: 8px;
+        padding: 25px;
+        text-align: center;
+        background-color: rgba(255,255,255,0.05);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+        color: #e2e8f0 !important;
+    }
+
+    .upload-area:hover {
+        border-color: #3b82f6 !important;
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    .upload-area.dragover {
+        border-color: #3b82f6 !important;
+        background-color: rgba(59, 130, 246, 0.2);
+    }
+
+    /* Стили для Toast уведомлений */
+    .toast-container {
+        min-width: 350px;
+        max-width: 500px;
+    }
+    .toast {
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    .toast-body {
+        font-weight: 500;
+        padding: 12px 16px;
+    }
+    .toast.show {
+        animation: toastSlideIn 0.3s ease-out;
+    }
+    @keyframes toastSlideIn {
+        from {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .page-header h1 { font-size: 2.5rem; }
+        .tasks-grid { grid-template-columns: 1fr; }
+        .filters-grid { grid-template-columns: 1fr; }
+        .nav-menu { gap: 0.5rem; }
+        .nav-menu a { padding: 0.6rem 1rem; font-size: 0.95rem; }
+    }
+</style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
+
+<div class="bg-animation"></div>
+<div class="content-overlay"></div>
+
+<nav>
+    <div class="nav-container">
         <a class="navbar-brand" href="/">
-            <i class="fas fa-tasks me-2"></i>TaskManager
+            <i data-lucide="building-2"></i>
+            Менеджер проектов
         </a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link text-white" href="/dashboard">
-                <i class="fas fa-tachometer-alt me-1"></i>Панель управления
-            </a>
-            <a class="nav-link text-white" href="/tasks">
-                <i class="fas fa-list-check me-1"></i>Задачи
-            </a>
-            <!-- Скрываем Проекты для исполнителя -->
-            <a class="nav-link text-white" href="/projects"
-               th:if="${#authentication != null && (#authentication.principal.role != 'EXECUTOR')}">
-                <i class="fas fa-folder me-1"></i>Проекты
-            </a>
-            <!-- Ссылка на уведомления (для всех авторизованных пользователей) -->
-            <a class="nav-link text-white" href="/notifications">
-                <i class="fas fa-bell me-1"></i>Уведомления
-                <span class="badge bg-danger notification-counter" style="display: none;">0</span>
-            </a>
-            <!-- Скрываем Пользователи для не-администраторов -->
-            <a class="nav-link text-white" href="/admin/users"
-               th:if="${#authentication != null && (#authentication.principal.role == 'ADMIN')}">
-                <i class="fas fa-users me-1"></i>Пользователи
-            </a>
-            <a class="nav-link text-white" href="/api/tasks" target="_blank">
-                <i class="fas fa-code me-1"></i>API
-            </a>
-            <div class="nav-item dropdown">
-                <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-user me-1"></i>
-                    <span th:text="${#authentication.name}">Пользователь</span>
+
+        <div class="nav-right">
+            <div class="nav-menu">
+                <a href="/dashboard"><i data-lucide="layout-dashboard"></i> Панель управления</a>
+                <a href="/tasks"><i data-lucide="check-square"></i> Задачи</a>
+                <a href="/projects" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
+                    <i data-lucide="folders"></i> Проекты
                 </a>
-                <ul class="dropdown-menu">
-                    <li><span class="dropdown-item-text">
-                        Пользователь: <strong><span th:text="${#authentication.name}">Имя</span></strong>
-                    </span></li>
-                    <li><span class="dropdown-item-text">
-                        Роль: <strong><span th:text="${#authentication.principal.role}">Роль</span></strong>
-                    </span></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <form th:action="@{/logout}" method="post" class="d-inline">
-                            <button type="submit" class="dropdown-item">
-                                <i class="fas fa-sign-out-alt me-2"></i>Выйти
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+                <a href="/admin/users" th:if="${#authentication?.principal?.role == 'ADMIN'}">
+                    <i data-lucide="shield"></i> Администратор
+                </a>
+                <a href="/notifications" class="notification-bell">
+                    <i data-lucide="bell"></i>
+                    <span class="notification-counter" id="notif-counter" style="display:none;">0</span>
+                </a>
+            </div>
+
+            <!-- Профиль -->
+            <div class="profile-dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown()">
+                    <i data-lucide="user"></i>
+                    <i data-lucide="chevron-down" style="font-size:0.9rem;"></i>
+                </button>
+                <div class="dropdown-menu" id="profileMenu">
+                    <div style="padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <div><strong th:text="${#authentication?.name}">Имя</strong></div>
+                        <div style="font-size:0.9rem; opacity:0.8;" th:text="${#authentication?.principal?.role}">Роль</div>
+                    </div>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" style="width:100%; text-align:left;">
+                            <i data-lucide="log-out"></i> Выйти
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </nav>
 
-<div class="container mt-4">
-    <!-- Заголовок и статистика -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2><i class="fas fa-list-check me-2"></i>Управление задачами</h2>
-            <p class="text-muted">Всего задач: <span th:text="${tasksCount}">0</span> | Найдено: <span id="filteredTasksCount" th:text="${tasksCount}">0</span></p>
+<main>
+    <div class="container">
+        <div class="page-header">
+            <h1>Управление задачами</h1>
+            <p>Добро пожаловать, <strong th:text="${#authentication?.name}">Пользователь</strong>!</p>
         </div>
-        <div class="col-md-4 text-end" th:if="${canCreateTasks}">
-            <button class="btn btn-primary" onclick="showCreateTaskForm()">
-                <i class="fas fa-plus me-1"></i>Создать задачу
+
+        <!-- Поиск -->
+        <div class="search-container">
+            <input type="text" class="search-input" id="taskSearch" placeholder="Поиск по номеру задачи или названию..." oninput="debouncedApplyAll()">
+            <button class="btn btn-secondary" onclick="clearSearch()">
+                <i data-lucide="x"></i> Очистить
             </button>
         </div>
-    </div>
 
-    <!-- Поле поиска -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="input-group">
-            <span class="input-group-text">
-                <i class="fas fa-search"></i>
-            </span>
-                <input type="text" class="form-control" id="taskSearch"
-                       placeholder="Поиск по номеру задачи или названию..."
-                       oninput="debouncedApplyAll()">
-                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
-                    <i class="fas fa-times"></i>
+        <!-- Фильтры -->
+        <div class="filters-card">
+            <div class="filters-header">
+                <div class="filters-title">
+                    <i data-lucide="filter"></i> Фильтры задач
+                </div>
+                <button class="btn btn-secondary" onclick="resetFilters()">
+                    <i data-lucide="refresh-ccw"></i> Сбросить
                 </button>
             </div>
-            <div class="form-text">
-                <small>
-                    <i class="fas fa-info-circle me-1"></i>
-                    Ищите по номеру или названию задачи.
-                </small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Фильтры -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title">
-                        <i class="fas fa-filter me-2"></i>Фильтры задач
-                    </h6>
-                    <div class="row g-3">
-                        <!-- Фильтр по статусу -->
-                        <div class="col-md-2">
-                            <label for="filterStatus" class="form-label">Статус</label>
-                            <select class="form-select" id="filterStatus" onchange="applyAll()">
-                                <option value="">Все статусы</option>
-                                <option value="TO_DO">К выполнению</option>
-                                <option value="IN_PROGRESS">В работе</option>
-                                <option value="DONE">Выполнено</option>
-                            </select>
-                        </div>
-
-                        <!-- Фильтр по приоритету -->
-                        <div class="col-md-2">
-                            <label for="filterPriority" class="form-label">Приоритет</label>
-                            <select class="form-select" id="filterPriority" onchange="applyAll()">
-                                <option value="">Все приоритеты</option>
-                                <option value="LOW">Низкий</option>
-                                <option value="MEDIUM">Средний</option>
-                                <option value="HIGH">Высокий</option>
-                            </select>
-                        </div>
-
-                        <!-- Фильтр по проекту -->
-                        <div class="col-md-2">
-                            <label for="filterProject" class="form-label">Проект</label>
-                            <select class="form-select" id="filterProject" onchange="applyAll()">
-                                <option value="">Все проекты</option>
-                                <!-- Динамически заполняем проекты -->
-                                <option th:each="project : ${projects}"
-                                        th:value="${project.id}"
-                                        th:text="${project.name}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <!-- Фильтр по исполнителю (скрыт для исполнителя) -->
-                        <div class="col-md-2" th:if="${!isExecutor}">
-                            <label for="filterExecutor" class="form-label">Исполнитель</label>
-                            <select class="form-select" id="filterExecutor" onchange="applyAll()">
-                                <option value="">Все исполнители</option>
-                                <!-- Динамически заполняем исполнителей -->
-                                <option th:each="executor : ${executors}"
-                                        th:value="${executor.id}"
-                                        th:text="${executor.fullName}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <!-- Сортировка по сроку выполнения -->
-                        <div class="col-md-2">
-                            <label for="sortDeadline" class="form-label">По сроку выполнения</label>
-                            <select class="form-select" id="sortDeadline" onchange="applyAll()">
-                                <option value="">Без сортировки</option>
-                                <option value="asc">Сначала старые</option>
-                                <option value="desc">Сначала новые</option>
-                            </select>
-                        </div>
-
-                        <!-- Кнопка сброса фильтров -->
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-outline-secondary w-100" onclick="resetFilters()">
-                                <i class="fas fa-times me-1"></i>Сбросить фильтры
-                            </button>
-                        </div>
-                    </div>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Статус</label>
+                    <select class="filter-select" id="filterStatus" onchange="applyAll()">
+                        <option value="">Все статусы</option>
+                        <option value="TO_DO">К выполнению</option>
+                        <option value="IN_PROGRESS">В работе</option>
+                        <option value="DONE">Выполнено</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Приоритет</label>
+                    <select class="filter-select" id="filterPriority" onchange="applyAll()">
+                        <option value="">Все приоритеты</option>
+                        <option value="LOW">Низкий</option>
+                        <option value="MEDIUM">Средний</option>
+                        <option value="HIGH">Высокий</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Проект</label>
+                    <select class="filter-select" id="filterProject" onchange="applyAll()">
+                        <option value="">Все проекты</option>
+                        <option th:each="project : ${projects}"
+                                th:value="${project.id}"
+                                th:text="${project.name}">
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group" th:if="${!isExecutor}">
+                    <label class="filter-label">Исполнитель</label>
+                    <select class="filter-select" id="filterExecutor" onchange="applyAll()">
+                        <option value="">Все исполнители</option>
+                        <option th:each="executor : ${executors}"
+                                th:value="${executor.id}"
+                                th:text="${executor.fullName}">
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Сортировка по сроку</label>
+                    <select class="filter-select" id="sortDeadline" onchange="applyAll()">
+                        <option value="">Без сортировки</option>
+                        <option value="asc">Сначала старые</option>
+                        <option value="desc">Сначала новые</option>
+                    </select>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Список задач -->
-    <div class="row" id="tasksContainer">
-        <div th:each="task : ${tasks}" class="col-md-6 col-lg-4 mb-4">
-            <div class="card task-card h-100"
+        <!-- Счетчик и кнопка создания -->
+        <div class="tasks-count">
+            Всего задач: <span th:text="${tasksCount}">0</span> | Найдено: <strong id="filteredTasksCount" th:text="${tasksCount}">0</strong>
+            <span th:if="${canCreateTasks}">
+                |
+                <button class="btn btn-primary" onclick="showCreateTaskForm()" style="margin-left: 1rem;">
+                    <i data-lucide="plus"></i> Создать задачу
+                </button>
+            </span>
+        </div>
+
+        <!-- Список задач -->
+        <div class="tasks-grid" id="tasksContainer">
+            <div th:each="task : ${tasks}" class="task-card"
                  th:classappend="${task.priority.name() == 'HIGH'} ? 'priority-high' :
                          (${task.priority.name() == 'MEDIUM'} ? 'priority-medium' : 'priority-low')"
                  th:data-task-id="${task.id}"
@@ -483,88 +818,79 @@
                  th:data-task-project="${task.project?.id}"
                  th:data-task-executor="${task.executor?.id}"
                  th:data-task-deadline="${task.deadline != null ? #temporals.format(task.deadline, 'yyyy-MM-dd''T''HH:mm') : ''}">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <div class="task-id">Задача: #<span th:text="${task.id}">ID</span></div>
-                            <h6 class="card-title mb-0 task-title" th:text="${task.title}">Название задачи</h6>
-                        </div>
-                        <div class="task-actions">
-                            <button class="btn btn-sm btn-outline-primary me-1 edit-task-btn"
-                                    th:attr="data-task-id=${task.id}">
-                                <i class="fas fa-edit"></i>
-                            </button>
 
-                            <button class="btn btn-sm btn-outline-danger delete-task-btn"
-                                    th:attr="data-task-id=${task.id}"
-                                    th:data-task-title="${task.title}"
-                                    th:if="${!isExecutor}">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                <div class="task-actions">
+                    <button class="action-btn edit-task-btn" th:attr="data-task-id=${task.id}">
+                        <i data-lucide="edit"></i>
+                    </button>
+                    <button class="action-btn delete-task-btn"
+                            th:attr="data-task-id=${task.id}"
+                            th:data-task-title="${task.title}"
+                            th:if="${!isExecutor}">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                    <button class="action-btn comments-btn"
+                            th:attr="data-task-id=${task.id}"
+                            th:onclick="'openCommentsModal(' + ${task.id} + ')'">
+                        <i data-lucide="message-circle"></i>
+                        <span class="badge bg-secondary comment-count comment-badge"
+                              th:attr="data-task-id=${task.id}" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;">0</span>
+                    </button>
+                </div>
 
-                            <button class="btn btn-sm btn-outline-info comments-btn"
-                                    th:attr="data-task-id=${task.id}"
-                                    th:onclick="'openCommentsModal(' + ${task.id} + ')'">
-                                <i class="fas fa-comments me-1"></i>Комментарии
-                                <span class="badge bg-secondary comment-count"
-                                      th:attr="data-task-id=${task.id}">0</span>
-                            </button>
-                        </div>
+                <div class="task-header">
+                    <div>
+                        <div class="task-id">Задача: #<span th:text="${task.id}">ID</span></div>
+                        <div class="task-title" th:text="${task.title}">Название задачи</div>
                     </div>
+                </div>
 
-                    <p class="card-text text-muted small" th:text="${task.description} ?: 'Описание отсутствует'">
-                        Описание задачи</p>
+                <div class="task-description" th:text="${task.description} ?: 'Описание отсутствует'">
+                    Описание задачи
+                </div>
 
-                    <div class="task-meta mb-3">
-                        <div class="mb-1">
-                            <small class="text-muted">
-                                <i class="fas fa-project-diagram me-1"></i>
-                                <span th:text="${task.project?.name} ?: 'Без проекта'">Проект</span>
-                            </small>
-                        </div>
-                        <div class="mb-1">
-                            <small class="text-muted">
-                                <i class="fas fa-user me-1"></i>
-                                <span th:text="${task.executor?.fullName} ?: 'Не назначен'">Исполнитель</span>
-                            </small>
-                        </div>
-                        <div th:if="${task.deadline}" class="mb-1">
-                            <small class="text-muted">
-                                <i class="fas fa-clock me-1"></i>
-                                <span th:text="${#temporals.format(task.deadline, 'dd.MM.yyyy HH:mm')}">Дедлайн</span>
-                            </small>
-                        </div>
+                <div class="task-meta">
+                    <div class="meta-item">
+                        <i data-lucide="folder"></i>
+                        <span th:text="${task.project?.name} ?: 'Без проекта'">Проект</span>
                     </div>
+                    <div class="meta-item">
+                        <i data-lucide="user"></i>
+                        <span th:text="${task.executor?.fullName} ?: 'Не назначен'">Исполнитель</span>
+                    </div>
+                    <div th:if="${task.deadline}" class="meta-item">
+                        <i data-lucide="calendar"></i>
+                        <span th:text="${#temporals.format(task.deadline, 'dd.MM.yyyy HH:mm')}">Дедлайн</span>
+                    </div>
+                </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge"
-                          th:classappend="${task.status.name() == 'TO_DO'} ? 'bg-secondary' :
-                                          (${task.status.name() == 'IN_PROGRESS'} ? 'bg-primary' :
-                                          (${task.status.name() == 'DONE'} ? 'bg-success' : 'bg-warning'))"
+                <div class="task-footer">
+                    <span class="task-status"
+                          th:classappend="${task.status.name() == 'TO_DO'} ? 'status-todo' :
+                                          (${task.status.name() == 'IN_PROGRESS'} ? 'status-inprogress' : 'status-done')"
                           th:text="${task.status.name() == 'TO_DO'} ? 'К выполнению' :
-                                   (${task.status.name() == 'IN_PROGRESS'} ? 'В работе' :
-                                   (${task.status.name() == 'DONE'} ? 'Выполнено' : 'На проверке'))">
+                                   (${task.status.name() == 'IN_PROGRESS'} ? 'В работе' : 'Выполнено')">
                         Статус
                     </span>
-                        <span class="badge"
-                              th:classappend="${task.priority.name() == 'HIGH'} ? 'bg-danger' :
-                                          (${task.priority.name() == 'MEDIUM'} ? 'bg-warning' : 'bg-success')"
-                              th:text="${task.priority.name() == 'HIGH'} ? 'Высокий' :
+                    <span class="task-priority"
+                          th:classappend="${task.priority.name() == 'HIGH'} ? 'priority-high' :
+                                          (${task.priority.name() == 'MEDIUM'} ? 'priority-medium' : 'priority-low')"
+                          th:text="${task.priority.name() == 'HIGH'} ? 'Высокий' :
                                    (${task.priority.name() == 'MEDIUM'} ? 'Средний' : 'Низкий')">
                         Приоритет
                     </span>
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Сообщение если задач нет (изначально) -->
-    <div th:if="${tasksCount == 0}" class="text-center py-5" id="initialNoTasks">
-        <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
-        <h4 class="text-muted">Задачи не найдены</h4>
-        <p class="text-muted">Создайте первую задачу, нажав на кнопку "Создать задачу"</p>
+        <!-- Сообщение если задач нет -->
+        <div th:if="${tasksCount == 0}" class="no-tasks" id="initialNoTasks">
+            <i data-lucide="clipboard-list"></i>
+            <h3>Задачи не найдены</h3>
+            <p>Создайте первую задачу, нажав на кнопку "Создать задачу"</p>
+        </div>
     </div>
+</main>
 
 <!-- Модальное окно для создания/редактирования задачи -->
 <div class="modal fade" id="taskModal" tabindex="-1">
@@ -818,15 +1144,81 @@
         </div>
     </div>
 </div>
-
+<div id="userRoleInfo"
+     th:attr="data-is-executor=${isExecutor}"
+     style="display: none;"
+     th:if="${isExecutor != null}">
+</div>
+<!-- Toast контейнер для уведомлений -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1100">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    <div id="infoToast" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-info-circle me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Инициализация иконок
+    lucide.createIcons();
+
+    // Дропдаун профиля
+    function toggleDropdown() {
+        document.getElementById('profileMenu').classList.toggle('show');
+    }
+    window.onclick = function(e) {
+        if (!e.target.closest('.profile-dropdown')) {
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
+        }
+    }
+
+    // Уведомления
+    function updateNotifications() {
+        fetch('/notifications/api/notifications/count')
+            .then(r => r.json())
+            .then(count => {
+                const counter = document.getElementById('notif-counter');
+                if (count > 0) {
+                    counter.textContent = count > 99 ? '99+' : count;
+                    counter.style.display = 'flex';
+                } else {
+                    counter.style.display = 'none';
+                }
+            })
+            .catch(() => {});
+    }
+
 let currentTaskId = null;
 let isExecutor = false;
 let taskModal = null;
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
+ console.log('=== COMMENTS SYSTEM INITIALIZATION ===');
+
     // Сначала получаем информацию о роли пользователя
     const userRoleInfo = document.getElementById('userRoleInfo');
     if (userRoleInfo) {
@@ -1202,13 +1594,14 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('=== COMMENTS SYSTEM INITIALIZATION ===');
 
     // Инициализируем модальное окно комментариев
-    const commentsModalElement = document.getElementById('commentsModal');
+   const commentsModalElement = document.getElementById('commentsModal');
     if (commentsModalElement) {
         commentsModal = new bootstrap.Modal(commentsModalElement);
         console.log('✓ Comments modal initialized');
     } else {
         console.error('✗ Comments modal element not found!');
     }
+
 
     // Инициализируем модальное окно удаления комментария
     const deleteCommentModalElement = document.getElementById('deleteCommentModal');
@@ -1269,15 +1662,15 @@ function openCommentsModal(taskId) {
     document.getElementById('commentForm').reset();
 
     // Обновляем заголовок с номером задачи
-    const taskCard = document.querySelector(`.edit-task-btn[data-task-id="${taskId}"]`).closest('.task-card');
+    const taskCard = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
     if (taskCard) {
-        const taskTitle = taskCard.querySelector('.card-title').textContent;
-        const taskIdElement = taskCard.querySelector('small.text-muted span');
-        const taskId = taskIdElement ? taskIdElement.textContent : taskId;
+        const taskTitle = taskCard.querySelector('.task-title').textContent;
+        const taskIdElement = taskCard.querySelector('.task-id span');
+        const taskIdText = taskIdElement ? taskIdElement.textContent : taskId;
 
         const commentsModalTitle = document.getElementById('commentsModalTitle');
         if (commentsModalTitle) {
-            commentsModalTitle.textContent = `Комментарии к задаче: #${taskId}`;
+            commentsModalTitle.textContent = `Комментарии к задаче: #${taskIdText} - ${taskTitle}`;
         }
     } else {
         const commentsModalTitle = document.getElementById('commentsModalTitle');
@@ -2394,31 +2787,24 @@ function filterTasks() {
     const searchTerm = document.getElementById('taskSearch').value.toLowerCase().trim();
     currentSearchTerm = searchTerm;
 
-    const taskColumns = document.querySelectorAll('.col-md-6.col-lg-4.mb-4');
+    const taskCards = document.querySelectorAll('.task-card');
     let visibleCount = 0;
 
     if (!searchTerm) {
         // Если поиск пустой, показываем все задачи
-        taskColumns.forEach(column => {
-            column.style.display = 'block';
-            const card = column.querySelector('.task-card');
-            if (card) removeHighlights(card);
+        taskCards.forEach(card => {
+            card.style.display = 'block';
+            removeHighlights(card);
         });
-        visibleCount = taskColumns.length;
+        visibleCount = taskCards.length;
     } else {
         // Фильтруем задачи
-        taskColumns.forEach(column => {
-            const card = column.querySelector('.task-card');
-            if (!card) {
-                column.style.display = 'none';
-                return;
-            }
-
+        taskCards.forEach(card => {
             const taskIdElement = card.querySelector('.task-id span');
-            const taskTitleElement = card.querySelector('.card-title');
+            const taskTitleElement = card.querySelector('.task-title');
 
             if (!taskIdElement || !taskTitleElement) {
-                column.style.display = 'none';
+                card.style.display = 'none';
                 return;
             }
 
@@ -2431,17 +2817,14 @@ function filterTasks() {
             const matchesTitle = taskTitle.includes(searchTerm);
 
             if (matchesId || matchesTitle) {
-                column.style.display = 'block';
+                card.style.display = 'block';
                 highlightSearchTerms(card, searchTerm, searchNumbers);
                 visibleCount++;
             } else {
-                column.style.display = 'none';
+                card.style.display = 'none';
                 removeHighlights(card);
             }
         });
-
-        // Перестраиваем сетку для правильного выравнивания
-        rearrangeTaskGrid();
     }
 
     // Обновляем счетчик
@@ -2449,13 +2832,11 @@ function filterTasks() {
 
     // Показываем сообщение, если ничего не найдено
     showNoResultsMessage(visibleCount === 0 && (searchTerm !== '' || Object.values(activeFilters).some(f => f) || currentSort));
-
-    debugSearch();
 }
 
 // Функция для подсветки найденных терминов
 function highlightSearchTerms(card, searchTerm, searchNumbers) {
-    const titleElement = card.querySelector('.card-title');
+    const titleElement = card.querySelector('.task-title');
     const titleText = titleElement.textContent;
 
     // Подсвечиваем в названии
@@ -2485,7 +2866,7 @@ function escapeRegExp(string) {
 
 // Функция для удаления подсветки
 function removeHighlights(card) {
-    const titleElement = card.querySelector('.card-title');
+    const titleElement = card.querySelector('.task-title');
     const taskIdElement = card.querySelector('.task-id span');
 
     if (titleElement) {
@@ -2530,19 +2911,19 @@ function showNoResultsMessage(show) {
         let messageHtml = '';
         if (searchTerm && hasActiveFilters) {
             messageHtml = `
-                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <i data-lucide="search" class="mb-3" style="width: 3rem; height: 3rem;"></i>
                 <h4 class="text-muted">Задачи не найдены</h4>
                 <p class="text-muted">По запросу "<strong>${escapeHtml(searchTerm)}</strong>" и выбранным фильтрам ничего не найдено</p>
             `;
         } else if (searchTerm) {
             messageHtml = `
-                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <i data-lucide="search" class="mb-3" style="width: 3rem; height: 3rem;"></i>
                 <h4 class="text-muted">Задачи не найдены</h4>
                 <p class="text-muted">По запросу "<strong>${escapeHtml(searchTerm)}</strong>" ничего не найдено</p>
             `;
         } else if (hasActiveFilters) {
             messageHtml = `
-                <i class="fas fa-filter fa-3x text-muted mb-3"></i>
+                <i data-lucide="filter" class="mb-3" style="width: 3rem; height: 3rem;"></i>
                 <h4 class="text-muted">Задачи не найдены</h4>
                 <p class="text-muted">По выбранным фильтрам ничего не найдено</p>
             `;
@@ -2550,7 +2931,7 @@ function showNoResultsMessage(show) {
 
         noResultsElement.innerHTML = messageHtml + `
             <button class="btn btn-outline-primary mt-2" onclick="resetFilters()">
-                <i class="fas fa-times me-1"></i>Сбросить все фильтры
+                <i data-lucide="refresh-ccw" class="me-1" style="width: 1rem; height: 1rem;"></i>Сбросить все фильтры
             </button>
         `;
 
@@ -2559,6 +2940,9 @@ function showNoResultsMessage(show) {
         if (tasksContainer) {
             tasksContainer.parentNode.insertBefore(noResultsElement, tasksContainer.nextSibling);
         }
+
+        // Инициализируем иконки Lucide для нового контента
+        lucide.createIcons();
     }
 }
 
@@ -2608,19 +2992,18 @@ function debugSearch() {
     console.log('=== SEARCH DEBUG ===');
     console.log('Search term:', currentSearchTerm);
 
-    const taskColumns = document.querySelectorAll('.col-md-6.col-lg-4.mb-4');
-    console.log('Total columns:', taskColumns.length);
+    const taskCards = document.querySelectorAll('.task-card');
+    console.log('Total cards:', taskCards.length);
 
     let visibleCount = 0;
-    taskColumns.forEach((column, index) => {
-        const isVisible = column.style.display !== 'none';
+    taskCards.forEach((card, index) => {
+        const isVisible = card.style.display !== 'none';
         if (isVisible) visibleCount++;
 
-        const card = column.querySelector('.task-card');
-        const taskId = card ? card.querySelector('.task-id span')?.textContent : 'no card';
-        const taskTitle = card ? card.querySelector('.card-title')?.textContent : 'no card';
+        const taskId = card.querySelector('.task-id span')?.textContent;
+        const taskTitle = card.querySelector('.task-title')?.textContent;
 
-        console.log(`Column ${index}:`, {
+        console.log(`Card ${index}:`, {
             visible: isVisible,
             taskId: taskId,
             taskTitle: taskTitle
@@ -2642,8 +3025,8 @@ let originalTaskOrder = []; // Сохраняем исходный порядо�
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
-    const taskColumns = document.querySelectorAll('#tasksContainer > .col-md-6.col-lg-4');
-    originalTaskOrder = Array.from(taskColumns);
+    const taskCards = document.querySelectorAll('.task-card');
+    originalTaskOrder = Array.from(taskCards);
     console.log('Original task order saved:', originalTaskOrder.length);
 });
 
@@ -2667,21 +3050,15 @@ function applyAll() {
     console.log('Search term:', searchTerm);
 
     const container = document.getElementById('tasksContainer');
-    const taskColumns = Array.from(container.querySelectorAll('.col-md-6.col-lg-4.mb-4'));
+    const taskCards = Array.from(container.querySelectorAll('.task-card'));
     let visibleCount = 0;
-    const visibleColumns = [];
+    const visibleCards = [];
 
     const allFiltersEmpty = !activeFilters.status && !activeFilters.priority &&
                            !activeFilters.project && !activeFilters.executor &&
                            !currentSort && !searchTerm;
 
-    taskColumns.forEach(column => {
-        const card = column.querySelector('.task-card');
-        if (!card) {
-            column.style.display = 'none';
-            return;
-        }
-
+    taskCards.forEach(card => {
         // Получаем данные из data-атрибутов
         const taskStatus = card.getAttribute('data-task-status');
         const taskPriority = card.getAttribute('data-task-priority');
@@ -2699,7 +3076,7 @@ function applyAll() {
         let matchesSearch = true;
         if (searchTerm) {
             const taskIdElement = card.querySelector('.task-id span');
-            const taskTitleElement = card.querySelector('.card-title');
+            const taskTitleElement = card.querySelector('.task-title');
             if (taskIdElement && taskTitleElement) {
                 const taskId = taskIdElement.textContent;
                 const taskTitle = taskTitleElement.textContent.toLowerCase();
@@ -2721,17 +3098,17 @@ function applyAll() {
         const shouldShow = matchesStatus && matchesPriority && matchesProject && matchesExecutor && matchesSearch;
 
         if (shouldShow) {
-            column.style.display = '';
-            visibleColumns.push({ column, deadline: taskDeadline });
+            card.style.display = 'block';
+            visibleCards.push({ card, deadline: taskDeadline });
             visibleCount++;
         } else {
-            column.style.display = 'none';
+            card.style.display = 'none';
         }
     });
 
     // Сортировка только видимых
-    if (currentSort && visibleColumns.length > 0) {
-        visibleColumns.sort((a, b) => {
+    if (currentSort && visibleCards.length > 0) {
+        visibleCards.sort((a, b) => {
             const dA = a.deadline ? new Date(a.deadline) : null;
             const dB = b.deadline ? new Date(b.deadline) : null;
 
@@ -2742,19 +3119,18 @@ function applyAll() {
             return currentSort === 'asc' ? dA - dB : dB - dA;
         });
 
-        // Перестраиваем порядок
+        // Перестраиваем порядок в DOM
         const fragment = document.createDocumentFragment();
-        visibleColumns.forEach(item => fragment.appendChild(item.column));
+        visibleCards.forEach(item => fragment.appendChild(item.card));
         container.appendChild(fragment);
     } else if (!allFiltersEmpty) {
-        // Если есть фильтры, но сортировки нет — просто порядок по DOM
-        // Ничего не делаем, display уже управляется
+        // Если есть фильтры, но сортировки нет - ничего не делаем
     } else {
-        // Если всё пусто — восстанавливаем исходный порядок
+        // Если всё пусто - восстанавливаем исходный порядок
         const fragment = document.createDocumentFragment();
-        originalTaskOrder.forEach(col => {
-            if (col.parentNode) col.parentNode.removeChild(col);
-            fragment.appendChild(col);
+        originalTaskOrder.forEach(card => {
+            if (card.parentNode) card.parentNode.removeChild(card);
+            fragment.appendChild(card);
         });
         container.appendChild(fragment);
     }
@@ -2781,7 +3157,7 @@ function resetFilters() {
     currentSearchTerm = '';
 
     applyAll();
-    showToast('Фильтры сброшены', 'info');
+    showToast('Фильтры сброшены', 'success'); // Изменено с 'info' на 'success'
 }
 
 // Очистка поиска
@@ -2800,48 +3176,6 @@ function debouncedApplyAll() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(applyAll, 300);
 }
-</script>
-<div id="userRoleInfo"
-     th:attr="data-is-executor=${isExecutor}"
-     style="display: none;"
-     th:if="${isExecutor != null}">
-</div>
-<!-- Toast контейнер для уведомлений -->
-<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1100">
-    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="fas fa-check-circle me-2"></i>
-                <span class="toast-message"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <span class="toast-message"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-    <div id="infoToast" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="fas fa-info-circle me-2"></i>
-                <span class="toast-message"></span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    // Инициализация переменной isExecutor из Thymeleaf
-    var isExecutor = [[${isExecutor}]];
-    console.log('isExecutor from Thymeleaf:', isExecutor);
-    /*]]>*/
 </script>
 </div>
 </body>
