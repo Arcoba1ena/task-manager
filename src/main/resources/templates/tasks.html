@@ -120,29 +120,28 @@
     }
 
     .notification-bell {
-        position: relative;
-        padding: 0.65rem;
-        border-radius: 12px;
-        transition: var(--transition);
+            position: relative;
+            padding: 0.65rem;
+            border-radius: 12px;
+            transition: var(--transition);
     }
-    .notification-bell:hover { background: #d55f5f; }
+    .notification-bell:hover { background: rgba(255,255,255,0.15); }
 
-    .notification-counter {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        line-height: 1 !important;
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        background: #d55f5f;
-        color: white;
-        font-size: 0.7rem;
-        font-weight: 700;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-    }
+        .notification-counter {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #d55f5f;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
     .profile-dropdown {
         position: relative;
@@ -913,7 +912,7 @@
                 </a>
                 <a href="/notifications" class="notification-bell">
                     <i data-lucide="bell"></i>
-                    <span class="notification-counter" id="notif-counter" style="display:none;">0</span>
+                    <span class="notification-counter" id="notificationCounter" style="display: none;">0</span>
                 </a>
             </div>
 
@@ -1143,13 +1142,19 @@
                             <input type="hidden" id="taskId" name="id">
 
                             <!-- Общее сообщение для исполнителя -->
-                            <div class="alert alert-info" id="executorEditMessage" style="display: none;">
-                                <small>
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Вы можете изменять только статус задачи. Для изменения других параметров обратитесь к менеджеру.
-                                </small>
+                            <div id="executorEditMessage" class="alert mb-4 p-3 rounded-3"
+                                 style="display: none;
+            background: rgba(59, 130, 246, 0.18);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            backdrop-filter: blur(10px);">
+                                <div class="d-flex align-items-start gap-3">
+                                    <i data-lucide="info" style="width: 1.4rem; height: 1.4rem; color: #60a5fa; flex-shrink: 0; margin-top: 0.2rem;"></i>
+                                    <div style="color: #f0f9ff !important; line-height: 1.5; font-size: 0.95rem;">
+                                        Вы можете изменить <strong style="color: #ffffff;">только статус</strong> задачи.<br>
+                                        <span style="opacity: 0.9;">Остальные поля доступны только менеджеру или администратору.</span>
+                                    </div>
+                                </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="mb-3">
@@ -2399,71 +2404,71 @@ function editTask(taskId) {
 
     currentTaskId = taskId;
 
-    // Показываем вкладку "Вложения" только для существующих задач
-    document.getElementById('attachments-tab-li').style.display = 'block';
+    // Показываем вкладку "Вложения" для существующих задач
+    const attachmentsTab = document.getElementById('attachments-tab-li');
+    if (attachmentsTab) attachmentsTab.style.display = 'block';
 
     document.getElementById('taskModalTitle').textContent = 'Редактирование задачи';
 
-    // Применяем ограничения для исполнителя
+    // Скрываем/показываем кнопку удаления и сообщение для исполнителя только если элементы существуют
+    const deleteBtn = document.getElementById('deleteTaskBtn');
+    const executorMsg = document.getElementById('executorEditMessage');
+
     if (isExecutor) {
-        document.getElementById('deleteTaskBtn').style.display = 'none';
-        document.getElementById('executorEditMessage').style.display = 'block';
+        if (deleteBtn) deleteBtn.style.display = 'none';
+        if (executorMsg) executorMsg.style.display = 'block';
         disableFieldsExceptStatus();
     } else {
-        document.getElementById('deleteTaskBtn').style.display = 'block';
-        document.getElementById('executorEditMessage').style.display = 'none';
+        if (deleteBtn) deleteBtn.style.display = 'block';
+        if (executorMsg) executorMsg.style.display = 'none';
         enableAllFields();
     }
 
     // Загружаем данные задачи
     fetch('/api/tasks/' + taskId)
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Задача не найдена');
-            }
+            if (!response.ok) throw new Error('Задача не найдена');
             return response.json();
         })
         .then(task => {
-            console.log('Task data loaded:', task);
-
-            // Заполняем форму
+            // Заполняем поля...
             document.getElementById('taskId').value = task.id;
-            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskTitle').value = task.title || '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskStatus').value = task.status;
-            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskPriority').value = task.priority || 'MEDIUM';
 
+            const deadlineInput = document.getElementById('taskDeadline');
             if (task.deadline) {
-                const deadline = new Date(task.deadline);
-                document.getElementById('taskDeadline').value = deadline.toISOString().slice(0, 16);
+                const d = new Date(task.deadline);
+                deadlineInput.value = d.toISOString().slice(0, 16);
             } else {
-                document.getElementById('taskDeadline').value = '';
+                deadlineInput.value = '';
             }
 
             document.getElementById('taskProject').value = task.project?.id || '';
             document.getElementById('taskExecutor').value = task.executor?.id || '';
 
-            // Финальная проверка прав
+            // Финальное применение прав (на случай, если элементы подгрузились)
             if (isExecutor) {
                 disableFieldsExceptStatus();
             } else {
                 enableAllFields();
             }
 
-            // ВАЖНО: Включаем функционал вложений при редактировании
+            // Включаем вложения
             document.getElementById('saveTaskMessage').style.display = 'none';
             document.getElementById('uploadSection').style.display = 'block';
             currentTaskIdForAttachments = taskId;
 
-            // Переключаемся на вкладку "Основное" (чтобы не было путаницы)
+            // Переключаемся на основную вкладку
             document.getElementById('details-tab').click();
 
-            // Показываем модальное окно
             taskModal.show();
         })
         .catch(error => {
-            console.error('Error loading task:', error);
-            showToast('Ошибка при загрузке задачи: ' + error.message, 'error');
+            console.error('Error:', error);
+            showToast('Ошибка загрузки задачи: ' + error.message, 'error');
         });
 }
 
@@ -2566,24 +2571,28 @@ function saveTask() {
 
 // ========== NOTIFICATION COUNTER ==========
 // Функция для обновления счетчика уведомлений
-async function updateNotificationCounter() {
-    try {
-        const response = await fetch('/notifications/api/notifications/count');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const count = await response.json();
+function updateNotificationCounter() {
+    fetch('/notifications/api/notifications/count')
+        .then(r => r.json())
+        .then(count => {
+            const counter = document.getElementById('notificationCounter');
 
-        // Обновляем все счетчики на странице
-        updateAllNotificationCounters(count);
-
-        return count;
-    } catch (error) {
-        console.error('Error updating notification counter:', error);
-        // В случае ошибки скрываем счетчики
-        updateAllNotificationCounters(0);
-        return 0;
-    }
+            if (count === undefined || count === null || count <= 0) {
+                // Полностью скрываем и очищаем текст
+                counter.textContent = '';
+                counter.style.display = 'none';
+            } else {
+                // Только если реально есть уведомления
+                counter.textContent = count > 99 ? '99+' : count;
+                counter.style.display = 'flex';
+            }
+        })
+        .catch(err => {
+            console.error('Ошибка загрузки уведомлений:', err);
+            const counter = document.getElementById('notificationCounter');
+            counter.textContent = '';
+            counter.style.display = 'none';
+        });
 }
 
 // Обновление всех счетчиков на странице
