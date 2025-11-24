@@ -228,10 +228,68 @@
             .page-header h1 { font-size: 2.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
         }
+
+        /* Красивая кнопка-переключатель графика */
+.chart-toggle-wrapper {
+    text-align: center;
+    margin-top: 1.8rem;
+}
+
+.chart-toggle-btn {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 1.5rem;
+    padding: 0.85rem 2rem;
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-toggle-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.7s;
+}
+
+.chart-toggle-btn:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.25);
+    color: white;
+}
+
+.chart-toggle-btn:hover::before {
+    left: 100%;
+}
+
+.chart-toggle-btn:active {
+    transform: translateY(-1px);
+}
+
+.chart-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+.chart-toggle-btn:hover i {
+    transform: scale(1.15);
+}
     </style>
 </head>
 <body>
-
 <div class="bg-animation"></div>
 <div class="content-overlay"></div>
 
@@ -296,6 +354,11 @@
         <div class="chart-card">
             <h3 class="chart-title">Статистика по задачам</h3>
             <div class="chart-wrapper"><canvas id="taskChart"></canvas></div>
+            <div class="chart-toggle-wrapper">
+                <button id="chartToggleBtn" onclick="toggleChartType()" class="chart-toggle-btn">
+                    <i data-lucide="bar-chart-3"></i>
+                </button>
+            </div>
         </div>
 
         <div class="quick-actions">
@@ -333,39 +396,113 @@
             .catch(() => {});
     }
 
-    // Диаграмма
+    // Переменные для графика
     let taskChart = null;
+    let currentChartType = 'doughnut'; // doughnut | bar
+
+    // Загрузка данных и отрисовка графика
     async function loadChart() {
         try {
             const res = await fetch('/api/tasks/stats');
             const data = await res.json();
+
             const ctx = document.getElementById('taskChart').getContext('2d');
+
+            // Уничтожаем старый график, если есть
             if (taskChart) taskChart.destroy();
-            taskChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['К выполнению', 'В работе', 'Выполнено'],
-                    datasets: [{
-                        data: [data.todo || 0, data.inProgress || 0, data.done || 0],
-                        backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        borderWidth: 3,
-                        hoverOffset: 20
-                    }]
+
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#e2e8f0', font: { family: 'Inter', size: 14 } }
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#e2e8f0' } } }
-                }
-            });
-        } catch (e) { console.error(e); }
+                animation: { duration: 1200 }
+            };
+
+            if (currentChartType === 'doughnut') {
+                taskChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['К выполнению', 'В работе', 'Выполнено'],
+                        datasets: [{
+                            data: [data.todo || 0, data.inProgress || 0, data.done || 0],
+                            backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 3,
+                            hoverOffset: 20
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        cutout: '68%'
+                    }
+                });
+            } else {
+                // Столбчатая диаграмма
+                taskChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['К выполнению', 'В работе', 'Выполнено'],
+                        datasets: [{
+                            label: 'Количество задач',
+                            data: [data.todo || 0, data.inProgress || 0, data.done || 0],
+                            backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
+                            borderColor: ['#fbbf24', '#38bdf8', '#34d399'],
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255,255,255,0.05)' },
+                                ticks: { color: '#e2e8f0', stepSize: 1 }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#e2e8f0' }
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки статистики:', e);
+        }
     }
 
+    // Переключатель типа диаграммы
+function toggleChartType() {
+    currentChartType = currentChartType === 'doughnut' ? 'bar' : 'doughnut';
+    const btn = document.getElementById('chartToggleBtn');
+
+    if (currentChartType === 'doughnut') {
+        btn.innerHTML = '<i data-lucide="pie-chart"></i>';
+    } else {
+        btn.innerHTML = '<i data-lucide="bar-chart-3"></i>';
+    }
+
+    lucide.createIcons(); // теперь точно сработает
+    loadChart();
+}
+
+    // Инициализация
     document.addEventListener('DOMContentLoaded', () => {
         loadChart();
         updateNotifications();
-        setInterval(() => { loadChart(); updateNotifications(); }, 30000);
+
+        // Обновление каждые 30 сек
+        setInterval(() => {
+            loadChart();
+            updateNotifications();
+        }, 30000);
     });
 </script>
 </body>
