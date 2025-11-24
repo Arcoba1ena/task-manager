@@ -143,6 +143,11 @@ public class ApiController {
         return counts;
     }
 
+    @GetMapping("/tasks/stats")
+    public Map<String, Integer> getTaskStats() {
+        return taskService.getTaskStats();
+    }
+
     // ========== PROJECT ENDPOINTS ==========
     @GetMapping("/projects")
     public List<ProjectResponseDTO> getProjects() {

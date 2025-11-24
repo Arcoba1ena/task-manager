@@ -1,17 +1,32 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">TaskManager - Панель управления</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .stat-card {
-            transition: transform 0.2s;
+            transition: transform 0.2s ease;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+        }
+        .chart-container {
+            position: relative;
+            height: 380px;
+            margin: 30px 0;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
     </style>
 </head>
@@ -28,17 +43,14 @@
             <a class="nav-link text-white" href="/tasks">
                 <i class="fas fa-list-check me-1"></i>Задачи
             </a>
-            <!-- Скрываем Проекты для исполнителя -->
             <a class="nav-link text-white" href="/projects"
                th:if="${#authentication != null && (#authentication.principal.role != 'EXECUTOR')}">
                 <i class="fas fa-folder me-1"></i>Проекты
             </a>
-            <!-- Ссылка на уведомления (для всех авторизованных пользователей) -->
             <a class="nav-link text-white" href="/notifications">
                 <i class="fas fa-bell me-1"></i>Уведомления
                 <span class="badge bg-danger notification-counter" style="display: none;">0</span>
             </a>
-            <!-- Скрываем Пользователи для не-администраторов -->
             <a class="nav-link text-white" href="/admin/users"
                th:if="${#authentication != null && (#authentication.principal.role == 'ADMIN')}">
                 <i class="fas fa-users me-1"></i>Пользователи
@@ -52,12 +64,8 @@
                     <span th:text="${#authentication.name}">Пользователь</span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><span class="dropdown-item-text">
-                        Пользователь: <strong><span th:text="${#authentication.name}">Имя</span></strong>
-                    </span></li>
-                    <li><span class="dropdown-item-text">
-                        Роль: <strong><span th:text="${#authentication.principal.role}">Роль</span></strong>
-                    </span></li>
+                    <li><span class="dropdown-item-text">Пользователь: <strong th:text="${#authentication.name}">Имя</strong></span></li>
+                    <li><span class="dropdown-item-text">Роль: <strong th:text="${#authentication.principal.role}">Роль</strong></span></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <form th:action="@{/logout}" method="post" class="d-inline">
@@ -73,97 +81,99 @@
 </nav>
 
 <div class="container mt-4">
-    <!-- Отладочная информация -->
-    <div class="alert alert-info" th:if="${debug}">
-        <h6>Отладочная информация:</h6>
-        <p>Total: <span th:text="${totalTasks}">0</span></p>
-        <p>To Do: <span th:text="${todoTasks}">0</span></p>
-        <p>In Progress: <span th:text="${inProgressTasks}">0</span></p>
-        <p>Done: <span th:text="${doneTasks}">0</span></p>
-    </div>
-
     <div class="row">
+        <!-- Левая колонка — навигация -->
         <div class="col-md-3">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Статистика</h4>
-                    <small class="text-muted">
-                        Роль: <span th:text="${user.role}">Роль</span> |
-                        Пользователь: <span th:text="${user.fullName}">Имя</span>
-                    </small>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Навигация</h5>
                 </div>
-                <div class="card-body">
-                    <div class="list-group">
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
                         <a href="/dashboard" class="list-group-item list-group-item-action active">
                             <i class="fas fa-tachometer-alt me-2"></i>Панель управления
                         </a>
                         <a href="/tasks" class="list-group-item list-group-item-action">
-                            <i class="fas fa-list-check me-2"></i>Задачи
+                            <i class="fas fa-list-check me-2"></i>Все задачи
                         </a>
                         <a href="/api/tasks" class="list-group-item list-group-item-action" target="_blank">
                             <i class="fas fa-code me-2"></i>API Задачи
-                        </a>
-                        <a href="/api/tasks/count" class="list-group-item list-group-item-action" target="_blank">
-                            <i class="fas fa-chart-bar me-2"></i>API Статистика
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Правая колонка — статистика и диаграмма -->
         <div class="col-md-9">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Статистика</h4>
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #007bff, #6610f2);">
+                    <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Статистика задач</h4>
                 </div>
                 <div class="card-body">
-                    <div class="row text-center">
+
+                    <!-- 4 карточки с цифрами -->
+                    <div class="row text-center mb-5">
                         <div class="col-md-3 mb-3">
-                            <div class="card stat-card bg-primary text-white">
-                                <div class="card-body">
-                                    <h1 th:text="${totalTasks}">0</h1>
-                                    <p class="mb-0">Всего задач</p>
+                            <div class="card stat-card bg-primary text-white h-100">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <h1 class="display-4 mb-0" th:text="${totalTasks}">0</h1>
+                                    <p class="mb-0 fs-5">Всего задач</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <div class="card stat-card bg-warning text-white">
-                                <div class="card-body">
-                                    <h1 th:text="${todoTasks}">0</h1>
-                                    <p class="mb-0">К выполнению</p>
+                            <div class="card stat-card bg-warning text-white h-100">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <h1 class="display-4 mb-0" th:text="${todoTasks}">0</h1>
+                                    <p class="mb-0 fs-5">К выполнению</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <div class="card stat-card bg-info text-white">
-                                <div class="card-body">
-                                    <h1 th:text="${inProgressTasks}">0</h1>
-                                    <p class="mb-0">В работе</p>
+                            <div class="card stat-card bg-info text-white h-100">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <h1 class="display-4 mb-0" th:text="${inProgressTasks}">0</h1>
+                                    <p class="mb-0 fs-5">В работе</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <div class="card stat-card bg-success text-white">
-                                <div class="card-body">
-                                    <h1 th:text="${doneTasks}">0</h1>
-                                    <p class="mb-0">Выполнено</p>
+                            <div class="card stat-card bg-success text-white h-100">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <h1 class="display-4 mb-0" th:text="${doneTasks}">0</h1>
+                                    <p class="mb-0 fs-5">Выполнено</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Быстрые действия -->
-                    <div class="mt-4">
-                        <h5>Быстрые действия</h5>
-                        <div class="d-grid gap-2 d-md-flex">
-                            <a href="/tasks" class="btn btn-primary me-2">
-                                <i class="fas fa-list-check me-1"></i>Управление задачами
-                            </a>
-                            <a href="/api/tasks" class="btn btn-outline-primary" target="_blank">
-                                <i class="fas fa-code me-1"></i>Просмотреть API
-                            </a>
-                        </div>
+                    <!-- Круговая диаграмма -->
+                    <h5 class="text-center text-muted mb-4">
+                        <i class="fas fa-chart-pie me-2"></i>Распределение задач по статусам
+                    </h5>
+                    <div class="chart-container">
+                        <canvas id="taskChart"></canvas>
                     </div>
+
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-sync-alt"></i> Обновляется каждые 30 секунд
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Быстрые действия</h5>
+                    <a href="/tasks" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-list-check me-2"></i>Перейти к задачам
+                    </a>
+                    <a href="/api/tasks" class="btn btn-outline-secondary btn-lg" target="_blank">
+                        <i class="fas fa-code me-2"></i>Открыть API
+                    </a>
                 </div>
             </div>
         </div>
@@ -172,29 +182,78 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ========== NOTIFICATION COUNTER ==========
-function updateNotificationCounter() {
-    fetch('/notifications/api/notifications/count')
-        .then(response => response.json())
-        .then(count => {
-            const counter = document.querySelector('.notification-counter');
-            if (counter) {
-                if (count > 0) {
-                    counter.textContent = count;
-                    counter.style.display = 'inline';
-                } else {
-                    counter.style.display = 'none';
+let taskChart = null;
+
+async function loadAndRenderChart() {
+    try {
+        const response = await fetch('/api/tasks/stats');
+        if (!response.ok) throw new Error('Network error');
+        const stats = await response.json();
+
+        const todo = stats.todo || 0;
+        const inProgress = stats.inProgress || 0;
+        const done = stats.done || 0;
+        const total = todo + inProgress + done;
+
+        const ctx = document.getElementById('taskChart').getContext('2d');
+        if (taskChart) taskChart.destroy();
+
+        taskChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['К выполнению', 'В работе', 'Выполнено'],
+                datasets: [{
+                    data: [todo, inProgress, done],
+                    backgroundColor: ['#ffc107', '#0dcaf0', '#198754'],
+                    borderColor: '#fff',
+                    borderWidth: 5,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 20, font: { size: 14 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed;
+                                const percent = total > 0 ? Math.round((val / total) * 100) : 0;
+                                return `${ctx.label}: ${val} задач (${percent}%)`;
+                            }
+                        }
+                    }
                 }
             }
-        })
-        .catch(error => console.error('Error updating notification counter:', error));
+        });
+    } catch (err) {
+        console.error('Ошибка загрузки диаграммы:', err);
+        document.querySelector('.chart-container').innerHTML =
+            '<p class="text-center text-danger mt-5">Не удалось загрузить диаграмму</p>';
+    }
 }
 
-// Обновляем счетчик при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    // ... существующий код инициализации tasks.html ...
+// Уведомления
+function updateNotificationCounter() {
+    fetch('/notifications/api/notifications/count')
+        .then(r => r.json())
+        .then(count => {
+            const el = document.querySelector('.notification-counter');
+            if (el) {
+                el.textContent = count > 99 ? '99+' : count;
+                el.style.display = count > 0 ? 'inline' : 'none';
+            }
+        })
+        .catch(() => {});
+}
 
+// Запуск
+document.addEventListener('DOMContentLoaded', () => {
+    loadAndRenderChart();
     updateNotificationCounter();
+
+    setInterval(loadAndRenderChart, 30000);
     setInterval(updateNotificationCounter, 30000);
 });
 </script>
