@@ -16,9 +16,11 @@
         --primary: #1e40af;
         --primary-light: #3b82f6;
         --text: #e2e8f0;
-        --card-bg: rgba(255, 255, 255, 0.12);
-        --card-border: rgba(255, 255, 255, 0.15);
+        --card-bg: rgba(255, 255, 255, 0.15);
+        --card-border: rgba(255, 255, 255, 0.2);
         --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -120,7 +122,6 @@
     }
     .notification-bell:hover { background: rgba(255,255,255,0.15); }
 
-    /* Центрирование цифры в уведомлениях */
     .notification-counter {
         display: flex !important;
         align-items: center !important;
@@ -212,7 +213,7 @@
         margin-bottom: 0.5rem;
     }
 
-    /* Карточки задач */
+    /* Карточки задач - делаем как модальные окна */
     .tasks-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -220,54 +221,20 @@
         margin-bottom: 2rem;
     }
 
-    /* Исправление карточек задач */
     .task-card {
-        background: rgba(30, 41, 59, 0.7) !important;
+        background: var(--card-bg) !important;
         backdrop-filter: blur(16px);
-        border: 1px solid rgba(255,255,255,0.1) !important;
+        border: 1px solid var(--glass-border) !important;
         border-radius: 1rem;
         padding: 1.5rem;
         transition: var(--transition);
         position: relative;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
     .task-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
         border-color: rgba(59, 130, 246, 0.3) !important;
-    }
-
-    /* Убираем левую границу приоритета и добавляем верхнюю полоску */
-    .task-card.priority-high::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: #ef4444;
-        border-radius: 1rem 1rem 0 0;
-    }
-
-    .task-card.priority-medium::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: #f59e0b;
-        border-radius: 1rem 1rem 0 0;
-    }
-
-    .task-card.priority-low::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: #10b981;
-        border-radius: 1rem 1rem 0 0;
     }
 
     .task-header {
@@ -360,14 +327,74 @@
         transform: scale(1.1);
     }
 
+    /* Скрытие вкладок */
+    .nav-item.d-none {
+    display: none !important;
+}
+
+    /* Стеклянные кнопки */
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+    }
+
+    .btn-primary {
+        background: var(--glass-bg) !important;
+        color: white;
+        border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(59,130,246,0.2);
+        background: rgba(59, 130, 246, 0.2) !important;
+    }
+
+    .btn-secondary {
+        background: var(--glass-bg) !important;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.2) !important;
+    }
+
+    .btn-danger {
+        background: rgba(239, 68, 68, 0.1) !important;
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    }
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.2) !important;
+        color: #fecaca;
+    }
+
+    .btn-success {
+        background: rgba(34, 197, 94, 0.1) !important;
+        color: #86efac;
+        border: 1px solid rgba(34, 197, 94, 0.3) !important;
+    }
+    .btn-success:hover {
+        background: rgba(34, 197, 94, 0.2) !important;
+        color: #bbf7d0;
+    }
+
     /* Фильтры и поиск */
     .filters-card {
-        background: rgba(30, 41, 59, 0.7);
+        background: var(--card-bg);
         backdrop-filter: blur(16px);
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid var(--glass-border);
         border-radius: 1.5rem;
         padding: 1.5rem;
         margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
     .filters-header {
         display: flex;
@@ -404,6 +431,7 @@
         color: #e2e8f0 !important;
         font-size: 0.9rem !important;
         transition: var(--transition) !important;
+        backdrop-filter: blur(10px);
     }
     .filter-select:focus, .filter-input:focus, .form-control:focus, .form-select:focus {
         outline: none !important;
@@ -412,9 +440,25 @@
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
         color: #e2e8f0 !important;
     }
+
+    /* Темные дропдауны и календарь */
     .filter-select option, .form-select option {
         background: #1e293b !important;
         color: #e2e8f0 !important;
+    }
+
+    /* Календарь (datetime-local) */
+    input[type="datetime-local"] {
+        background: rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: #e2e8f0 !important;
+        border-radius: 0.75rem !important;
+        padding: 0.75rem !important;
+    }
+
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        opacity: 0.7;
     }
 
     .search-container {
@@ -431,6 +475,7 @@
         color: #e2e8f0;
         font-size: 0.9rem;
         transition: var(--transition);
+        backdrop-filter: blur(10px);
     }
     .search-input:focus {
         outline: none;
@@ -440,38 +485,19 @@
     .search-input::placeholder {
         color: rgba(255,255,255,0.6);
     }
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        border: none;
-        font-weight: 500;
-        cursor: pointer;
-        transition: var(--transition);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .btn-primary {
-        background: linear-gradient(135deg, #60a5fa, #3b82f6);
-        color: white;
-    }
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(59,130,246,0.4);
-    }
-    .btn-secondary {
-        background: rgba(255,255,255,0.1);
-        color: white;
-    }
-    .btn-secondary:hover {
-        background: rgba(255,255,255,0.2);
-    }
 
     /* Сообщение об отсутствии задач */
     .no-tasks {
         text-align: center;
         padding: 3rem;
-        color: rgba(255,255,255,0.7);
+        color: #e2e8f0 !important;
+    }
+    .no-tasks h3 {
+        color: #e2e8f0 !important;
+        margin-bottom: 1rem;
+    }
+    .no-tasks p {
+        color: #cbd5e1 !important;
     }
 
     /* Счетчик задач */
@@ -487,10 +513,11 @@
 
     /* Общие стили для модальных окон */
     .modal-content {
-        background: rgba(30, 41, 59, 0.95) !important;
+        background: var(--card-bg) !important;
         backdrop-filter: blur(20px) !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
+        border: 1px solid var(--glass-border) !important;
         color: #e2e8f0 !important;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
     }
     .modal-header {
         border-bottom: 1px solid rgba(255,255,255,0.1) !important;
@@ -506,6 +533,35 @@
     }
     .btn-close {
         filter: invert(1) !important;
+        opacity: 0.7;
+    }
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Стили для вкладок (табов) */
+    .nav-tabs {
+        border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+    }
+
+    .nav-tabs .nav-link {
+        background: transparent !important;
+        border: none !important;
+        color: rgba(255,255,255,0.7) !important;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+        transition: var(--transition);
+    }
+
+    .nav-tabs .nav-link:hover {
+        background: rgba(255,255,255,0.05) !important;
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    .nav-tabs .nav-link.active {
+        background: rgba(255,255,255,0.1) !important;
+        color: #e2e8f0 !important;
+        border-bottom: 2px solid #3b82f6 !important;
     }
 
     /* Исправление модального окна комментариев */
@@ -514,9 +570,9 @@
     }
 
     #commentsModal .modal-content {
-        background: rgba(30, 41, 59, 0.95) !important;
+        background: var(--card-bg) !important;
         backdrop-filter: blur(20px) !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
+        border: 1px solid var(--glass-border) !important;
     }
 
     #commentsModal .modal-body {
@@ -533,6 +589,21 @@
         background: rgba(255,255,255,0.15) !important;
         border-color: #3b82f6 !important;
         color: #e2e8f0 !important;
+    }
+
+    /* Исправление плейсхолдера в комментариях */
+    #commentsModal .form-control::placeholder {
+        color: rgba(255,255,255,0.6) !important;
+    }
+
+    /* Текст "Комментариев пока нет" - такой же цвет как у плейсхолдера */
+    #commentsList .text-muted {
+        color: rgba(255,255,255,0.6) !important;
+    }
+
+    /* Замена иконки самолета на иконку отправки (стрелка вправо) */
+    .comment-submit-btn .fa-paper-plane::before {
+        content: "\f1d8"; /* Иконка комментария */
     }
 
     .comment-item {
@@ -630,6 +701,67 @@
     .upload-area.dragover {
         border-color: #3b82f6 !important;
         background-color: rgba(59, 130, 246, 0.2);
+    }
+
+    /* Исправление текста в разделе вложений */
+    .upload-area p {
+        color: #e2e8f0 !important;
+    }
+
+    .upload-area .small.text-muted {
+        color: #cbd5e1 !important;
+    }
+
+    #noAttachmentsMessage {
+        color: #cbd5e1 !important;
+    }
+
+    #noAttachmentsMessage p {
+        color: #cbd5e1 !important;
+    }
+
+    /* Красивое сообщение о необходимости сохранения задачи */
+    .save-task-message {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #e2e8f0;
+    }
+
+    .save-task-message i {
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Модальное окно подтверждения удаления */
+    #confirmDeleteTaskModal .modal-content {
+        background: var(--card-bg) !important;
+        backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    }
+
+    #confirmDeleteTaskModal .text-muted {
+        color: #cbd5e1 !important;
+    }
+
+    /* Стили для сообщения "ничего не найдено" */
+    #noResultsMessage {
+        color: #e2e8f0 !important;
+        text-align: center;
+        padding: 3rem;
+    }
+
+    #noResultsMessage h4 {
+        color: #e2e8f0 !important;
+        margin-bottom: 1rem;
+    }
+
+    #noResultsMessage p {
+        color: #cbd5e1 !important;
+        margin-bottom: 1.5rem;
     }
 
     /* Стили для Toast уведомлений */
@@ -909,7 +1041,7 @@
                             <i class="fas fa-info-circle me-1"></i>Основное
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="attachments-tab-li">
                         <button class="nav-link" id="attachments-tab" data-bs-toggle="tab"
                                 data-bs-target="#attachments" type="button" role="tab">
                             <i class="fas fa-paperclip me-1"></i>Вложения
@@ -1012,16 +1144,21 @@
                     <!-- Вкладка с вложениями -->
                     <div class="tab-pane fade" id="attachments" role="tabpanel">
                         <div id="attachmentsSection">
+                            <div id="saveTaskMessage" class="save-task-message" style="display: none;">
+                                <i class="fas fa-info-circle fa-2x"></i>
+                                <h5>Сначала сохраните задачу</h5>
+                                <p>Для добавления вложений необходимо сначала сохранить задачу.</p>
+                            </div>
                             <!-- Область загрузки файлов -->
-                            <div class="mb-4">
+                            <div class="mb-4" id="uploadSection" style="display: none;">
                                 <h6>Добавить вложение</h6>
 
                                 <!-- Drag & Drop область -->
                                 <div class="upload-area" id="uploadArea">
                                     <div class="upload-content">
-                                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-3"></i>
+                                        <i class="fas fa-cloud-upload-alt fa-2x mb-3"></i>
                                         <p class="mb-2">Перетащите файлы сюда или нажмите для выбора</p>
-                                        <p class="small text-muted">Разрешены: txt, docx, xlsx, jpg, jpeg, png (макс. 10MB)</p>
+                                        <p class="small">Разрешены: txt, docx, xlsx, jpg, jpeg, png (макс. 10MB)</p>
                                         <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="selectFilesBtn">
                                             <i class="fas fa-folder-open me-1"></i>Выбрать файлы
                                         </button>
@@ -1399,7 +1536,7 @@ function editTask(taskId) {
         })
         .catch(error => {
             console.error('Error loading task:', error);
-            alert('Ошибка при загрузке задачи: ' + error.message);
+            showToast('Ошибка при загрузке задачи: ' + error.message);
         });
 }
 
@@ -1457,11 +1594,16 @@ function enableAllFields() {
 
 function showCreateTaskForm() {
     if (isExecutor) {
-        alert('У вас нет прав для создания задач. Обратитесь к менеджеру.');
+        showToast('У вас нет прав для создания задач. Обратитесь к менеджеру.', 'error');
         return;
     }
 
     currentTaskId = null;
+    currentTaskIdForAttachments = null;
+
+    // Показываем сообщение о необходимости сохранения
+    document.getElementById('saveTaskMessage').style.display = 'block';
+    document.getElementById('uploadSection').style.display = 'none';
     document.getElementById('taskModalTitle').textContent = 'Создание новой задачи';
     document.getElementById('taskForm').reset();
     document.getElementById('deleteTaskBtn').style.display = 'none';
@@ -1477,12 +1619,10 @@ function saveTask() {
     let formData = {};
 
     if (isExecutor && currentTaskId) {
-        // Исполнитель может отправлять только статус
         formData = {
             status: document.getElementById('taskStatus').value
         };
     } else {
-        // Менеджер и администратор отправляют все поля
         formData = {
             title: document.getElementById('taskTitle').value,
             description: document.getElementById('taskDescription').value,
@@ -1494,7 +1634,7 @@ function saveTask() {
         };
 
         if (!formData.title.trim()) {
-            alert('Пожалуйста, введите название задачи');
+            showToast('Пожалуйста, введите название задачи');
             return;
         }
     }
@@ -1519,19 +1659,32 @@ function saveTask() {
         }
     })
     .then(data => {
-        taskModal.hide();
-        showToast('Задача успешно сохранена!', 'success');
-        setTimeout(() => {
-            updateNotificationCounter();
-        }, 500);
+        // После сохранения задачи, обновляем ID для вложений
+        if (!currentTaskId) {
+            currentTaskIdForAttachments = data.id;
+            // Скрываем сообщение и показываем область загрузки
+            document.getElementById('saveTaskMessage').style.display = 'none';
+            document.getElementById('uploadSection').style.display = 'block';
+        }
 
-          setTimeout(() => {
-            window.location.reload();
-        }, 1000);
+        showToast('Задача успешно сохранена!', 'success');
+
+        // Если это новая задача, остаемся в модальном окне для добавления вложений
+        if (!currentTaskId) {
+            currentTaskId = data.id;
+            document.getElementById('taskModalTitle').textContent = 'Редактирование задачи: #' + data.id;
+            document.getElementById('taskId').value = data.id;
+            document.getElementById('deleteTaskBtn').style.display = 'block';
+        } else {
+            // Для существующей задачи перезагружаем страницу
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
     })
     .catch(error => {
         console.error('Error saving task:', error);
-        alert('Ошибка при сохранении задачи: ' + error.message);
+        showToast('Ошибка при сохранении задачи: ' + error.message);
     });
 }
 
@@ -1558,7 +1711,7 @@ function deleteTask() {
         })
         .catch(error => {
             console.error('Error deleting task:', error);
-            alert('Ошибка при удалении задачи: ' + error.message);
+            showToast('Ошибка при удалении задачи: ' + error.message);
         });
     }
 }
@@ -1653,7 +1806,7 @@ function openCommentsModal(taskId) {
 
     if (!commentsModal) {
         console.error('Comments modal is not initialized!');
-        alert('Ошибка инициализации модального окна');
+        showToast('Ошибка инициализации модального окна');
         return;
     }
 
@@ -1800,7 +1953,7 @@ function saveCommentEdit(commentId) {
     const newText = commentItem.querySelector('.comment-edit-textarea').value.trim();
 
     if (!newText) {
-        alert('Комментарий не может быть пустым');
+        showToast('Комментарий не может быть пустым');
         return;
     }
 
@@ -1826,7 +1979,7 @@ function saveCommentEdit(commentId) {
     })
     .catch(error => {
         console.error('Error updating comment:', error);
-        alert('Ошибка при обновлении комментария: ' + error.message);
+        showToast('Ошибка при обновлении комментария: ' + error.message);
     });
 }
 
@@ -1869,7 +2022,7 @@ function deleteCommentFromServer(commentId) {
     })
     .catch(error => {
         console.error('Error deleting comment:', error);
-        alert('Ошибка при удалении комментария: ' + error.message);
+        showToast('Ошибка при удалении комментария: ' + error.message);
     });
 }
 
@@ -1877,7 +2030,7 @@ function deleteCommentFromServer(commentId) {
 function submitComment() {
     const commentText = document.getElementById('commentText').value.trim();
     if (!commentText) {
-        alert('Введите текст комментария');
+        showToast('Введите текст комментария');
         return;
     }
 
@@ -1908,7 +2061,7 @@ function submitComment() {
     })
     .catch(error => {
         console.error('Error creating comment:', error);
-        alert('Ошибка при создании комментария: ' + error.message);
+        showToast('Ошибка при создании комментария: ' + error.message);
     });
 }
 
@@ -2035,9 +2188,15 @@ function setupFileUpload() {
 // Обработка выбранных файлов
 function handleFiles(files) {
     if (!currentTaskIdForAttachments) {
-        alert('Сначала сохраните задачу, затем добавьте вложения');
+        // Показываем красивое сообщение вместо alert
+        document.getElementById('saveTaskMessage').style.display = 'block';
+        // Активируем вкладку вложений, чтобы пользователь увидел сообщение
+        document.getElementById('attachments-tab').click();
         return;
     }
+
+    // Скрываем сообщение если задача сохранена
+    document.getElementById('saveTaskMessage').style.display = 'none';
 
     // Проверяем каждый файл
     for (let i = 0; i < files.length; i++) {
@@ -2045,7 +2204,7 @@ function handleFiles(files) {
 
         // Проверка размера файла (10MB)
         if (file.size > 10 * 1024 * 1024) {
-            alert(`Файл "${file.name}" слишком большой. Максимальный размер: 10MB`);
+            showToast(`Файл "${file.name}" слишком большой. Максимальный размер: 10MB`, 'error');
             continue;
         }
 
@@ -2060,7 +2219,7 @@ function handleFiles(files) {
 // Функция загрузки файла
 function uploadFile(file) {
     if (!currentTaskIdForAttachments) {
-        alert('Ошибка: задача не определена');
+        showToast('Ошибка: задача не определена');
         return;
     }
 
@@ -2240,7 +2399,7 @@ function deleteAttachment(attachmentId) {
     })
     .catch(error => {
         console.error('Error deleting attachment:', error);
-        alert('Ошибка при удалении файла: ' + error.message);
+        showToast('Ошибка при удалении файла: ' + error.message);
     });
 }
 
@@ -2257,6 +2416,27 @@ function editTask(taskId) {
     currentTaskId = taskId;
     currentTaskIdForAttachments = taskId;
 
+    // Сбрасываем состояние вкладок
+    document.getElementById('saveTaskMessage').style.display = 'none';
+    document.getElementById('uploadSection').style.display = 'block';
+
+    // Показываем вкладку вложений для существующих задач
+    document.getElementById('attachments-tab').style.display = 'block';
+    document.getElementById('attachments-tab-li').style.display = 'block';
+
+    document.getElementById('taskModalTitle').textContent = 'Редактирование задачи';
+
+    // Сразу применяем ограничения, если это исполнитель
+    if (isExecutor) {
+        document.getElementById('deleteTaskBtn').style.display = 'none';
+        document.getElementById('executorEditMessage').style.display = 'block';
+        disableFieldsExceptStatus();
+    } else {
+        document.getElementById('deleteTaskBtn').style.display = 'block';
+        document.getElementById('executorEditMessage').style.display = 'none';
+        enableAllFields();
+    }
+
     // Загружаем данные задачи
     fetch('/api/tasks/' + taskId)
         .then(response => {
@@ -2268,71 +2448,43 @@ function editTask(taskId) {
         .then(task => {
             console.log('Task data loaded:', task);
 
-            // Безопасно получаем элементы
-            const modalTitle = document.getElementById('taskModalTitle');
-            const deleteTaskBtn = document.getElementById('deleteTaskBtn');
-            const executorEditMessage = document.getElementById('executorEditMessage');
-
-            // Обновляем заголовок модального окна с номером задачи
-            if (modalTitle) {
-                modalTitle.textContent = 'Редактирование задачи: #' + task.id;
-            }
-
-            // Для исполнителя показываем сообщение и ограничиваем права
-            if (isExecutor) {
-                if (deleteTaskBtn) deleteTaskBtn.style.display = 'none';
-                if (executorEditMessage) executorEditMessage.style.display = 'block';
-            } else {
-                if (deleteTaskBtn) deleteTaskBtn.style.display = 'block';
-                if (executorEditMessage) executorEditMessage.style.display = 'none';
-            }
-
-            // Безопасно заполняем форму данными задачи
-            const taskIdInput = document.getElementById('taskId');
-            const taskTitleInput = document.getElementById('taskTitle');
-            const taskDescriptionInput = document.getElementById('taskDescription');
-            const taskStatusSelect = document.getElementById('taskStatus');
-            const taskPrioritySelect = document.getElementById('taskPriority');
-            const taskDeadlineInput = document.getElementById('taskDeadline');
-            const taskProjectSelect = document.getElementById('taskProject');
-            const taskExecutorSelect = document.getElementById('taskExecutor');
-
-            if (taskIdInput) taskIdInput.value = task.id;
-            if (taskTitleInput) taskTitleInput.value = task.title;
-            if (taskDescriptionInput) taskDescriptionInput.value = task.description || '';
-            if (taskStatusSelect) taskStatusSelect.value = task.status;
-            if (taskPrioritySelect) taskPrioritySelect.value = task.priority;
+            // Заполняем форму данными задачи
+            document.getElementById('taskId').value = task.id;
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskStatus').value = task.status;
+            document.getElementById('taskPriority').value = task.priority;
 
             if (task.deadline) {
                 const deadline = new Date(task.deadline);
-                if (taskDeadlineInput) taskDeadlineInput.value = deadline.toISOString().slice(0, 16);
+                document.getElementById('taskDeadline').value = deadline.toISOString().slice(0, 16);
             } else {
-                if (taskDeadlineInput) taskDeadlineInput.value = '';
+                document.getElementById('taskDeadline').value = '';
             }
 
             // Устанавливаем проект если есть
             if (task.project && task.project.id) {
-                if (taskProjectSelect) taskProjectSelect.value = task.project.id;
+                document.getElementById('taskProject').value = task.project.id;
             } else {
-                if (taskProjectSelect) taskProjectSelect.value = '';
+                document.getElementById('taskProject').value = '';
             }
 
             // Устанавливаем исполнителя если есть
             if (task.executor && task.executor.id) {
-                if (taskExecutorSelect) taskExecutorSelect.value = task.executor.id;
+                document.getElementById('taskExecutor').value = task.executor.id;
             } else {
-                if (taskExecutorSelect) taskExecutorSelect.value = '';
+                document.getElementById('taskExecutor').value = '';
             }
 
-            // Загружаем вложения
+            // Загружаем вложения для существующей задачи
             loadAttachments(taskId);
 
-            // Применяем ограничения для исполнителя
+            // Финальная проверка прав доступа
             if (isExecutor) {
-                console.log('Applying restrictions for executor');
+                console.log('Final check: applying restrictions for executor');
                 disableFieldsExceptStatus();
             } else {
-                console.log('Enabling all fields for manager/admin');
+                console.log('Final check: enabling all fields for manager/admin');
                 enableAllFields();
             }
 
@@ -2355,40 +2507,23 @@ function showCreateTaskForm() {
     currentTaskId = null;
     currentTaskIdForAttachments = null;
 
-    // Безопасно получаем элементы
-    const modalTitle = document.getElementById('taskModalTitle');
-    if (modalTitle) {
-        modalTitle.textContent = 'Создание новой задачи';
-    }
-
+    document.getElementById('taskModalTitle').textContent = 'Создание новой задачи';
     document.getElementById('taskForm').reset();
-
-    const deleteTaskBtn = document.getElementById('deleteTaskBtn');
-    if (deleteTaskBtn) {
-        deleteTaskBtn.style.display = 'none';
-    }
-
+    document.getElementById('deleteTaskBtn').style.display = 'none';
     document.getElementById('taskStatus').value = 'TO_DO';
     document.getElementById('taskPriority').value = 'MEDIUM';
+    document.getElementById('executorEditMessage').style.display = 'none';
 
-    const executorEditMessage = document.getElementById('executorEditMessage');
-    if (executorEditMessage) {
-        executorEditMessage.style.display = 'none';
-    }
+    // Скрываем вкладку вложений при создании новой задачи
+    document.getElementById('attachments-tab').style.display = 'none';
+    document.getElementById('attachments-tab-li').style.display = 'none';
 
-    // Очищаем список вложений
-    const attachmentsList = document.getElementById('attachmentsList');
-    const noAttachmentsMessage = document.getElementById('noAttachmentsMessage');
-    if (attachmentsList) attachmentsList.innerHTML = '';
-    if (noAttachmentsMessage) noAttachmentsMessage.style.display = 'block';
+    // Показываем сообщение о необходимости сохранения
+    document.getElementById('saveTaskMessage').style.display = 'block';
+    document.getElementById('uploadSection').style.display = 'none';
 
-    const attachmentsCount = document.getElementById('attachmentsCount');
-    if (attachmentsCount) attachmentsCount.textContent = '0';
-
-    document.getElementById('fileInput').value = '';
-
-    const uploadProgress = document.getElementById('uploadProgress');
-    if (uploadProgress) uploadProgress.style.display = 'none';
+    // Активируем вкладку "Основное"
+    document.getElementById('details-tab').click();
 
     enableAllFields();
     taskModal.show();
@@ -2416,7 +2551,7 @@ function saveTask() {
         };
 
         if (!formData.title.trim()) {
-            alert('Пожалуйста, введите название задачи');
+            showToast('Пожалуйста, введите название задачи', 'error');
             return;
         }
     }
@@ -2443,18 +2578,34 @@ function saveTask() {
     .then(data => {
         // После сохранения задачи, обновляем ID для вложений
         if (!currentTaskId) {
-            currentTaskIdForAttachments = data.id; // Устанавливаем ID новой задачи
-        }
+            currentTaskIdForAttachments = data.id;
+            currentTaskId = data.id;
 
-        taskModal.hide();
-        showToast('Задача успешно сохранена!', 'success');
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
+            // Показываем вкладку вложений после сохранения
+            document.getElementById('attachments-tab').style.display = 'block';
+            document.getElementById('attachments-tab-li').style.display = 'block';
+
+            // Скрываем сообщение и показываем область загрузки
+            document.getElementById('saveTaskMessage').style.display = 'none';
+            document.getElementById('uploadSection').style.display = 'block';
+
+            // Обновляем заголовок и показываем кнопку удаления
+            document.getElementById('taskModalTitle').textContent = 'Редактирование задачи: #' + data.id;
+            document.getElementById('taskId').value = data.id;
+            document.getElementById('deleteTaskBtn').style.display = 'block';
+
+            showToast('Задача успешно создана! Теперь вы можете добавить вложения.', 'success');
+        } else {
+            taskModal.hide();
+            showToast('Задача успешно сохранена!', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
     })
     .catch(error => {
         console.error('Error saving task:', error);
-        alert('Ошибка при сохранении задачи: ' + error.message);
+        showToast('Ошибка при сохранении задачи: ' + error.message, 'error');
     });
 }
 
