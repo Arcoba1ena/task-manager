@@ -413,6 +413,17 @@
             .page-header h1 { font-size: 2.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
         }
+
+        #taskChart {
+        width: 100% !important;
+        height: 100% !important;
+        }
+
+        .chart-wrapper canvas {
+        display: block;
+         max-width: 100%;
+        max-height: 100%;
+        }
     </style>
 </head>
 <body>
@@ -473,6 +484,12 @@
             <div class="stat-card stat-todo"><div class="num" th:text="${todoTasks}">0</div><div class="label">К выполнению</div></div>
             <div class="stat-card stat-inprogress"><div class="num" th:text="${inProgressTasks}">0</div><div class="label">В работе</div></div>
             <div class="stat-card stat-done"><div class="num" th:text="${doneTasks}">0</div><div class="label">Выполнено</div></div>
+        </div>
+
+        <div style="display: none;">
+            <span id="todoTasksValue" th:text="${todoTasks}">0</span>
+            <span id="inProgressTasksValue" th:text="${inProgressTasks}">0</span>
+            <span id="doneTasksValue" th:text="${doneTasks}">0</span>
         </div>
 
         <div class="chart-card">
@@ -545,7 +562,7 @@
             data: {
                 labels: ['К выполнению', 'В работе', 'Выполнено'],
                 datasets: [{
-                    data: [data.todo || 0, data.inProgress || 0, data.done || 0],
+                    data: [data.todo, data.inProgress, data.done],
                     backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 3,
@@ -564,7 +581,7 @@
                 labels: ['К выполнению', 'В работе', 'Выполнено'],
                 datasets: [{
                     label: 'Количество задач',
-                    data: [data.todo || 0, data.inProgress || 0, data.done || 0],
+                    data: [data.todo, data.inProgress, data.done],
                     backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
                     borderColor: ['#fbbf24', '#38bdf8', '#34d399'],
                     borderWidth: 2,
@@ -589,21 +606,41 @@
         })
     };
 
-    async function loadChart() {
+    function loadChart() {
         try {
-            const res = await fetch('/api/tasks/stats');
-            const data = await res.json();
-            const ctx = document.getElementById('taskChart').getContext('2d');
+            const canvas = document.getElementById('taskChart');
+            if (!canvas) {
+                console.error('Canvas element not found');
+                return;
+            }
 
-            if (AppState.taskChart) AppState.taskChart.destroy();
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('Could not get canvas context');
+                return;
+            }
+
+            if (AppState.taskChart) {
+                AppState.taskChart.destroy();
+            }
+
+            // Получаем данные из скрытых полей или напрямую из Thymeleaf
+            const chartData = {
+                todo: parseInt(document.getElementById('todoTasksValue').textContent) || 0,
+                inProgress: parseInt(document.getElementById('inProgressTasksValue').textContent) || 0,
+                done: parseInt(document.getElementById('doneTasksValue').textContent) || 0
+            };
+
+            console.log('Chart data loaded:', chartData);
 
             const config = AppState.currentChartType === 'doughnut'
-                ? ChartConfig.doughnutConfig(data)
-                : ChartConfig.barConfig(data);
+                ? ChartConfig.doughnutConfig(chartData)
+                : ChartConfig.barConfig(chartData);
 
             AppState.taskChart = new Chart(ctx, config);
+            console.log('Chart created successfully');
         } catch (e) {
-            console.error('Ошибка загрузки статистики:', e);
+            console.error('Ошибка создания диаграммы:', e);
         }
     }
 
@@ -621,12 +658,12 @@
 
     // Инициализация приложения
     function initApp() {
+        console.log('Initializing app...');
         loadChart();
         updateNotifications();
 
-        // Обновление каждые 30 сек
+        // Обновление только уведомлений каждые 30 сек
         setInterval(() => {
-            loadChart();
             updateNotifications();
         }, 30000);
     }
