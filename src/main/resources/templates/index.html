@@ -19,7 +19,11 @@
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -34,6 +38,7 @@
             inset: 0;
             z-index: -2;
         }
+
         .bg-animation::before {
             content: '';
             position: absolute;
@@ -43,9 +48,16 @@
                 radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
             animation: breathe 22s ease-in-out infinite;
         }
+
         @keyframes breathe {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 0.9; transform: scale(1.03); }
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(1.03);
+            }
         }
 
         .content-overlay {
@@ -56,7 +68,7 @@
             z-index: -1;
         }
 
-        /* Компактная шапка */
+        /* Навигация */
         nav {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(20px);
@@ -88,14 +100,13 @@
             text-decoration: none;
         }
 
-        /* Только две кнопки в линию */
         .nav-menu {
             display: flex;
             gap: 1.5rem;
             align-items: center;
         }
 
-        .nav-menu a {
+        .nav-link {
             color: rgba(255,255,255,0.9);
             font-weight: 500;
             text-decoration: none;
@@ -107,15 +118,16 @@
             transition: var(--transition);
         }
 
-        .nav-menu a:hover {
+        .nav-link:hover {
             background: rgba(255,255,255,0.15);
             color: white;
         }
 
-        .nav-menu a i {
+        .nav-link i {
             font-size: 1.15rem;
         }
 
+        /* Основной контент */
         main {
             padding-top: 90px;
             min-height: 100vh;
@@ -123,7 +135,6 @@
             align-items: center;
         }
 
-        /* Остальной код (hero-grid, карточки, форма) — без изменений */
         .hero-grid {
             display: grid;
             grid-template-columns: 1fr 440px;
@@ -152,6 +163,7 @@
             margin-bottom: 3rem;
         }
 
+        /* Карточки фич */
         .features {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -167,17 +179,20 @@
             border-radius: 1.5rem;
             transition: var(--transition);
         }
+
         .feature-card:hover {
             transform: translateY(-12px);
             background: rgba(255,255,255,0.18);
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
+
         .feature-card i {
             font-size: 2.4rem;
             margin-bottom: 1.2rem;
             color: #60a5fa;
         }
 
+        /* Карточка логина */
         .login-card {
             background: rgba(255, 255, 255, 0.14);
             backdrop-filter: blur(24px);
@@ -195,7 +210,8 @@
             color: white;
         }
 
-        input {
+        /* Формы */
+        .form-input {
             width: 100%;
             padding: 1.1rem 1.3rem;
             background: rgba(255,255,255,0.15);
@@ -204,17 +220,22 @@
             color: white;
             font-size: 1rem;
             margin-bottom: 1.3rem;
+            transition: var(--transition);
         }
-        input::placeholder { color: rgba(255,255,255,0.7); }
-        input:focus {
+
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .form-input:focus {
             outline: none;
             border-color: #60a5fa;
             background: rgba(255,255,255,0.22);
             box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
         }
 
-        .btn-login {
-            width: 100%;
+        /* Кнопки */
+        .btn {
             padding: 1.2rem;
             background: linear-gradient(135deg, #60a5fa, #3b82f6);
             color: white;
@@ -229,15 +250,32 @@
             gap: 0.8rem;
             transition: var(--transition);
             box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            text-decoration: none;
         }
-        .btn-login:hover {
+
+        .btn:hover {
             transform: translateY(-4px);
             box-shadow: 0 20px 40px rgba(59, 130, 246, 0.5);
         }
 
+        .btn-login {
+            width: 100%;
+        }
+
+        .btn-hero {
+            width: auto;
+            padding: 1.2rem 3rem;
+        }
+
+        /* Адаптивность */
         @media (max-width: 992px) {
-            .hero-grid { grid-template-columns: 1fr; gap: 4rem; }
-            .features { grid-template-columns: 1fr; }
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+            .features {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -254,11 +292,11 @@
         </a>
 
         <div class="nav-menu">
-            <a href="/dashboard">
+            <a href="/dashboard" class="nav-link">
                 <i data-lucide="layout-dashboard"></i>
                 Панель управления
             </a>
-            <a href="/tasks">
+            <a href="/tasks" class="nav-link">
                 <i data-lucide="check-square"></i>
                 Задачи
             </a>
@@ -276,7 +314,7 @@
                 <div class="feature-card">
                     <i data-lucide="clock"></i>
                     <h3>Контроль сроков выполнения</h3>
-                    <p>Приоритизация срока выполнения и уведомление о смене статуса </p>
+                    <p>Приоритизация срока выполнения и уведомление о смене статуса</p>
                 </div>
                 <div class="feature-card">
                     <i data-lucide="users"></i>
@@ -290,7 +328,7 @@
                 </div>
             </div>
 
-            <a href="/dashboard" class="btn-login" style="width: auto; padding: 1.2rem 3rem;">
+            <a href="/dashboard" class="btn btn-hero">
                 <i data-lucide="arrow-right"></i>
                 Перейти в систему
             </a>
@@ -299,9 +337,9 @@
         <div class="login-card">
             <h2><i data-lucide="shield-check"></i>Вход в систему</h2>
             <form th:action="@{/login}" method="post">
-                <input type="text" name="username" placeholder="Логин" required />
-                <input type="password" name="password" placeholder="Пароль" required />
-                <button type="submit" class="btn-login">
+                <input type="text" name="username" placeholder="Логин" class="form-input" required />
+                <input type="password" name="password" placeholder="Пароль" class="form-input" required />
+                <button type="submit" class="btn btn-login">
                     <i data-lucide="log-in"></i>
                     Войти
                 </button>
@@ -311,6 +349,7 @@
 </main>
 
 <script>
+    // Инициализация иконок
     lucide.createIcons();
 </script>
 </body>
