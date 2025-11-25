@@ -82,16 +82,16 @@ INSERT INTO users (username, password, email, role, full_name) VALUES
 ('developer', '123', 'executor1@company.ru', 'EXECUTOR', 'Старший разработчик');
 
 INSERT INTO projects (name, description, created_by) VALUES
-('Менеджеры', 'Группа управления', 2),
-('Обеспечение качества', 'Группа тестирования', 2),
-('Техническая поддержка', 'Обслуживание клиентов', 2),
-('Обеспечение безопасности', 'Группа инфо-безов', 2),
-('Разработка проекта 1', 'Создание системы управления задачами 1', 2),
-('Разработка проекта 2', 'Создание системы управления задачами 2', 2);
+('Менеджеры', 'Группа управления', (SELECT id FROM users WHERE username = 'manager')),
+('Обеспечение качества', 'Группа тестирования', (SELECT id FROM users WHERE username = 'manager')),
+('Техническая поддержка', 'Обслуживание клиентов', (SELECT id FROM users WHERE username = 'manager')),
+('Обеспечение безопасности', 'Группа инфо-безов', (SELECT id FROM users WHERE username = 'manager')),
+('Разработка проекта 1', 'Создание системы управления задачами 1', (SELECT id FROM users WHERE username = 'manager')),
+('Разработка проекта 2', 'Создание системы управления задачами 2', (SELECT id FROM users WHERE username = 'manager'));
 
 INSERT INTO tasks (title, description, status, priority, deadline, project_id, author_id, executor_id) VALUES
-('Настроить базу данных', 'Настроить базу данных', 'TO_DO', 'LOW', '2026-01-01 12:00:00', 1, 2, 3),
-('Разработать интерфейс', 'Создать пользовательский интерфейс', 'IN_PROGRESS', 'MEDIUM', '2026-02-02 18:00:00', 1, 2, 3),
-('Протестировать приложение', 'Провести тестирование всех функций', 'TO_DO', 'LOW', '2026-03-03 18:30:00', 1, 2, 4),
-('Разработать модальные окна', 'Разработать модальные окна для приложения', 'DONE', 'HIGH', '2025-12-01 19:30:00', 1, 2, 4),
-('Анализ деятельности внешних систем', 'Настройка интеграции с внешними системами', 'DONE', 'HIGH', '2025-11-01 20:30:00', 1, 2, 4);
+('Настроить базу данных', 'Настроить базу данных', 'TO_DO', 'LOW', '2026-01-01 12:00:00', (SELECT id FROM projects WHERE name = 'Менеджеры'), (SELECT id FROM users WHERE username = 'manager'), (SELECT id FROM users WHERE username = 'developer')),
+('Разработать интерфейс', 'Создать пользовательский интерфейс', 'IN_PROGRESS', 'MEDIUM', '2026-02-02 18:00:00', (SELECT id FROM projects WHERE name = 'Менеджеры'), (SELECT id FROM users WHERE username = 'manager'), (SELECT id FROM users WHERE username = 'developer')),
+('Протестировать приложение', 'Провести тестирование всех функций', 'TO_DO', 'LOW', '2026-03-03 18:30:00', (SELECT id FROM projects WHERE name = 'Менеджеры'), (SELECT id FROM users WHERE username = 'manager'), (SELECT id FROM users WHERE username = 'qa')),
+('Разработать модальные окна', 'Разработать модальные окна для приложения', 'DONE', 'HIGH', '2025-12-01 19:30:00', (SELECT id FROM projects WHERE name = 'Менеджеры'), (SELECT id FROM users WHERE username = 'manager'), (SELECT id FROM users WHERE username = 'developer')),
+('Анализ деятельности внешних систем', 'Настройка интеграции с внешними системами', 'DONE', 'HIGH', '2025-11-01 20:30:00', (SELECT id FROM projects WHERE name = 'Менеджеры'), (SELECT id FROM users WHERE username = 'manager'), (SELECT id FROM users WHERE username = 'developer'));

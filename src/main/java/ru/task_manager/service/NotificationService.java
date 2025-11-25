@@ -23,20 +23,20 @@ public class NotificationService {
     private UserRepository userRepository;
 
     public void notifyTaskCreated(Task task, User author) {
+        // 1. Исполнителю
         if (task.getExecutor() != null && !task.getExecutor().equals(author)) {
-            String title = "Новая задача";
-            String message = String.format("Пользователь %s назначил вам новую задачу: \"%s\"",
-                    author.getFullName(), task.getTitle());
-            createNotification(title, message, NotificationType.ASSIGNED_TO_TASK, task.getExecutor(), task);
+            createNotification("Новая задача",
+                    String.format("Пользователь %s назначил вам новую задачу: \"%s\"", author.getFullName(), task.getTitle()),
+                    NotificationType.ASSIGNED_TO_TASK, task.getExecutor(), task);
         }
 
+        // 2. Всем менеджерам и админам
         List<User> managersAndAdmins = getManagersAndAdmins();
         for (User user : managersAndAdmins) {
-            if (!user.equals(author) && isUserRelatedToTask(user, task)) {
-                String title = "Создана новая задача";
-                String message = String.format("Пользователь %s создал новую задачу: \"%s\"",
-                        author.getFullName(), task.getTitle());
-                createNotification(title, message, NotificationType.TASK_CREATED, user, task);
+            if (!user.equals(author)) {
+                createNotification("Создана новая задача",
+                        String.format("Пользователь %s создал новую задачу: \"%s\"", author.getFullName(), task.getTitle()),
+                        NotificationType.TASK_CREATED, user, task);
             }
         }
     }
@@ -88,12 +88,29 @@ public class NotificationService {
         String message = String.format("Пользователь %s обновил задачу \"%s\"",
                 currentUser.getFullName(), task.getTitle());
 
+        Set<User> recipients = new HashSet<>();
+
+        // 1. Автору задачи (если это не он сам обновил)
         if (!task.getAuthor().equals(currentUser)) {
-            createNotification(title, message, NotificationType.TASK_UPDATED, task.getAuthor(), task);
+            recipients.add(task.getAuthor());
         }
 
+        // 2. Исполнителю (если это не он сам обновил)
         if (task.getExecutor() != null && !task.getExecutor().equals(currentUser)) {
-            createNotification(title, message, NotificationType.TASK_UPDATED, task.getExecutor(), task);
+            recipients.add(task.getExecutor());
+        }
+
+        // 3. ВСЕМ администраторам и менеджерам — ВСЕГДА при любом обновлении
+        List<User> managersAndAdmins = getManagersAndAdmins();
+        for (User user : managersAndAdmins) {
+            if (!user.equals(currentUser)) {
+                recipients.add(user);
+            }
+        }
+
+        // Отправляем уведомление всем, кто попал в список
+        for (User recipient : recipients) {
+            createNotification(title, message, NotificationType.TASK_UPDATED, recipient, task);
         }
     }
 
