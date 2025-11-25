@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskManager - Управление пользователями</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
@@ -16,6 +15,9 @@
             --card-bg: rgba(255, 255, 255, 0.12);
             --card-border: rgba(255, 255, 255, 0.15);
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --danger: #dc3545;
+            --warning: #f59e0b;
+            --success: #10b981;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,6 +30,7 @@
             overflow-x: hidden;
         }
 
+        /* Background Animation */
         .bg-animation {
             position: fixed;
             inset: 0;
@@ -42,7 +45,10 @@
                 radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
             animation: breathe 22s ease-in-out infinite;
         }
-        @keyframes breathe { 0%,100% { opacity: .6; transform: scale(1); } 50% { opacity: .9; transform: scale(1.03); } }
+        @keyframes breathe {
+            0%,100% { opacity: .6; transform: scale(1); }
+            50% { opacity: .9; transform: scale(1.03); }
+        }
 
         .content-overlay {
             position: fixed;
@@ -52,7 +58,7 @@
             z-index: -1;
         }
 
-        /* Навигация */
+        /* Navigation */
         nav {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(20px);
@@ -104,12 +110,39 @@
             transition: var(--transition);
             white-space: nowrap;
         }
-        .nav-menu a:hover {
+        .nav-menu a:hover,
+        .nav-menu a.active {
             background: rgba(255,255,255,0.15);
             color: white;
         }
 
-        /* Дропдаун профиля */
+        .notification-bell {
+            position: relative;
+            padding: 0.65rem;
+            border-radius: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .notification-bell:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .notification-counter {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #d55f5f;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Profile Dropdown */
         .profile-dropdown {
             position: relative;
         }
@@ -125,7 +158,9 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        .dropdown-toggle:hover { background: rgba(255,255,255,0.15); }
+        .dropdown-toggle:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
         .dropdown-menu {
             position: absolute;
@@ -149,7 +184,8 @@
             visibility: visible;
             transform: translateY(0);
         }
-        .dropdown-menu a, .dropdown-menu button {
+        .dropdown-menu a,
+        .dropdown-menu button {
             display: block;
             width: 100%;
             padding: 0.9rem 1.2rem;
@@ -160,14 +196,23 @@
             font-size: 0.95rem;
             transition: background 0.2s;
         }
-        .dropdown-menu a:hover, .dropdown-menu button:hover {
+        .dropdown-menu a:hover,
+        .dropdown-menu button:hover {
             background: rgba(255,255,255,0.1);
         }
 
-        main { padding-top: 100px; padding-bottom: 4rem; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        /* Main Content */
+        main {
+            padding-top: 100px;
+            padding-bottom: 4rem;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
 
-        /* Заголовок страницы */
+        /* Page Header */
         .page-header {
             text-align: center;
             margin-bottom: 3rem;
@@ -190,13 +235,7 @@
             opacity: 0.9;
         }
 
-        /* Центральная кнопка создания */
-        .create-user-section {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        /* Кнопки в стиле notifications.html */
+        /* Buttons */
         .btn {
             padding: 0.8rem 1.8rem;
             border-radius: 9999px;
@@ -211,12 +250,15 @@
             border: none;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #60a5fa, #3b82f6);
-            box-shadow: 0 10px 30px rgba(59,130,246,0.4);
+            background: rgb(141 137 207 / 15%);
+            border: 1px solid rgb(92 108 221 / 30%);
+            color: #f0f4ff;
         }
+
         .btn-primary:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(59,130,246,0.5);
+            background: rgb(141 137 207 / 15%);
+            color: white;
+            transform: translateY(-3px);
         }
 
         .btn-secondary {
@@ -239,7 +281,35 @@
             transform: translateY(-3px);
         }
 
-        /* Карточки пользователей */
+        .btn-icon {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.6rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+        .btn-edit:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        .btn-delete:hover {
+            background: rgba(220, 53, 69, 0.3);
+        }
+
+        /* User Cards */
+        .create-user-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
         .users-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
@@ -272,9 +342,6 @@
             height: 100%;
             transition: var(--transition);
         }
-        .user-card.role-admin::before { background: #dc3545; }
-        .user-card.role-manager::before { background: #f59e0b; }
-        .user-card.role-executor::before { background: #10b981; }
 
         .user-header {
             display: flex;
@@ -305,25 +372,6 @@
             opacity: 1;
         }
 
-        .btn-icon {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 0.6rem;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-icon:hover {
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.1);
-        }
-        .btn-edit:hover { background: rgba(59, 130, 246, 0.3); }
-        .btn-delete:hover { background: rgba(220, 53, 69, 0.3); }
-
         .user-meta {
             margin-bottom: 1.5rem;
         }
@@ -350,16 +398,42 @@
             font-weight: 600;
             font-size: 0.85rem;
         }
-        .role-admin .role-badge { background: rgba(220, 53, 69, 0.2); color: #f87171; }
-        .role-manager .role-badge { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .role-executor .role-badge { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .role-admin .role-badge {
+            background: rgba(220, 53, 69, 0.2);
+            color: #f87171;
+        }
+        .role-manager .role-badge {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+        .role-executor .role-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
 
         .user-id {
             color: rgba(255,255,255,0.6);
             font-size: 0.9rem;
         }
 
-        /* Модальное окно */
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255,255,255,0.7);
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+        .empty-state h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Modal Windows */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -423,6 +497,7 @@
             color: white;
         }
 
+        /* Forms */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -455,17 +530,42 @@
         }
 
         .form-select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e2e8f0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 1rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e2e8f0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
         }
 
         .form-text {
             font-size: 0.85rem;
             color: rgba(255,255,255,0.7);
             margin-top: 0.5rem;
+        }
+
+        /* Стили для выпадающего списка */
+        .form-select option {
+         background: #1e293b;
+         color: #e2e8f0;
+         padding: 0.5rem;
+         border: none;
+        }
+
+        /* Стили при открытии select */
+        .form-select:focus option {
+         background: #334155;
+        }
+
+        /* Стили для hover состояния options (не все браузеры поддерживают) */
+        .form-select option:hover {
+         background: #3b82f6 !important;
+         color: white !important;
+        }
+
+        .form-select option:checked {
+         background: #1e40af;
+         color: white;
         }
 
         .alert {
@@ -497,87 +597,7 @@
             align-items: center;
         }
 
-        /* Состояние пустого списка */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: rgba(255,255,255,0.7);
-        }
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            opacity: 0.5;
-        }
-        .empty-state h4 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: rgba(255,255,255,0.9);
-        }
-
-        /* Кастом тосты как в notifications.html */
-        .toast-container {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 3000; /* Увеличиваем z-index чтобы тосты были поверх модальных окон */
-            width: max-content;
-            max-width: 90%;
-        }
-
-        .custom-toast {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--card-border);
-            border-radius: 1rem;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 3.7s;
-            opacity: 0;
-        }
-
-        .custom-toast.show {
-            opacity: 1;
-        }
-
-        .custom-toast.success {
-            border-color: rgba(52, 211, 153, 0.4);
-            color: #a7f3d0;
-        }
-
-        .custom-toast.error {
-            border-color: rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
-        }
-
-        .custom-toast.info {
-            border-color: rgba(96, 165, 250, 0.4);
-            color: #bfdbfe;
-        }
-
-        @keyframes toastIn {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes toastOut {
-            to {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-        }
-
-        /* Модальное окно подтверждения удаления */
+        /* Confirmation Modal */
         .confirm-modal {
             position: fixed;
             inset: 0;
@@ -650,6 +670,70 @@
             justify-content: center;
         }
 
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            width: max-content;
+            max-width: 90%;
+        }
+
+        .custom-toast {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 3.7s;
+            opacity: 0;
+        }
+
+        .custom-toast.show {
+            opacity: 1;
+        }
+
+        .custom-toast.success {
+            border-color: rgba(52, 211, 153, 0.4);
+            color: #a7f3d0;
+        }
+
+        .custom-toast.error {
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .custom-toast.info {
+            border-color: rgba(96, 165, 250, 0.4);
+            color: #bfdbfe;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .users-grid {
                 grid-template-columns: 1fr;
@@ -669,38 +753,6 @@
                 justify-content: space-between;
             }
         }
-
-         .notification-bell {
-            position: relative;
-            padding: 0.65rem;
-            border-radius: 12px;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .notification-bell:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
-            .notification-counter {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #d55f5f;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-    .nav-menu a.active {
-    background: rgba(255,255,255,0.15);
-    color: white;
-}
     </style>
 </head>
 <body>
@@ -731,7 +783,7 @@
             </div>
 
             <div class="profile-dropdown">
-                <button class="dropdown-toggle" onclick="toggleDropdown()">
+                <button class="dropdown-toggle" onclick="UserManager.toggleDropdown()">
                     <i data-lucide="user"></i>
                     <span th:text="${#authentication?.name}">Пользователь</span>
                     <i data-lucide="chevron-down" style="font-size:0.9rem;"></i>
@@ -759,15 +811,13 @@
             <p>Всего пользователей: <strong th:text="${usersCount}">0</strong></p>
         </div>
 
-        <!-- Центральная кнопка создания -->
         <div class="create-user-section">
-            <button class="btn btn-primary" onclick="showCreateUserForm()">
+            <button class="btn btn-primary" onclick="UserManager.showCreateForm()">
                 <i data-lucide="user-plus"></i>
                 Создать пользователя
             </button>
         </div>
 
-        <!-- Список пользователей -->
         <div class="users-grid">
             <div th:each="user : ${users}" class="user-card"
                  th:classappend="${user.role.name() == 'ADMIN'} ? 'role-admin' :
@@ -778,10 +828,10 @@
                         <div class="user-fullname" th:text="${user.fullName}">Полное имя</div>
                     </div>
                     <div class="user-actions">
-                        <button class="btn-icon btn-edit" th:attr="data-user-id=${user.id}" onclick="editUserFromButton(this)">
+                        <button class="btn-icon btn-edit" th:attr="data-user-id=${user.id}" onclick="UserManager.editFromButton(this)">
                             <i data-lucide="edit-2"></i>
                         </button>
-                        <button class="btn-icon btn-delete" th:attr="data-user-id=${user.id}, data-username=${user.username}" onclick="confirmDeleteUserFromButton(this)">
+                        <button class="btn-icon btn-delete" th:attr="data-user-id=${user.id}, data-username=${user.username}" onclick="UserManager.confirmDeleteFromButton(this)">
                             <i data-lucide="trash-2"></i>
                         </button>
                     </div>
@@ -809,319 +859,329 @@
             </div>
         </div>
 
-        <!-- Сообщение если пользователей нет -->
         <div th:if="${usersCount == 0}" class="empty-state">
             <i data-lucide="users"></i>
             <h4>Пользователи не найдены</h4>
             <p>Создайте первого пользователя, нажав на кнопку "Создать пользователя"</p>
         </div>
     </div>
-    </main>
+</main>
 
-    <!-- Кастом тост контейнер -->
-    <div class="toast-container" id="toastContainer"></div>
+<div class="toast-container" id="toastContainer"></div>
 
-    <!-- Модальное окно подтверждения удаления -->
-    <div id="confirmDeleteModal" class="confirm-modal">
-        <div class="confirm-modal-content">
-            <div class="confirm-modal-header">
-                <i data-lucide="alert-triangle"></i>
-                <h5>Удаление пользователя</h5>
-            </div>
-            <div class="confirm-modal-body">
-                <h6 id="confirmDeleteText">Вы уверены, что хотите удалить пользователя?</h6>
-                <p>Это действие нельзя отменить</p>
-            </div>
-            <div class="confirm-modal-footer">
-                <button class="btn btn-secondary" onclick="hideConfirmDeleteModal()">
-                    <i data-lucide="x"></i> Отмена
-                </button>
-                <button class="btn btn-soft-danger" onclick="deleteUser()">
-                    <i data-lucide="trash-2"></i> Удалить
-                </button>
-            </div>
+<div id="confirmDeleteModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+        <div class="confirm-modal-header">
+            <i data-lucide="alert-triangle"></i>
+            <h5>Удаление пользователя</h5>
+        </div>
+        <div class="confirm-modal-body">
+            <h3 id="confirmDeleteText">Вы уверены, что хотите удалить пользователя?</h3>
+        </div>
+        <div class="confirm-modal-footer">
+            <button class="btn btn-secondary" onclick="UserManager.hideConfirmDeleteModal()">
+                <i data-lucide="x"></i> Отмена
+            </button>
+            <button class="btn btn-soft-danger" onclick="UserManager.deleteUser()">
+                <i data-lucide="trash-2"></i> Удалить
+            </button>
         </div>
     </div>
+</div>
 
-    <!-- Модальное окно для создания/редактирования пользователя -->
-    <div class="modal-overlay" id="userModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="userModalTitle"><i data-lucide="user-plus"></i>Создание пользователя</h3>
-                <button class="close-btn" onclick="hideUserModal()">
+<div class="modal-overlay" id="userModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="userModalTitle"><i data-lucide="user-plus"></i>Создание пользователя</h3>
+            <button class="close-btn" onclick="UserManager.hideUserModal()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <form id="userForm">
+            <input type="hidden" id="userId" name="id">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label for="userUsername" class="form-label">Имя пользователя *</label>
+                    <input type="text" class="form-control" id="userUsername" name="username" required
+                           placeholder="Введите имя пользователя">
+                </div>
+                <div class="form-group">
+                    <label for="userRole" class="form-label">Роль *</label>
+                    <div class="select-wrapper">
+                    <select class="form-control form-select" id="userRole" name="role" required>
+                        <option value="EXECUTOR">Исполнитель</option>
+                        <option value="MANAGER">Менеджер</option>
+                        <option value="ADMIN">Администратор</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="userFullName" class="form-label">Полное имя *</label>
+                <input type="text" class="form-control" id="userFullName" name="fullName" required
+                       placeholder="Введите полное имя">
+            </div>
+
+            <div class="form-group">
+                <label for="userEmail" class="form-label">Email *</label>
+                <input type="email" class="form-control" id="userEmail" name="email" required
+                       placeholder="Введите email">
+            </div>
+
+            <div class="form-group">
+                <label for="userPassword" class="form-label" id="userPasswordLabel">Пароль *</label>
+                <input type="password" class="form-control" id="userPassword" name="password" required
+                       placeholder="Введите пароль">
+                <div class="form-text" id="passwordHelp" style="display: none;">
+                    Для существующих пользователей: оставьте пустым, чтобы не менять пароль
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i data-lucide="info"></i>
+                <small>Пароль будет зашифрован перед сохранением в базе данных.</small>
+            </div>
+        </form>
+
+        <div class="modal-footer">
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="UserManager.hideUserModal()">
                     <i data-lucide="x"></i>
+                    Отмена
                 </button>
-            </div>
-
-            <form id="userForm">
-                <input type="hidden" id="userId" name="id">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label for="userUsername" class="form-label">Имя пользователя *</label>
-                        <input type="text" class="form-control" id="userUsername" name="username" required
-                               placeholder="Введите имя пользователя">
-                    </div>
-                    <div class="form-group">
-                        <label for="userRole" class="form-label">Роль *</label>
-                        <select class="form-control form-select" id="userRole" name="role" required>
-                            <option value="EXECUTOR">Исполнитель</option>
-                            <option value="MANAGER">Менеджер</option>
-                            <option value="ADMIN">Администратор</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="userFullName" class="form-label">Полное имя *</label>
-                    <input type="text" class="form-control" id="userFullName" name="fullName" required
-                           placeholder="Введите полное имя">
-                </div>
-
-                <div class="form-group">
-                    <label for="userEmail" class="form-label">Email *</label>
-                    <input type="email" class="form-control" id="userEmail" name="email" required
-                           placeholder="Введите email">
-                </div>
-
-                <div class="form-group">
-                    <label for="userPassword" class="form-label" id="userPasswordLabel">Пароль *</label>
-                    <input type="password" class="form-control" id="userPassword" name="password" required
-                           placeholder="Введите пароль">
-                    <div class="form-text" id="passwordHelp" style="display: none;">
-                        Для существующих пользователей: оставьте пустым, чтобы не менять пароль
-                    </div>
-                </div>
-
-                <div class="alert alert-info">
-                    <i data-lucide="info"></i>
-                    <small>Пароль будет зашифрован перед сохранением в базе данных.</small>
-                </div>
-            </form>
-
-            <div class="modal-footer">
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="hideUserModal()">
-                        <i data-lucide="x"></i>
-                        Отмена
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="saveUser()">
-                        <i data-lucide="save"></i>
-                        Сохранить
-                    </button>
-                    <button type="button" class="btn btn-soft-danger" id="deleteUserBtn" style="display: flex;" onclick="showConfirmDeleteModal()">
-                        <i data-lucide="trash-2"></i>
-                        Удалить
-                    </button>
-                </div>
+                <button type="button" class="btn btn-primary" onclick="UserManager.saveUser()">
+                    <i data-lucide="save"></i>
+                    Сохранить
+                </button>
+                <button type="button" class="btn btn-soft-danger" id="deleteUserBtn" style="display: none;" onclick="UserManager.showConfirmDeleteModal()">
+                    <i data-lucide="trash-2"></i>
+                    Удалить
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
+    // Инициализация иконок
     lucide.createIcons();
 
-    let currentUserId = null;
-    let userToDelete = null;
-    const userModal = document.getElementById('userModal');
-    const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    const UserManager = {
+        currentUserId: null,
+        userToDelete: null,
+        elements: {
+            userModal: document.getElementById('userModal'),
+            confirmDeleteModal: document.getElementById('confirmDeleteModal'),
+            userForm: document.getElementById('userForm'),
+            toastContainer: document.getElementById('toastContainer')
+        },
 
-    function toggleDropdown() {
-        document.getElementById('profileMenu').classList.toggle('show');
-    }
-    window.onclick = function(e) {
-        if (!e.target.closest('.profile-dropdown')) {
-            document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
-        }
-    }
+        // Навигация и утилиты
+        toggleDropdown() {
+            document.getElementById('profileMenu').classList.toggle('show');
+        },
 
-    // === Тосты как в notifications.html ===
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `custom-toast ${type} show`;
-        const icons = {
-            success: 'check-circle',
-            error: 'alert-circle',
-            info: 'info'
-        };
-        toast.innerHTML = `<i data-lucide="${icons[type]}"></i> ${message}`;
-        document.getElementById('toastContainer').appendChild(toast);
-        lucide.createIcons();
-        setTimeout(() => toast.remove(), 4000);
-    }
+        showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type} show`;
+            const icons = {
+                success: 'check-circle',
+                error: 'alert-circle',
+                info: 'info'
+            };
+            toast.innerHTML = `<i data-lucide="${icons[type]}"></i> ${message}`;
+            this.elements.toastContainer.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => toast.remove(), 4000);
+        },
 
-    function showCreateUserForm() {
-        currentUserId = null;
-        document.getElementById('userModalTitle').innerHTML = '<i data-lucide="user-plus"></i>Создание пользователя';
-        document.getElementById('userForm').reset();
-        document.getElementById('deleteUserBtn').style.display = 'none';
-        document.getElementById('userPasswordLabel').textContent = 'Пароль *';
-        document.getElementById('userPassword').required = true;
-        document.getElementById('passwordHelp').style.display = 'none';
-        document.getElementById('userRole').value = 'EXECUTOR';
-        userModal.classList.add('show');
-        lucide.createIcons();
-    }
+        updateNotificationCounter() {
+            fetch('/notifications/api/notifications/count')
+                .then(r => r.json())
+                .then(count => {
+                    const el = document.querySelector('.notification-counter');
+                    if (count > 0) {
+                        el.textContent = count > 99 ? '99+' : count;
+                        el.style.display = 'flex';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                });
+        },
 
-    function hideUserModal() {
-        userModal.classList.remove('show');
-    }
+        // Управление модальными окнами
+        showCreateForm() {
+            this.currentUserId = null;
+            document.getElementById('userModalTitle').innerHTML = '<i data-lucide="user-plus"></i>Создание пользователя';
+            this.elements.userForm.reset();
+            document.getElementById('deleteUserBtn').style.display = 'none';
+            document.getElementById('userPasswordLabel').textContent = 'Пароль *';
+            document.getElementById('userPassword').required = true;
+            document.getElementById('passwordHelp').style.display = 'none';
+            document.getElementById('userRole').value = 'EXECUTOR';
+            this.elements.userModal.classList.add('show');
+            lucide.createIcons();
+        },
 
-    function showConfirmDeleteModal() {
-        confirmDeleteModal.classList.add('show');
-    }
+        hideUserModal() {
+            this.elements.userModal.classList.remove('show');
+        },
 
-    function hideConfirmDeleteModal() {
-        confirmDeleteModal.classList.remove('show');
-    }
+        showConfirmDeleteModal() {
+            this.elements.confirmDeleteModal.classList.add('show');
+        },
 
-    function editUserFromButton(button) {
-        const userId = button.getAttribute('data-user-id');
-        editUser(userId);
-    }
+        hideConfirmDeleteModal() {
+            this.elements.confirmDeleteModal.classList.remove('show');
+        },
 
-    function confirmDeleteUserFromButton(button) {
-        const userId = button.getAttribute('data-user-id');
-        const username = button.getAttribute('data-username');
-        userToDelete = userId;
-        document.getElementById('confirmDeleteText').textContent = `Вы уверены, что хотите удалить пользователя "${username}"?`;
-        showConfirmDeleteModal();
-    }
+        // Работа с пользователями
+        editFromButton(button) {
+            const userId = button.getAttribute('data-user-id');
+            this.editUser(userId);
+        },
 
-    function editUser(userId) {
-        currentUserId = userId;
-        document.getElementById('userModalTitle').innerHTML = '<i data-lucide="user"></i>Форма редактирования';
-        document.getElementById('deleteUserBtn').style.display = 'flex';
-        document.getElementById('userPasswordLabel').textContent = 'Пароль *';
-        document.getElementById('userPassword').required = true;
-        document.getElementById('passwordHelp').style.display = 'block';
+        confirmDeleteFromButton(button) {
+            const userId = button.getAttribute('data-user-id');
+            const username = button.getAttribute('data-username');
+            this.userToDelete = userId;
+            document.getElementById('confirmDeleteText').textContent = `Вы уверены, что хотите удалить пользователя "${username}"?`;
+            this.showConfirmDeleteModal();
+        },
 
-        // Загружаем данные пользователя
-        fetch('/api/admin/users/' + userId)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Пользователь не найден');
-                }
-                return response.json();
+        editUser(userId) {
+            this.currentUserId = userId;
+            document.getElementById('userModalTitle').innerHTML = '<i data-lucide="user"></i>Форма редактирования';
+            document.getElementById('deleteUserBtn').style.display = 'flex';
+            document.getElementById('userPasswordLabel').textContent = 'Пароль *';
+            document.getElementById('userPassword').required = true;
+            document.getElementById('passwordHelp').style.display = 'block';
+
+            fetch('/api/admin/users/' + userId)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Пользователь не найден');
+                    }
+                    return response.json();
+                })
+                .then(user => {
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('userUsername').value = user.username;
+                    document.getElementById('userFullName').value = user.fullName;
+                    document.getElementById('userEmail').value = user.email;
+                    document.getElementById('userRole').value = user.role;
+                    document.getElementById('userPassword').value = '';
+
+                    this.elements.userModal.classList.add('show');
+                    lucide.createIcons();
+                })
+                .catch(error => {
+                    console.error('Error loading user:', error);
+                    this.showToast('Ошибка при загрузке пользователя', 'error');
+                });
+        },
+
+        deleteUser() {
+            this.hideConfirmDeleteModal();
+
+            if (!this.userToDelete) {
+                this.userToDelete = this.currentUserId;
+            }
+
+            fetch('/api/admin/users/' + this.userToDelete, {
+                method: 'DELETE'
             })
-            .then(user => {
-                document.getElementById('userId').value = user.id;
-                document.getElementById('userUsername').value = user.username;
-                document.getElementById('userFullName').value = user.fullName;
-                document.getElementById('userEmail').value = user.email;
-                document.getElementById('userRole').value = user.role;
-                document.getElementById('userPassword').value = '';
-
-                userModal.classList.add('show');
-                lucide.createIcons();
+            .then(response => {
+                if (response.ok) {
+                    this.hideUserModal();
+                    this.showToast('Пользователь успешно удален!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('Ошибка при удалении');
+                }
             })
             .catch(error => {
-                console.error('Error loading user:', error);
-                showToast('Ошибка при загрузке пользователя', 'error');
+                console.error('Error deleting user:', error);
+                this.showToast('Ошибка при удалении пользователя', 'error');
             });
-    }
+        },
 
-    function deleteUser() {
-        hideConfirmDeleteModal();
+        saveUser() {
+            const formData = {
+                username: document.getElementById('userUsername').value,
+                fullName: document.getElementById('userFullName').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRole').value,
+                password: document.getElementById('userPassword').value || null
+            };
 
-        if (!userToDelete) {
-            userToDelete = currentUserId;
-        }
+            if (!formData.username.trim() || !formData.fullName.trim() || !formData.email.trim() || !formData.password) {
+                this.showToast('Пожалуйста, заполните все обязательные поля', 'error');
+                return;
+            }
 
-        fetch('/api/admin/users/' + userToDelete, {
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (response.ok) {
-                hideUserModal();
-                showToast('Пользователь успешно удален!', 'success');
+            const url = this.currentUserId ? '/api/admin/users/' + this.currentUserId : '/api/admin/users';
+            const method = this.currentUserId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.json().then(error => {
+                        throw new Error(error.message || 'Ошибка сервера');
+                    });
+                }
+            })
+            .then(data => {
+                this.hideUserModal();
+                this.showToast('Пользователь успешно сохранен!', 'success');
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
-            } else {
-                throw new Error('Ошибка при удалении');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting user:', error);
-            showToast('Ошибка при удалении пользователя', 'error');
-        });
-    }
+            })
+            .catch(error => {
+                console.error('Error saving user:', error);
+                this.showToast('Ошибка при сохранении пользователя: ' + error.message, 'error');
+            });
+        }
+    };
 
-    function saveUser() {
-        const formData = {
-            username: document.getElementById('userUsername').value,
-            fullName: document.getElementById('userFullName').value,
-            email: document.getElementById('userEmail').value,
-            role: document.getElementById('userRole').value,
-            password: document.getElementById('userPassword').value || null
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        // Закрытие выпадающих меню при клике вне их
+        window.onclick = function(e) {
+            if (!e.target.closest('.profile-dropdown')) {
+                document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
+            }
         };
 
-        if (!formData.username.trim() || !formData.fullName.trim() || !formData.email.trim() || !formData.password) {
-            showToast('Пожалуйста, заполните все обязательные поля', 'error');
-            return;
-        }
-
-        const url = currentUserId ? '/api/admin/users/' + currentUserId : '/api/admin/users';
-        const method = currentUserId ? 'PUT' : 'POST';
-
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                return response.json().then(error => {
-                    throw new Error(error.message || 'Ошибка сервера');
-                });
+        // Закрытие модальных окон при клике вне их
+        UserManager.elements.userModal.addEventListener('click', function(e) {
+            if (e.target === UserManager.elements.userModal) {
+                UserManager.hideUserModal();
             }
-        })
-        .then(data => {
-            hideUserModal();
-            showToast('Пользователь успешно сохранен!', 'success');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('Error saving user:', error);
-            showToast('Ошибка при сохранении пользователя: ' + error.message, 'error');
         });
-    }
 
-    // Закрытие модальных окон при клике вне их
-    userModal.addEventListener('click', function(e) {
-        if (e.target === userModal) {
-            hideUserModal();
-        }
-    });
+        UserManager.elements.confirmDeleteModal.addEventListener('click', function(e) {
+            if (e.target === UserManager.elements.confirmDeleteModal) {
+                UserManager.hideConfirmDeleteModal();
+            }
+        });
 
-    confirmDeleteModal.addEventListener('click', function(e) {
-        if (e.target === confirmDeleteModal) {
-            hideConfirmDeleteModal();
-        }
-    });
-
-        // Счётчик уведомлений
-    function updateNotificationCounter() {
-        fetch('/notifications/api/notifications/count')
-            .then(r => r.json())
-            .then(c => {
-                const el = document.querySelector('.notification-counter');
-                if (c > 0) {
-                    el.textContent = c > 99 ? '99+' : c;
-                    el.style.display = 'flex';
-                } else el.style.display = 'none';
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        updateNotificationCounter();
-        setInterval(updateNotificationCounter, 30000);
+        // Обновление счетчика уведомлений
+        UserManager.updateNotificationCounter();
+        setInterval(() => UserManager.updateNotificationCounter(), 30000);
     });
 </script>
 </body>
