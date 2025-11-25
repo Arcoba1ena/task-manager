@@ -323,7 +323,29 @@
         color: white;
         cursor: pointer;
         transition: var(--transition);
+        position: relative;
     }
+
+    .comment-badge, .attachment-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        font-size: 0.6rem;
+        display: none;
+        min-width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+    }
+
+    .comment-badge:not([style*="display: none"]):not(:empty),
+    .attachment-badge:not([style*="display: none"]):not(:empty) {
+        display: flex !important;
+    }
+
     .action-btn:hover {
         background: rgba(255,255,255,0.2);
         transform: scale(1.1);
@@ -1050,13 +1072,13 @@
                             th:onclick="'openCommentsModal(' + ${task.id} + ')'">
                         <i data-lucide="message-circle"></i>
                         <span class="badge bg-secondary comment-count comment-badge"
-                              th:attr="data-task-id=${task.id}" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;">0</span>
+                              th:attr="data-task-id=${task.id}" style="display: none;">0</span>
                     </button>
                     <button class="action-btn attachments-btn"
                             th:attr="data-task-id=${task.id}">
                         <i data-lucide="paperclip"></i>
                         <span class="badge bg-secondary attachment-count attachment-badge"
-                              th:attr="data-task-id=${task.id}" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;">0</span>
+                              th:attr="data-task-id=${task.id}" style="display: none;">0</span>
                     </button>
                 </div>
 
@@ -1678,6 +1700,7 @@ function loadComments(taskId) {
         .then(response => response.json())
         .then(comments => {
             displayComments(comments);
+            // Обновляем ТОЛЬКО счетчик комментариев
             updateCommentCount(taskId, comments.length);
         })
         .catch(error => {
@@ -1758,6 +1781,8 @@ function displayComments(comments) {
             cancelCommentEdit(commentId);
         });
     });
+
+    updateCommentCount(currentCommentsTaskId, comments.length);
 }
 
 function enableCommentEdit(commentId) {
@@ -1861,6 +1886,7 @@ function submitComment() {
     })
     .then(comment => {
         document.getElementById('commentText').value = '';
+        // Перезагружаем комментарии - это обновит счетчик через loadComments
         loadComments(currentCommentsTaskId);
     })
     .catch(error => {
@@ -1870,11 +1896,20 @@ function submitComment() {
 }
 
 function updateCommentCount(taskId, count) {
-    const badge = document.querySelector(`.comment-count[data-task-id="${taskId}"]`);
-    if (badge) {
+    const badges = document.querySelectorAll(`.comment-badge[data-task-id="${taskId}"]`);
+    badges.forEach(badge => {
         badge.textContent = count;
-        badge.style.display = count > 0 ? 'inline-block' : 'none';
-    }
+        // Всегда показываем бейдж если есть комментарии
+        badge.style.display = count > 0 ? 'flex' : 'none';
+
+        // Добавляем анимацию при изменении
+        if (count > 0) {
+            badge.style.animation = 'pulse 0.5s ease-in-out';
+            setTimeout(() => {
+                badge.style.animation = '';
+            }, 500);
+        }
+    });
 }
 
 function loadCommentCounts() {
@@ -1883,6 +1918,7 @@ function loadCommentCounts() {
         fetch(`/api/tasks/${taskId}/comments`)
             .then(response => response.json())
             .then(comments => {
+                // Обновляем ТОЛЬКО счетчик комментариев
                 updateCommentCount(taskId, comments.length);
             })
             .catch(error => console.error('Error loading comment count for task ' + taskId + ':', error));
@@ -2054,11 +2090,20 @@ function uploadFile(file) {
 }
 
 function updateAttachmentBadge(taskId, count) {
-    const badge = document.querySelector(`.attachment-badge[data-task-id="${taskId}"]`);
-    if (badge) {
+    const badges = document.querySelectorAll(`.attachment-badge[data-task-id="${taskId}"]`);
+    badges.forEach(badge => {
         badge.textContent = count;
-        badge.style.display = count > 0 ? 'inline-block' : 'none';
-    }
+        // Всегда показываем бейдж если есть вложения
+        badge.style.display = count > 0 ? 'flex' : 'none';
+
+        // Добавляем анимацию при изменении
+        if (count > 0) {
+            badge.style.animation = 'pulse 0.5s ease-in-out';
+            setTimeout(() => {
+                badge.style.animation = '';
+            }, 500);
+        }
+    });
 }
 
 function loadAttachments(taskId) {
@@ -2077,6 +2122,7 @@ function loadAttachments(taskId) {
                 updateAttachmentsCount(attachments.length);
             }
 
+            // Обновляем ТОЛЬКО счетчик вложений
             updateAttachmentBadge(taskId, attachments.length);
         })
         .catch(error => {
