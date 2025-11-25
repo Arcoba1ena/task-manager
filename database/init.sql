@@ -67,25 +67,31 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 -- Очистка старых данных
-TRUNCATE TABLE notifications CASCADE;
-TRUNCATE TABLE attachments CASCADE;
-TRUNCATE TABLE comments CASCADE;
 TRUNCATE TABLE tasks CASCADE;
-TRUNCATE TABLE projects CASCADE;
 TRUNCATE TABLE users CASCADE;
+TRUNCATE TABLE projects CASCADE;
+TRUNCATE TABLE comments CASCADE;
+TRUNCATE TABLE attachments CASCADE;
+TRUNCATE TABLE notifications CASCADE;
 
--- Вставка тестовых данных с ПРОСТЫМИ паролями (для тестирования)
+-- Вставка тестовых данных (для тестирования)
 INSERT INTO users (username, password, email, role, full_name) VALUES
-('admin', 'password123', 'admin@company.ru', 'ADMIN', 'Администратор Системы'),
-('manager', 'password123', 'manager@company.ru', 'MANAGER', 'Менеджер Проектов'),
-('executor1', 'password123', 'executor1@company.ru', 'EXECUTOR', 'Исполнитель 1'),
-('executor2', 'password123', 'executor2@company.ru', 'EXECUTOR', 'Исполнитель 2');
+('admin', '123', 'admin@company.ru', 'ADMIN', 'Администратор Системы'),
+('manager', '123', 'manager@company.ru', 'MANAGER', 'Менеджер Проектов'),
+('qa', '123', 'executor2@company.ru', 'EXECUTOR', 'Главный тестировщик'),
+('developer', '123', 'executor1@company.ru', 'EXECUTOR', 'Старший разработчик');
 
 INSERT INTO projects (name, description, created_by) VALUES
-('Разработка', 'Создание системы управления задачами', 2),
-('Техническая поддержка', 'Обслуживание клиентов', 2);
+('Менеджеры', 'Группа управления', 2),
+('Обеспечение качества', 'Группа тестирования', 2),
+('Техническая поддержка', 'Обслуживание клиентов', 2),
+('Обеспечение безопасности', 'Группа инфо-безов', 2),
+('Разработка проекта 1', 'Создание системы управления задачами 1', 2),
+('Разработка проекта 2', 'Создание системы управления задачами 2', 2);
 
 INSERT INTO tasks (title, description, status, priority, deadline, project_id, author_id, executor_id) VALUES
-('Настроить базу данных', 'Настроить базу данных', 'TO_DO', 'HIGH', '2025-11-01 12:00:00', 1, 2, 3),
-('Разработать интерфейс', 'Создать пользовательский интерфейс', 'IN_PROGRESS', 'MEDIUM', '2025-12-10 18:00:00', 1, 2, 3),
-('Протестировать приложение', 'Провести тестирование всех функций', 'TO_DO', 'MEDIUM', '2025-12-15 19:30:00', 1, 2, 4);
+('Настроить базу данных', 'Настроить базу данных', 'TO_DO', 'LOW', '2026-01-01 12:00:00', 1, 2, 3),
+('Разработать интерфейс', 'Создать пользовательский интерфейс', 'IN_PROGRESS', 'MEDIUM', '2026-02-02 18:00:00', 1, 2, 3),
+('Протестировать приложение', 'Провести тестирование всех функций', 'TO_DO', 'LOW', '2026-03-03 18:30:00', 1, 2, 4),
+('Разработать модальные окна', 'Разработать модальные окна для приложения', 'DONE', 'HIGH', '2025-12-01 19:30:00', 1, 2, 4),
+('Анализ деятельности внешних систем', 'Настройка интеграции с внешними системами', 'DONE', 'HIGH', '2025-11-01 20:30:00', 1, 2, 4);
