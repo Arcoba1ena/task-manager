@@ -658,10 +658,27 @@
     }
 
     .comment-text {
-        margin-bottom: 8px;
-        white-space: pre-wrap;
-        color: #e2e8f0 !important;
-        line-height: 1.4;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    padding: 0.5rem 0;
+    }
+
+    /* Компактные стили для кнопок редактирования */
+    .comment-edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    justify-content: flex-start;
+    }
+
+    .comment-edit-actions .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 0.375rem;
+    }
+
+    .comment-edit-textarea {
+    margin-bottom: 0.5rem;
     }
 
     /* Кнопки в комментариях */
@@ -1820,12 +1837,12 @@ function displayComments(comments) {
             <div class="comment-edit-area" style="display: none;">
                 <textarea class="form-control comment-edit-textarea" rows="3">${escapeHtml(comment.text)}</textarea>
                 <div class="comment-edit-actions">
-                    <button class="btn btn-sm btn-success save-edit-btn me-1">
-                        <i class="fas fa-check me-1"></i>Сохранить
-                    </button>
-                    <button class="btn btn-sm btn-secondary cancel-edit-btn">
-                        <i class="fas fa-times me-1"></i>Отмена
-                    </button>
+        <button class="btn btn-sm btn-success save-edit-btn">
+            <i class="fas fa-check me-1"></i>Сохранить
+        </button>
+        <button class="btn btn-sm btn-secondary cancel-edit-btn">
+            <i class="fas fa-times me-1"></i>Отмена
+        </button>
                 </div>
             </div>
             ${comment.canEdit || comment.canDelete ? `
