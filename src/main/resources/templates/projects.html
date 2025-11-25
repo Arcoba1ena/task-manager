@@ -9,7 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <style>
+</head>
+<style>
         :root {
             --primary: #1e40af;
             --primary-light: #3b82f6;
@@ -19,7 +20,11 @@
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -34,6 +39,7 @@
             inset: 0;
             z-index: -2;
         }
+
         .bg-animation::before {
             content: '';
             position: absolute;
@@ -43,9 +49,16 @@
                 radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
             animation: breathe 22s ease-in-out infinite;
         }
+
         @keyframes breathe {
-            0%,100% { opacity: .6; transform: scale(1); }
-            50% { opacity: .9; transform: scale(1.03); }
+            0%, 100% {
+                opacity: .6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: .9;
+                transform: scale(1.03);
+            }
         }
 
         .content-overlay {
@@ -56,7 +69,7 @@
             z-index: -1;
         }
 
-        /* === НАВБАР (как в dashboard) === */
+        /* Навигация */
         nav {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(20px);
@@ -67,6 +80,7 @@
             top: 0;
             z-index: 1000;
         }
+
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -75,6 +89,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar-brand {
             font-family: 'Manrope', sans-serif;
             font-weight: 800;
@@ -85,17 +100,20 @@
             gap: 0.7rem;
             text-decoration: none;
         }
+
         .nav-right {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
+
         .nav-menu {
             display: flex;
             gap: 0.8rem;
             align-items: center;
         }
-        .nav-menu a {
+
+        .nav-link {
             color: rgba(255,255,255,0.9);
             font-weight: 500;
             text-decoration: none;
@@ -107,20 +125,34 @@
             transition: var(--transition);
             white-space: nowrap;
         }
-        .nav-menu a:hover, .nav-menu a.active {
+
+        .nav-link:hover,
+        .nav-link.active {
             background: rgba(255,255,255,0.15);
             color: white;
         }
-        .notification-bell {
-            position: relative;
+
+        .icon-button {
             padding: 0.65rem;
             border-radius: 12px;
             transition: var(--transition);
+            background: none;
+            border: none;
+            color: inherit;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .notification-bell:hover {
+
+        .icon-button:hover {
             background: rgba(255,255,255,0.15);
         }
+
+        .notification-bell {
+            position: relative;
+        }
+
         .notification-counter {
             position: absolute;
             top: -6px;
@@ -137,10 +169,11 @@
             justify-content: center;
         }
 
-        /* Профиль */
+        /* Выпадающее меню */
         .profile-dropdown {
             position: relative;
         }
+
         .dropdown-toggle {
             background: none;
             border: none;
@@ -153,9 +186,11 @@
             cursor: pointer;
             transition: var(--transition);
         }
+
         .dropdown-toggle:hover {
             background: rgba(255,255,255,0.15);
         }
+
         .dropdown-menu {
             position: absolute;
             top: 100%;
@@ -173,12 +208,14 @@
             transform: translateY(-10px);
             transition: all 0.3s ease;
         }
+
         .dropdown-menu.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
-        .dropdown-menu a, .dropdown-menu button {
+
+        .dropdown-item {
             display: block;
             width: 100%;
             padding: 0.9rem 1.2rem;
@@ -188,15 +225,19 @@
             border: none;
             font-size: 0.95rem;
             transition: background 0.2s;
+            cursor: pointer;
         }
-        .dropdown-menu a:hover, .dropdown-menu button:hover {
+
+        .dropdown-item:hover {
             background: rgba(255,255,255,0.1);
         }
 
+        /* Основной контент */
         main {
             padding-top: 100px;
             padding-bottom: 4rem;
         }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -207,6 +248,7 @@
             text-align: center;
             margin-bottom: 3rem;
         }
+
         .page-header h1 {
             font-family: 'Manrope', sans-serif;
             font-size: 3.2rem;
@@ -216,12 +258,14 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Заголовок проектов */
         .projects-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
         }
+
         .projects-header h2 {
             font-family: 'Manrope', sans-serif;
             font-size: 2.2rem;
@@ -229,11 +273,73 @@
             color: white;
             margin: 0;
         }
+
         .projects-count {
             font-size: 1rem;
             opacity: 0.8;
         }
 
+        /* Кнопки */
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary {
+            background: rgb(141 137 207 / 15%);
+            border: 1px solid rgb(92 108 221 / 30%);
+            color: #f0f4ff;
+        }
+
+        .btn-primary:hover {
+            background: rgb(141 137 207 / 15%);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .btn-soft-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f0f4ff;
+        }
+
+        .btn-soft-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.9rem;
+            font-size: 0.85rem;
+        }
+
+        /* Сетка проектов */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -250,6 +356,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .project-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
@@ -261,6 +368,7 @@
             align-items: flex-start;
             margin-bottom: 1rem;
         }
+
         .project-name {
             font-size: 1.35rem;
             font-weight: 600;
@@ -273,6 +381,7 @@
             opacity: 0;
             transition: opacity 0.2s;
         }
+
         .project-card:hover .project-actions {
             opacity: 1;
         }
@@ -288,6 +397,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .project-badge {
             background: rgba(59,130,246,0.2);
             color: #60a5fa;
@@ -304,64 +414,58 @@
             padding: 5rem 0;
             opacity: 0.7;
         }
+
         .no-projects i {
             font-size: 4rem;
             margin-bottom: 1.5rem;
             display: block;
         }
 
-        .btn {
-            padding: 0.8rem 1.8rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            transition: var(--transition);
-            cursor: pointer;
-            text-decoration: none;
-            color: white;
-            border: none;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #60a5fa, #3b82f6);
-            box-shadow: 0 10px 30px rgba(59,130,246,0.4);
-        }
-        .btn-primary:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(59,130,246,0.5);
-        }
-
-        .btn-secondary {
+        /* Формы */
+        .form-control {
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            padding: 0.9rem 1rem;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
         }
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            box-shadow: 0 10px 30px rgba(239,68,68,0.4);
-        }
-        .btn-danger:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(239,68,68,0.5);
+        /* Стили для placeholder */
+        .form-control::placeholder {
+            font-family: 'Inter', sans-serif;
+             color: rgba(255, 255, 255, 0.6);
+            opacity: 1;
         }
 
-        .btn-sm {
-            padding: 0.5rem 0.9rem;
-            font-size: 0.85rem;
+        .form-control:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
         }
 
-        .actions {
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Уведомления */
+        .alert-info {
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
             display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-bottom: 2rem;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            margin-top: 1rem;
         }
 
-        /* === МОДАЛКИ === */
+        /* Модальные окна */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -375,6 +479,7 @@
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
         }
+
         .modal-overlay.show {
             opacity: 1;
             visibility: visible;
@@ -391,6 +496,13 @@
             max-height: 85vh;
             overflow-y: auto;
         }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
         .modal-close {
             background: none;
             border: none;
@@ -400,37 +512,12 @@
             border-radius: 50%;
             transition: background 0.2s;
         }
+
         .modal-close:hover {
             background: rgba(255,255,255,0.1);
         }
 
-        .form-control {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 0.75rem;
-            color: white;
-            font-size: 1rem;
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
-        }
-
-        .alert-info {
-            background: rgba(59,130,246,0.15);
-            border: 1px solid rgba(59,130,246,0.3);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 0.95rem;
-            margin-top: 1rem;
-        }
-
+        /* Уведомления (тосты) */
         .toast-container {
             position: fixed;
             bottom: 2rem;
@@ -438,7 +525,8 @@
             transform: translateX(-50%);
             z-index: 1100;
         }
-        .custom-toast {
+
+        .toast {
             background: var(--card-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--card-border);
@@ -452,16 +540,20 @@
             animation: toastIn 0.4s ease-out;
             opacity: 0;
         }
-        .custom-toast.show {
+
+        .toast.show {
             opacity: 1;
         }
-        .custom-toast.success {
+
+        .toast-success {
             border-left: 4px solid #34d399;
         }
-        .custom-toast.error {
+
+        .toast-error {
             border-left: 4px solid #ef4444;
         }
-        .custom-toast.info {
+
+        .toast-info {
             border-left: 4px solid #3b82f6;
         }
 
@@ -475,17 +567,34 @@
                 opacity: 1;
             }
         }
-            .nav-menu a.active {
-    background: rgba(255,255,255,0.15);
-    color: white;
-}
+
+        /* Адаптивность */
+        @media (max-width: 992px) {
+            .nav-menu { gap: 0.5rem; }
+            .nav-link { padding: 0.6rem 1rem; font-size: 0.95rem; }
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 2.5rem; }
+            .projects-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            .actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
     </style>
-</head>
 <body>
 <div class="bg-animation"></div>
 <div class="content-overlay"></div>
 
-<!-- НАВБАР -->
+<!-- Навигация -->
 <nav>
     <div class="nav-container">
         <a class="navbar-brand" href="/">
@@ -495,15 +604,15 @@
 
         <div class="nav-right">
             <div class="nav-menu">
-                <a href="/dashboard"><i data-lucide="layout-dashboard"></i>Панель управления</a>
-                <a href="/tasks"><i data-lucide="check-square"></i>Задачи</a>
-                <a href="/projects" class="active" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
+                <a href="/dashboard" class="nav-link"><i data-lucide="layout-dashboard"></i>Панель управления</a>
+                <a href="/tasks" class="nav-link"><i data-lucide="check-square"></i>Задачи</a>
+                <a href="/projects" class="nav-link active" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
                     <i data-lucide="folders"></i>Проекты
                 </a>
-                <a href="/admin/users" th:if="${#authentication?.principal?.role == 'ADMIN'}">
+                <a href="/admin/users" class="nav-link" th:if="${#authentication?.principal?.role == 'ADMIN'}">
                     <i data-lucide="users"></i>Пользователи
                 </a>
-                <a href="/notifications" class="notification-bell">
+                <a href="/notifications" class="nav-link icon-button notification-bell">
                     <i data-lucide="bell"></i>
                     <span class="notification-counter" style="display:none;">0</span>
                 </a>
@@ -521,7 +630,7 @@
                         <div style="font-size:0.9rem; opacity:0.8;" th:text="${#authentication?.principal?.role}">Роль</div>
                     </div>
                     <form th:action="@{/logout}" method="post">
-                        <button type="submit" style="width:100%; text-align:left;">
+                        <button type="submit" class="dropdown-item">
                             <i data-lucide="log-out"></i> Выйти
                         </button>
                     </form>
@@ -530,6 +639,7 @@
         </div>
     </div>
 </nav>
+
 <main>
     <div class="container">
         <div class="page-header">
@@ -539,7 +649,7 @@
         <div class="projects-header">
             <h2>Все проекты</h2>
             <div>
-                <span class="projects-count" th:text="${#lists.size(projects)} + ' проектов'">0 проектов</span>
+                <span class="projects-count" th:text=" 'Проектов: ' +${#lists.size(projects)}">0</span>
             </div>
         </div>
 
@@ -580,7 +690,7 @@
     </div>
 </main>
 
-<!-- Модалка создания/редактирования -->
+<!-- Модальное окно создания/редактирования -->
 <div id="projectModal" class="modal-overlay">
     <div class="modal-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
@@ -614,17 +724,17 @@
         </div>
         <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem;">
             <button class="btn btn-secondary" onclick="closeModal('projectModal')">Отмена</button>
-            <button class="btn btn-danger" id="deleteProjectBtn" style="display:none;" onclick="deleteProject()">Удалить</button>
+            <button class="btn btn-soft-danger" id="deleteProjectBtn" style="display:none;" onclick="deleteProject()">Удалить</button>
             <button class="btn btn-primary" onclick="saveProject()">Сохранить</button>
         </div>
     </div>
 </div>
 
-<!-- Модалка просмотра -->
+<!-- Модальное окно просмотра -->
 <div id="viewProjectModal" class="modal-overlay">
     <div class="modal-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-            <h5>Просмотр проекта</h5>
+            <h1>Просмотр проекта</h1>
             <button class="modal-close" onclick="closeModal('viewProjectModal')"><i data-lucide="x"></i></button>
         </div>
         <div id="projectDetails"></div>
@@ -637,42 +747,49 @@
 <div id="toastContainer" class="toast-container"></div>
 
 <script th:inline="javascript">
+    // Инициализация иконок
     lucide.createIcons();
 
-    /*@thymesVar authentication = org.springframework.security.core.Authentication*/
-    const currentUserRole = /*[[${#authentication?.principal?.role}]]*/ null;
+    // Переменные состояния
+    const ProjectState = {
+        currentProjectId: null,
+        currentUserRole: /*[[${#authentication?.principal?.role}]]*/ null
+    };
 
+    // Функции для работы с выпадающим меню
     function toggleDropdown() {
         document.getElementById('profileMenu').classList.toggle('show');
     }
-    window.addEventListener('click', e => {
-        if (!e.target.closest('.profile-dropdown')) {
-            document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
-        }
-    });
 
+    function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
+    }
+
+    // Функции для работы с модальными окнами
     function showModal(id) {
         document.getElementById(id).classList.add('show');
         document.body.style.overflow = 'hidden';
     }
+
     function closeModal(id) {
         document.getElementById(id).classList.remove('show');
         document.body.style.overflow = '';
     }
 
-    function showToast(msg, type = 'info') {
-        const t = document.createElement('div');
-        t.className = `custom-toast ${type} show`;
-        t.innerHTML = `<i data-lucide="${type==='success'?'check-circle':type==='error'?'alert-circle':'info'}"></i> ${msg}`;
-        document.getElementById('toastContainer').appendChild(t);
+    // Функции для уведомлений (тостов)
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type} show`;
+        const icons = { success: 'check-circle', error: 'alert-circle', info: 'info' };
+        toast.innerHTML = `<i data-lucide="${icons[type]}"></i> ${message}`;
+        document.getElementById('toastContainer').appendChild(toast);
         lucide.createIcons();
-        setTimeout(() => t.remove(), 4000);
+        setTimeout(() => toast.remove(), 4000);
     }
 
-    let currentProjectId = null;
-
+    // Функции для работы с проектами
     function showCreateProjectForm() {
-        currentProjectId = null;
+        ProjectState.currentProjectId = null;
         document.getElementById('projectModalTitle').textContent = 'Создание нового проекта';
         document.getElementById('projectForm').reset();
         document.getElementById('deleteProjectBtn').style.display = 'none';
@@ -681,100 +798,145 @@
     }
 
     function editProject(id) {
-        currentProjectId = id;
+        ProjectState.currentProjectId = id;
         document.getElementById('projectModalTitle').textContent = 'Редактирование проекта';
         document.getElementById('deleteProjectBtn').style.display = 'block';
 
-        fetch(`/api/projects/${id}`).then(r => r.json()).then(p => {
-            document.getElementById('projectId').value = p.id;
-            document.getElementById('projectName').value = p.name;
-            document.getElementById('projectDescription').value = p.description || '';
-            document.getElementById('projectTasksCount').textContent = p.tasks?.length || 0;
-            showModal('projectModal');
-        }).catch(() => showToast('Ошибка загрузки', 'error'));
+        fetch(`/api/projects/${id}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                return response.json();
+            })
+            .then(project => {
+                document.getElementById('projectId').value = project.id;
+                document.getElementById('projectName').value = project.name;
+                document.getElementById('projectDescription').value = project.description || '';
+                document.getElementById('projectTasksCount').textContent = project.tasks?.length || 0;
+                showModal('projectModal');
+            })
+            .catch(() => showToast('Ошибка загрузки проекта', 'error'));
     }
 
     function viewProject(id) {
-        fetch(`/api/projects/${id}/with-tasks`).then(r => r.json()).then(p => {
-            const d = document.getElementById('projectDetails');
-            d.innerHTML = `
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
-                    <div>
-                        <h4>${p.name}</h4>
-                        <p style="opacity:0.8; margin:1rem 0;">${p.description || 'Описание отсутствует'}</p>
+        fetch(`/api/projects/${id}/with-tasks`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                return response.json();
+            })
+            .then(project => {
+                const detailsElement = document.getElementById('projectDetails');
+                detailsElement.innerHTML = `
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
+                        <div>
+                            <h4>${project.name}</h4>
+                            <p style="opacity:0.8; margin:1rem 0;">${project.description || 'Описание отсутствует'}</p>
+                        </div>
+                        <div>
+                            <strong>Статистика</strong><br>
+                            Задач: <strong>${project.tasks?.length || 0}</strong><br>
+                            Создан: ${new Date(project.createdAt).toLocaleDateString('ru-RU')}<br>
+                            Автор: ${project.createdBy.fullName}
+                        </div>
                     </div>
-                    <div>
-                        <strong>Статистика</strong><br>
-                        Задач: <strong>${p.tasks?.length || 0}</strong><br>
-                        Создан: ${new Date(p.createdAt).toLocaleDateString('ru-RU')}<br>
-                        Автор: ${p.createdBy.fullName}
-                    </div>
-                </div>
-                ${p.tasks?.length ? `
-                <h5 style="margin:2rem 0 1rem;">Задачи в проекте</h5>
-                ${p.tasks.map(t => `
-                <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; padding:1rem; margin-bottom:1rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong>${t.title}</strong>
-                        <span class="badge-${t.status==='DONE'?'success':t.status==='IN_PROGRESS'?'primary':'secondary'}">
-                            ${t.status==='TO_DO'?'К выполнению':t.status==='IN_PROGRESS'?'В работе':'Выполнено'}
-                        </span>
-                    </div>
-                    <p style="margin:0.5rem 0; opacity:0.8;">${t.description || 'Без описания'}</p>
-                    <small>Исполнитель: ${t.executor?.fullName || 'Не назначен'}</small>
-                </div>`).join('')}
-                ` : '<div class="alert-info"><i data-lucide="info"></i> Задач пока нет</div>'}
-            `;
-            lucide.createIcons();
-            showModal('viewProjectModal');
-        });
+                    ${project.tasks?.length ? `
+                    <h3 style="margin:2rem 0 1rem;">Задачи в проекте</h3>
+                    ${project.tasks.map(task => `
+                    <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; padding:1rem; margin-bottom:1rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>${task.title}</strong>
+                            <span class="badge-${task.status==='DONE'?'success':task.status==='IN_PROGRESS'?'primary':'secondary'}">
+                                ${task.status==='TO_DO'?'К выполнению':task.status==='IN_PROGRESS'?'В работе':'Выполнено'}
+                            </span>
+                        </div>
+                        <p style="margin:0.5rem 0; opacity:0.8;">${task.description || 'Без описания'}</p>
+                        <small>Исполнитель: ${task.executor?.fullName || 'Не назначен'}</small>
+                    </div>`).join('')}
+                    ` : '<div class="alert-info"><i data-lucide="info"></i> Задач пока нет</div>'}
+                `;
+                lucide.createIcons();
+                showModal('viewProjectModal');
+            })
+            .catch(() => showToast('Ошибка загрузки проекта', 'error'));
     }
 
     function saveProject() {
         const name = document.getElementById('projectName').value.trim();
-        if (!name) return showToast('Введите название', 'error');
+        if (!name) {
+            showToast('Введите название проекта', 'error');
+            return;
+        }
 
-        const body = {
-            name,
+        const projectData = {
+            name: name,
             description: document.getElementById('projectDescription').value
         };
 
-        const url = currentProjectId ? `/api/projects/${currentProjectId}` : '/api/projects';
-        const method = currentProjectId ? 'PUT' : 'POST';
+        const url = ProjectState.currentProjectId
+            ? `/api/projects/${ProjectState.currentProjectId}`
+            : '/api/projects';
 
-        fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) })
-            .then(r => r.ok ? r.json() : Promise.reject())
-            .then(() => {
-                closeModal('projectModal');
-                showToast('Проект сохранён!', 'success');
-                setTimeout(() => location.reload(), 1200);
-            })
-            .catch(() => showToast('Ошибка сохранения', 'error'));
+        const method = ProjectState.currentProjectId ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(projectData)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка сохранения');
+            return response.json();
+        })
+        .then(() => {
+            closeModal('projectModal');
+            showToast('Проект успешно сохранён!', 'success');
+            setTimeout(() => location.reload(), 1200);
+        })
+        .catch(() => showToast('Ошибка сохранения проекта', 'error'));
     }
 
     function deleteProject() {
-        if (!confirm('Удалить проект? Задачи отвяжутся.')) return;
-        fetch(`/api/projects/${currentProjectId}`, { method: 'DELETE' })
-            .then(r => r.ok ? location.reload() : Promise.reject())
-            .catch(() => showToast('Ошибка удаления', 'error'));
+        if (!confirm('Вы уверены, что хотите удалить проект? Задачи будут отвязаны от проекта.')) {
+            return;
+        }
+
+        fetch(`/api/projects/${ProjectState.currentProjectId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка удаления');
+            location.reload();
+        })
+        .catch(() => showToast('Ошибка удаления проекта', 'error'));
     }
 
-    // Счётчик уведомлений
+    // Функции для уведомлений
     function updateNotificationCounter() {
         fetch('/notifications/api/notifications/count')
-            .then(r => r.json())
-            .then(c => {
-                const el = document.querySelector('.notification-counter');
-                if (c > 0) {
-                    el.textContent = c > 99 ? '99+' : c;
-                    el.style.display = 'flex';
-                } else el.style.display = 'none';
-            });
+            .then(response => response.json())
+            .then(count => {
+                const counterElement = document.querySelector('.notification-counter');
+                if (count > 0) {
+                    counterElement.textContent = count > 99 ? '99+' : count;
+                    counterElement.style.display = 'flex';
+                } else {
+                    counterElement.style.display = 'none';
+                }
+            })
+            .catch(() => {});
     }
 
+    // Инициализация приложения
     document.addEventListener('DOMContentLoaded', () => {
         updateNotificationCounter();
         setInterval(updateNotificationCounter, 30000);
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.profile-dropdown')) {
+                closeAllDropdowns();
+            }
+        });
     });
 </script>
 </body>
