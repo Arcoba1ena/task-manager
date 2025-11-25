@@ -20,7 +20,11 @@
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -35,6 +39,7 @@
             inset: 0;
             z-index: -2;
         }
+
         .bg-animation::before {
             content: '';
             position: absolute;
@@ -44,7 +49,17 @@
                 radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
             animation: breathe 22s ease-in-out infinite;
         }
-        @keyframes breathe { 0%,100% { opacity: .6; transform: scale(1); } 50% { opacity: .9; transform: scale(1.03); } }
+
+        @keyframes breathe {
+            0%, 100% {
+                opacity: .6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: .9;
+                transform: scale(1.03);
+            }
+        }
 
         .content-overlay {
             position: fixed;
@@ -54,7 +69,7 @@
             z-index: -1;
         }
 
-        /* Полная шапка — красиво и функционально */
+        /* Навигация */
         nav {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(20px);
@@ -65,6 +80,7 @@
             top: 0;
             z-index: 1000;
         }
+
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -73,6 +89,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar-brand {
             font-family: 'Manrope', sans-serif;
             font-weight: 800;
@@ -89,12 +106,14 @@
             align-items: center;
             gap: 1rem;
         }
+
         .nav-menu {
             display: flex;
             gap: 0.8rem;
             align-items: center;
         }
-        .nav-menu a {
+
+        .nav-link {
             color: rgba(255,255,255,0.9);
             font-weight: 500;
             text-decoration: none;
@@ -106,19 +125,34 @@
             transition: var(--transition);
             white-space: nowrap;
         }
-        .nav-menu a:hover {
+
+        .nav-link:hover,
+        .nav-link.active {
             background: rgba(255,255,255,0.15);
             color: white;
         }
 
-        /* Уведомления */
-        .notification-bell {
-            position: relative;
+        .icon-button {
             padding: 0.65rem;
             border-radius: 12px;
             transition: var(--transition);
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .notification-bell:hover { background: rgba(255,255,255,0.15); }
+
+        .icon-button:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .notification-bell {
+            position: relative;
+        }
+
         .notification-counter {
             position: absolute;
             top: -6px;
@@ -135,10 +169,11 @@
             justify-content: center;
         }
 
-        /* Дропдаун профиля */
+        /* Выпадающее меню */
         .profile-dropdown {
             position: relative;
         }
+
         .dropdown-toggle {
             background: none;
             border: none;
@@ -151,7 +186,10 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        .dropdown-toggle:hover { background: rgba(255,255,255,0.15); }
+
+        .dropdown-toggle:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
         .dropdown-menu {
             position: absolute;
@@ -170,12 +208,14 @@
             transform: translateY(-10px);
             transition: all 0.3s ease;
         }
+
         .dropdown-menu.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
-        .dropdown-menu a, .dropdown-menu button {
+
+        .dropdown-item {
             display: block;
             width: 100%;
             padding: 0.9rem 1.2rem;
@@ -185,16 +225,30 @@
             border: none;
             font-size: 0.95rem;
             transition: background 0.2s;
+            cursor: pointer;
         }
-        .dropdown-menu a:hover, .dropdown-menu button:hover {
+
+        .dropdown-item:hover {
             background: rgba(255,255,255,0.1);
         }
 
-        main { padding-top: 100px; padding-bottom: 4rem; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        /* Основной контент */
+        main {
+            padding-top: 100px;
+            padding-bottom: 4rem;
+        }
 
-        /* Остальное — как в прошлом варианте */
-        .page-header { text-align: center; margin-bottom: 3rem; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
         .page-header h1 {
             font-family: 'Manrope', sans-serif;
             font-size: 3.2rem;
@@ -203,94 +257,162 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
-        .stat-card { background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid var(--card-border); border-radius: 1.5rem; padding: 2rem; text-align: center; transition: var(--transition); }
-        .stat-card:hover { transform: translateY(-12px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        .stat-card .num { font-size: 3.8rem; font-weight: 800; }
+
+        /* Карточки статистики */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .stat-card .num {
+            font-size: 3.8rem;
+            font-weight: 800;
+        }
+
         .stat-total .num { color: #60a5fa; }
         .stat-todo .num { color: #fbbf24; }
         .stat-inprogress .num { color: #38bdf8; }
         .stat-done .num { color: #34d399; }
 
-        .chart-wrapper { position: relative; height: 420px; width: 100%; margin: 3rem 0; }
-        .chart-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 1.8rem; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .chart-title { text-align: center; font-size: 1.5rem; margin-bottom: 2rem; font-weight: 600; opacity: 0.95; }
+        /* Графики */
+        .chart-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.8rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
 
-        .quick-actions { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
-        .btn-action { padding: 1.1rem 2.8rem; border-radius: 9999px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.8rem; background: linear-gradient(135deg, #60a5fa, #3b82f6); color: white; text-decoration: none; box-shadow: 0 10px 30px rgba(59,130,246,0.4); transition: var(--transition); }
-        .btn-action:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(59,130,246,0.5); }
+        .chart-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            opacity: 0.95;
+        }
 
+        .chart-wrapper {
+            position: relative;
+            height: 420px;
+            width: 100%;
+            margin: 3rem 0;
+        }
+
+        .chart-toggle-wrapper {
+            text-align: center;
+            margin-top: 1.8rem;
+        }
+
+        .chart-toggle-btn {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 1.5rem;
+            padding: 0.85rem 2rem;
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.7s;
+        }
+
+        .chart-toggle-btn:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.25);
+            color: white;
+        }
+
+        .chart-toggle-btn:hover::before {
+            left: 100%;
+        }
+
+        .chart-toggle-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .chart-toggle-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .chart-toggle-btn:hover i {
+            transform: scale(1.15);
+        }
+
+        /* Быстрые действия */
+        .quick-actions {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .btn-action {
+            padding: 1.1rem 2.8rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(59,130,246,0.4);
+            transition: var(--transition);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(59,130,246,0.5);
+        }
+
+        /* Адаптивность */
         @media (max-width: 992px) {
             .nav-menu { gap: 0.5rem; }
-            .nav-menu a { padding: 0.6rem 1rem; font-size: 0.95rem; }
+            .nav-link { padding: 0.6rem 1rem; font-size: 0.95rem; }
         }
+
         @media (max-width: 768px) {
             .page-header h1 { font-size: 2.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
         }
-
-        /* Красивая кнопка-переключатель графика */
-.chart-toggle-wrapper {
-    text-align: center;
-    margin-top: 1.8rem;
-}
-
-.chart-toggle-btn {
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 1.5rem;
-    padding: 0.85rem 2rem;
-    color: #e2e8f0;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    position: relative;
-    overflow: hidden;
-}
-
-.chart-toggle-btn::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-    transition: left 0.7s;
-}
-
-.chart-toggle-btn:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.25);
-    color: white;
-}
-
-.chart-toggle-btn:hover::before {
-    left: 100%;
-}
-
-.chart-toggle-btn:active {
-    transform: translateY(-1px);
-}
-
-.chart-toggle-btn i {
-    transition: transform 0.3s ease;
-}
-
-.chart-toggle-btn:hover i {
-    transform: scale(1.15);
-}
-    .nav-menu a.active {
-    background: rgba(255,255,255,0.15);
-    color: white;
-}
     </style>
 </head>
 <body>
@@ -306,15 +428,15 @@
 
         <div class="nav-right">
             <div class="nav-menu">
-                <a href="/dashboard" class="active"><i data-lucide="layout-dashboard"></i>Панель управления</a>
-                <a href="/tasks"><i data-lucide="check-square"></i>Задачи</a>
-                <a href="/projects" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
+                <a href="/dashboard" class="nav-link active"><i data-lucide="layout-dashboard"></i>Панель управления</a>
+                <a href="/tasks" class="nav-link"><i data-lucide="check-square"></i>Задачи</a>
+                <a href="/projects" class="nav-link" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
                     <i data-lucide="folders"></i>Проекты
                 </a>
-                <a href="/admin/users" th:if="${#authentication?.principal?.role == 'ADMIN'}">
+                <a href="/admin/users" class="nav-link" th:if="${#authentication?.principal?.role == 'ADMIN'}">
                     <i data-lucide="users"></i>Пользователи
                 </a>
-                <a href="/notifications" class="notification-bell">
+                <a href="/notifications" class="nav-link icon-button notification-bell">
                     <i data-lucide="bell"></i>
                     <span class="notification-counter" id="notif-counter" style="display:none;">0</span>
                 </a>
@@ -332,7 +454,7 @@
                         <div style="font-size:0.9rem; opacity:0.8;" th:text="${#authentication?.principal?.role}">Роль</div>
                     </div>
                     <form th:action="@{/logout}" method="post">
-                        <button type="submit" style="width:100%; text-align:left;">
+                        <button type="submit" class="dropdown-item">
                             <i data-lucide="log-out"></i> Выйти
                         </button>
                     </form>
@@ -370,133 +492,135 @@
 </main>
 
 <script>
+    // Инициализация иконок
     lucide.createIcons();
 
-    // Дропдаун профиля
+    // Переменные для состояния приложения
+    const AppState = {
+        taskChart: null,
+        currentChartType: 'doughnut',
+        notificationCounter: document.getElementById('notif-counter')
+    };
+
+    // Функции для работы с выпадающим меню
     function toggleDropdown() {
         document.getElementById('profileMenu').classList.toggle('show');
     }
-    window.onclick = function(e) {
-        if (!e.target.closest('.profile-dropdown')) {
-            document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
-        }
+
+    function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
     }
 
-    // Уведомления
+    // Функции для уведомлений
     function updateNotifications() {
         fetch('/notifications/api/notifications/count')
             .then(r => r.json())
             .then(count => {
-                const counter = document.getElementById('notif-counter');
                 if (count > 0) {
-                    counter.textContent = count > 99 ? '99+' : count;
-                    counter.style.display = 'flex';
+                    AppState.notificationCounter.textContent = count > 99 ? '99+' : count;
+                    AppState.notificationCounter.style.display = 'flex';
                 } else {
-                    counter.style.display = 'none';
+                    AppState.notificationCounter.style.display = 'none';
                 }
             })
             .catch(() => {});
     }
 
-    // Переменные для графика
-    let taskChart = null;
-    let currentChartType = 'doughnut'; // doughnut | bar
+    // Функции для работы с графиками
+    const ChartConfig = {
+        commonOptions: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#e2e8f0', font: { family: 'Inter', size: 14 } }
+                }
+            },
+            animation: { duration: 1200 }
+        },
 
-    // Загрузка данных и отрисовка графика
+        doughnutConfig: (data) => ({
+            type: 'doughnut',
+            data: {
+                labels: ['К выполнению', 'В работе', 'Выполнено'],
+                datasets: [{
+                    data: [data.todo || 0, data.inProgress || 0, data.done || 0],
+                    backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 3,
+                    hoverOffset: 20
+                }]
+            },
+            options: {
+                ...ChartConfig.commonOptions,
+                cutout: '68%'
+            }
+        }),
+
+        barConfig: (data) => ({
+            type: 'bar',
+            data: {
+                labels: ['К выполнению', 'В работе', 'Выполнено'],
+                datasets: [{
+                    label: 'Количество задач',
+                    data: [data.todo || 0, data.inProgress || 0, data.done || 0],
+                    backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
+                    borderColor: ['#fbbf24', '#38bdf8', '#34d399'],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                ...ChartConfig.commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#e2e8f0', stepSize: 1 }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#e2e8f0' }
+                    }
+                }
+            }
+        })
+    };
+
     async function loadChart() {
         try {
             const res = await fetch('/api/tasks/stats');
             const data = await res.json();
-
             const ctx = document.getElementById('taskChart').getContext('2d');
 
-            // Уничтожаем старый график, если есть
-            if (taskChart) taskChart.destroy();
+            if (AppState.taskChart) AppState.taskChart.destroy();
 
-            const commonOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: '#e2e8f0', font: { family: 'Inter', size: 14 } }
-                    }
-                },
-                animation: { duration: 1200 }
-            };
+            const config = AppState.currentChartType === 'doughnut'
+                ? ChartConfig.doughnutConfig(data)
+                : ChartConfig.barConfig(data);
 
-            if (currentChartType === 'doughnut') {
-                taskChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['К выполнению', 'В работе', 'Выполнено'],
-                        datasets: [{
-                            data: [data.todo || 0, data.inProgress || 0, data.done || 0],
-                            backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
-                            borderColor: 'rgba(255,255,255,0.1)',
-                            borderWidth: 3,
-                            hoverOffset: 20
-                        }]
-                    },
-                    options: {
-                        ...commonOptions,
-                        cutout: '68%'
-                    }
-                });
-            } else {
-                // Столбчатая диаграмма
-                taskChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['К выполнению', 'В работе', 'Выполнено'],
-                        datasets: [{
-                            label: 'Количество задач',
-                            data: [data.todo || 0, data.inProgress || 0, data.done || 0],
-                            backgroundColor: ['#fbbf24', '#38bdf8', '#34d399'],
-                            borderColor: ['#fbbf24', '#38bdf8', '#34d399'],
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            borderSkipped: false
-                        }]
-                    },
-                    options: {
-                        ...commonOptions,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: 'rgba(255,255,255,0.05)' },
-                                ticks: { color: '#e2e8f0', stepSize: 1 }
-                            },
-                            x: {
-                                grid: { display: false },
-                                ticks: { color: '#e2e8f0' }
-                            }
-                        }
-                    }
-                });
-            }
+            AppState.taskChart = new Chart(ctx, config);
         } catch (e) {
             console.error('Ошибка загрузки статистики:', e);
         }
     }
 
-    // Переключатель типа диаграммы
-function toggleChartType() {
-    currentChartType = currentChartType === 'doughnut' ? 'bar' : 'doughnut';
-    const btn = document.getElementById('chartToggleBtn');
+    function toggleChartType() {
+        AppState.currentChartType = AppState.currentChartType === 'doughnut' ? 'bar' : 'doughnut';
+        const btn = document.getElementById('chartToggleBtn');
 
-    if (currentChartType === 'doughnut') {
-        btn.innerHTML = '<i data-lucide="pie-chart"></i>';
-    } else {
-        btn.innerHTML = '<i data-lucide="bar-chart-3"></i>';
+        btn.innerHTML = AppState.currentChartType === 'doughnut'
+            ? '<i data-lucide="pie-chart"></i>'
+            : '<i data-lucide="bar-chart-3"></i>';
+
+        lucide.createIcons();
+        loadChart();
     }
 
-    lucide.createIcons(); // теперь точно сработает
-    loadChart();
-}
-
-    // Инициализация
-    document.addEventListener('DOMContentLoaded', () => {
+    // Инициализация приложения
+    function initApp() {
         loadChart();
         updateNotifications();
 
@@ -505,6 +629,15 @@ function toggleChartType() {
             loadChart();
             updateNotifications();
         }, 30000);
+    }
+
+    // Обработчики событий
+    document.addEventListener('DOMContentLoaded', initApp);
+
+    window.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-dropdown')) {
+            closeAllDropdowns();
+        }
     });
 </script>
 </body>
