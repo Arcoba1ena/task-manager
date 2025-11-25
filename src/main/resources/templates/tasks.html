@@ -886,6 +886,10 @@
         .nav-menu { gap: 0.5rem; }
         .nav-menu a { padding: 0.6rem 1rem; font-size: 0.95rem; }
     }
+    .nav-menu a.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
 </style>
 </head>
 <body>
@@ -902,13 +906,13 @@
 
         <div class="nav-right">
             <div class="nav-menu">
-                <a href="/dashboard"><i data-lucide="layout-dashboard"></i> Панель управления</a>
-                <a href="/tasks"><i data-lucide="check-square"></i> Задачи</a>
+                <a href="/dashboard"><i data-lucide="layout-dashboard"></i>Панель управления</a>
+                <a href="/tasks" class="active"><i data-lucide="check-square"></i>Задачи</a>
                 <a href="/projects" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
-                    <i data-lucide="folders"></i> Проекты
+                    <i data-lucide="folders"></i>Проекты
                 </a>
                 <a href="/admin/users" th:if="${#authentication?.principal?.role == 'ADMIN'}">
-                    <i data-lucide="shield"></i> Администратор
+                    <i data-lucide="users"></i>Пользователи
                 </a>
                 <a href="/notifications" class="notification-bell">
                     <i data-lucide="bell"></i>

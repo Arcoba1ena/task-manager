@@ -287,6 +287,10 @@
 .chart-toggle-btn:hover i {
     transform: scale(1.15);
 }
+    .nav-menu a.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -302,13 +306,13 @@
 
         <div class="nav-right">
             <div class="nav-menu">
-                <a href="/dashboard"><i data-lucide="layout-dashboard"></i> Панель управления</a>
-                <a href="/tasks"><i data-lucide="check-square"></i> Задачи</a>
+                <a href="/dashboard" class="active"><i data-lucide="layout-dashboard"></i>Панель управления</a>
+                <a href="/tasks"><i data-lucide="check-square"></i>Задачи</a>
                 <a href="/projects" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
-                    <i data-lucide="folders"></i> Проекты
+                    <i data-lucide="folders"></i>Проекты
                 </a>
                 <a href="/admin/users" th:if="${#authentication?.principal?.role == 'ADMIN'}">
-                    <i data-lucide="shield"></i> Администратор
+                    <i data-lucide="users"></i>Пользователи
                 </a>
                 <a href="/notifications" class="notification-bell">
                     <i data-lucide="bell"></i>

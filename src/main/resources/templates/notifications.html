@@ -490,7 +490,10 @@
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(34, 197, 94, 0.2);
 }
-
+    .nav-menu a.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -506,13 +509,13 @@
 
         <div class="nav-right">
             <div class="nav-menu">
-                <a href="/dashboard"><i data-lucide="layout-dashboard"></i> Панель управления</a>
-                <a href="/tasks"><i data-lucide="check-square"></i> Задачи</a>
+                <a href="/dashboard"><i data-lucide="layout-dashboard"></i>Панель управления</a>
+                <a href="/tasks"><i data-lucide="check-square"></i>Задачи</a>
                 <a href="/projects" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
-                    <i data-lucide="folders"></i> Проекты
+                    <i data-lucide="folders"></i>Проекты
                 </a>
                 <a href="/admin/users" th:if="${#authentication?.principal?.role == 'ADMIN'}">
-                    <i data-lucide="shield"></i> Администратор
+                    <i data-lucide="users"></i>Пользователи
                 </a>
                 <a href="/notifications" class="notification-bell active">
                     <i data-lucide="bell"></i>
