@@ -1,22 +1,19 @@
 package ru.task_manager.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
+import java.util.UUID;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class FileStorageService {
-
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
-    // Разрешенные MIME types
     private final String[] allowedTypes = {
             "text/plain",                                      // .txt
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
@@ -26,7 +23,6 @@ public class FileStorageService {
     };
 
     public String storeFile(MultipartFile file) throws IOException {
-        // Проверка типа файла
         if (!isAllowedFileType(file.getContentType())) {
             throw new IllegalArgumentException("Недопустимый тип файла. Разрешены: txt, docx, xlsx, jpeg, png");
         }
@@ -36,17 +32,14 @@ public class FileStorageService {
             throw new IllegalArgumentException("Файл слишком большой. Максимальный размер: 10MB");
         }
 
-        // Создание директории, если не существует
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Генерация уникального имени файла
         String fileExtension = getFileExtension(file.getOriginalFilename());
         String fileName = UUID.randomUUID().toString() + fileExtension;
 
-        // Сохранение файла
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);
 

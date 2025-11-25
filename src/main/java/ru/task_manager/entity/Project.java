@@ -1,10 +1,10 @@
 package ru.task_manager.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;
+import java.util.ArrayList;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "projects")
@@ -29,7 +29,6 @@ public class Project {
     @JsonManagedReference
     private List<Task> tasks = new ArrayList<>();
 
-    // Конструкторы
     public Project() {
         this.createdAt = LocalDateTime.now();
     }
@@ -41,7 +40,6 @@ public class Project {
         this.createdBy = createdBy;
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

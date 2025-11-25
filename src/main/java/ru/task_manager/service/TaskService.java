@@ -1,22 +1,20 @@
 package ru.task_manager.service;
 
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Optional;
+import ru.task_manager.entity.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
 import ru.task_manager.dto.TaskDTO;
 import ru.task_manager.dto.TaskResponseDTO;
-import ru.task_manager.entity.*;
-import ru.task_manager.repository.ProjectRepository;
-import ru.task_manager.repository.TaskRepository;
-import ru.task_manager.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import ru.task_manager.repository.UserRepository;
+import ru.task_manager.repository.TaskRepository;
+import ru.task_manager.repository.ProjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -67,7 +65,6 @@ public class TaskService {
             task.setAuthor(author);
             Task savedTask = updateTaskFromDTO(task, taskDTO);
 
-            // Создаем уведомления
             notificationService.notifyTaskCreated(savedTask, author);
 
             return savedTask;
@@ -100,26 +97,22 @@ public class TaskService {
 
         task.setDeadline(taskDTO.getDeadline());
 
-        // Устанавливаем проект если указан и существует
         if (taskDTO.getProjectId() != null) {
             Optional<Project> project = projectRepository.findById(taskDTO.getProjectId());
             if (project.isPresent()) {
                 task.setProject(project.get());
             } else {
-                // Если проект не найден, сбрасываем привязку
                 task.setProject(null);
             }
         } else {
             task.setProject(null);
         }
 
-        // Устанавливаем исполнителя если указан и существует
         if (taskDTO.getExecutorId() != null) {
             Optional<User> executor = userRepository.findById(taskDTO.getExecutorId());
             if (executor.isPresent()) {
                 task.setExecutor(executor.get());
             } else {
-                // Если исполнитель не найден, сбрасываем привязку
                 task.setExecutor(null);
             }
         } else {
@@ -149,7 +142,6 @@ public class TaskService {
                 .map(TaskResponseDTO::fromEntity);
     }
 
-    // Новые методы для получения проектов и пользователей
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
@@ -159,7 +151,6 @@ public class TaskService {
     }
 
     public List<User> getExecutors() {
-        // Возвращаем всех пользователей с ролью EXECUTOR
         return userRepository.findAll().stream()
                 .filter(user -> String.valueOf(user.getRole()).equals("EXECUTOR"))
                 .collect(Collectors.toList());
@@ -171,10 +162,8 @@ public class TaskService {
 
     public List<Task> getTasksForCurrentUser(User currentUser) {
         if (currentUser.getRole() == Role.EXECUTOR) {
-            // Исполнитель видит только свои задачи
             return getTasksByExecutor(currentUser);
         } else {
-            // Администратор и менеджер видят все задачи
             return getAllTasks();
         }
     }
@@ -193,30 +182,23 @@ public class TaskService {
             Task task = existingTask.get();
             TaskStatus oldStatus = task.getStatus();
 
-            // Проверяем права доступа
             if (currentUser.getRole() == Role.EXECUTOR) {
-                // Исполнитель может редактировать только свои задачи
                 if (!task.getExecutor().getId().equals(currentUser.getId())) {
                     throw new RuntimeException("У вас нет прав для редактирования этой задачи");
                 }
-                // Исполнитель может менять только статус
                 if (taskDTO.getStatus() != null) {
                     task.setStatus(TaskStatus.valueOf(taskDTO.getStatus()));
                 }
-                // Игнорируем все остальные поля
                 Task savedTask = taskRepository.save(task);
 
-                // Создаем уведомление об изменении статуса
                 if (taskDTO.getStatus() != null && !TaskStatus.valueOf(taskDTO.getStatus()).equals(oldStatus)) {
                     notificationService.notifyStatusChange(savedTask, currentUser, oldStatus, savedTask.getStatus());
                 }
 
                 return savedTask;
             } else {
-                // Менеджер и администратор могут редактировать все поля
                 Task savedTask = updateTaskFromDTO(task, taskDTO);
 
-                // Создаем уведомления
                 if (taskDTO.getStatus() != null && !TaskStatus.valueOf(taskDTO.getStatus()).equals(oldStatus)) {
                     notificationService.notifyStatusChange(savedTask, currentUser, oldStatus, savedTask.getStatus());
                 } else {
@@ -229,10 +211,9 @@ public class TaskService {
         return null;
     }
 
-    // Вспомогательный метод для проверки прав доступа к задаче
     public boolean canEditTask(Long taskId, User currentUser) {
         if (currentUser.getRole() != Role.EXECUTOR) {
-            return true; // Менеджер и администратор могут редактировать любые задачи
+            return true;
         }
 
         Optional<Task> task = taskRepository.findById(taskId);

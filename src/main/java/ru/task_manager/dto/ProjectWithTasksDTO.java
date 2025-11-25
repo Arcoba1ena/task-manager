@@ -1,7 +1,7 @@
 package ru.task_manager.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 public class ProjectWithTasksDTO {
@@ -10,7 +10,7 @@ public class ProjectWithTasksDTO {
     private String description;
     private LocalDateTime createdAt;
     private UserResponseDTO createdBy;
-    private List<TaskBasicDTO> tasks; // Используем упрощенный DTO для задач
+    private List<TaskBasicDTO> tasks;
 
     public Long getId() {
         return id;
@@ -70,7 +70,6 @@ public class ProjectWithTasksDTO {
         dto.setCreatedAt(project.getCreatedAt());
         dto.setCreatedBy(UserResponseDTO.fromEntity(project.getCreatedBy()));
 
-        // Преобразуем задачи в упрощенный DTO
         if (project.getTasks() != null) {
             List<TaskBasicDTO> taskDTOs = project.getTasks().stream()
                     .map(TaskBasicDTO::fromEntity)

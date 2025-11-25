@@ -30,7 +30,6 @@ public class Notification {
     @JoinColumn(name = "task_id")
     private Task task;
 
-    // Конструкторы
     public Notification() {}
 
     public Notification(String title, String message, NotificationType type, User user, Task task) {
@@ -42,7 +41,6 @@ public class Notification {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

@@ -1,14 +1,13 @@
 package ru.task_manager.entity;
 
-import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Entity
 @Table(name = "users")
@@ -45,7 +44,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    // Конструкторы
     public User() {
         this.createdAt = LocalDateTime.now();
     }
@@ -59,7 +57,6 @@ public class User implements UserDetails {
         this.fullName = fullName;
     }
 
-    // UserDetails методы
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
@@ -85,7 +82,6 @@ public class User implements UserDetails {
         return true;
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

@@ -1,25 +1,23 @@
 package ru.task_manager.controller;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.*;
 import ru.task_manager.dto.*;
 import ru.task_manager.entity.*;
-import ru.task_manager.repository.UserRepository;
+import java.security.Principal;
 import ru.task_manager.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.stream.Collectors;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
-import java.util.*;
-import java.util.stream.Collectors;
+import ru.task_manager.repository.UserRepository;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-
     @Autowired
     private TaskService taskService;
 
@@ -81,7 +79,6 @@ public class ApiController {
                         .body(Map.of("error", "Недостаточно прав для создания задач"));
             }
 
-            // Передаем текущего пользователя как автора
             Task task = taskService.createTask(taskDTO, currentUser);
             TaskResponseDTO responseDTO = TaskResponseDTO.fromEntity(task);
             return ResponseEntity.ok(responseDTO);
@@ -163,11 +160,9 @@ public class ApiController {
     @PostMapping("/projects")
     public ResponseEntity<?> createProject(@RequestBody ProjectDTO projectDTO, Principal principal) {
         try {
-            // Получаем текущего пользователя
             User currentUser = userRepository.findByUsername(principal.getName())
                     .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
-            // Устанавливаем создателя проекта - текущий пользователь
             projectDTO.setCreatedById(currentUser.getId());
 
             Project project = projectService.createProject(projectDTO);
@@ -225,7 +220,7 @@ public class ApiController {
         return project.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    // ========== USER ENDPOINTS (ADMIN ONLY) ==========
+    // ========== USER ENDPOINTS ==========
     @GetMapping("/admin/users")
     public List<UserBasicDTO> getUsers() {
         return userService.getAllUsersWithDTO();
@@ -291,7 +286,6 @@ public class ApiController {
                     .map(comment -> CommentResponseDTO.fromEntity(comment, currentUser))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            // Возвращаем пустой список в случае ошибки
             return new ArrayList<>();
         }
     }
@@ -360,7 +354,6 @@ public class ApiController {
     }
 
     // ========== ATTACHMENT ENDPOINTS ==========
-
     @GetMapping("/tasks/{taskId}/attachments")
     public List<AttachmentResponseDTO> getTaskAttachments(@PathVariable Long taskId) {
         return attachmentService.getAttachmentsByTaskId(taskId);

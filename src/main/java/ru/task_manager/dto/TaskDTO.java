@@ -5,17 +5,15 @@ import java.time.LocalDateTime;
 public class TaskDTO {
     private Long id;
     private String title;
-    private String description;
     private String status;
-    private String priority;
-    private LocalDateTime deadline;
     private Long projectId;
+    private String priority;
     private Long executorId;
+    private String description;
+    private LocalDateTime deadline;
 
-    // Конструкторы
     public TaskDTO() {}
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

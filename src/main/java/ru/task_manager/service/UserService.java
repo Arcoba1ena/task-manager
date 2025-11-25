@@ -1,21 +1,19 @@
 package ru.task_manager.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import ru.task_manager.dto.UserBasicDTO;
-import ru.task_manager.dto.UserDTO;
-import ru.task_manager.entity.Role;
-import ru.task_manager.entity.User;
-import ru.task_manager.repository.UserRepository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import ru.task_manager.dto.UserDTO;
+import ru.task_manager.entity.Role;
+import ru.task_manager.entity.User;
+import ru.task_manager.dto.UserBasicDTO;
+import org.springframework.stereotype.Service;
+import ru.task_manager.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserService {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -31,12 +29,10 @@ public class UserService {
     }
 
     public User createUser(UserDTO userDTO) {
-        // Проверяем, существует ли пользователь с таким username
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
             throw new RuntimeException("Пользователь с таким именем уже существует");
         }
 
-        // Проверяем, существует ли пользователь с таким email
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
             throw new RuntimeException("Пользователь с таким email уже существует");
         }
@@ -56,13 +52,11 @@ public class UserService {
         if (existingUser.isPresent()) {
             User user = existingUser.get();
 
-            // Проверяем уникальность username (если изменился)
             if (!user.getUsername().equals(userDTO.getUsername()) &&
                     userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
                 throw new RuntimeException("Пользователь с таким именем уже существует");
             }
 
-            // Проверяем уникальность email (если изменился)
             if (!user.getEmail().equals(userDTO.getEmail()) &&
                     userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
                 throw new RuntimeException("Пользователь с таким email уже существует");
@@ -73,7 +67,6 @@ public class UserService {
             user.setRole(userDTO.getRole());
             user.setFullName(userDTO.getFullName());
 
-            // Обновляем пароль только если он указан
             if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
                 user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             }
@@ -85,8 +78,6 @@ public class UserService {
 
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
-            // Проверяем, не пытаемся ли удалить самого себя
-            // (это можно добавить позже)
             userRepository.deleteById(id);
             return true;
         }

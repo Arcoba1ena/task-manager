@@ -9,10 +9,8 @@ public class ProjectResponseDTO {
     private LocalDateTime createdAt;
     private UserResponseDTO createdBy;
 
-    // Конструкторы
     public ProjectResponseDTO() {}
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -28,8 +26,6 @@ public class ProjectResponseDTO {
     public UserResponseDTO getCreatedBy() { return createdBy; }
     public void setCreatedBy(UserResponseDTO createdBy) { this.createdBy = createdBy; }
 
-
-    // Статический метод для преобразования из Entity
     public static ProjectResponseDTO fromEntity(ru.task_manager.entity.Project project) {
         if (project == null) return null;
 

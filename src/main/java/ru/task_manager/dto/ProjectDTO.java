@@ -3,10 +3,9 @@ package ru.task_manager.dto;
 public class ProjectDTO {
     private Long id;
     private String name;
-    private String description;
     private Long createdById;
+    private String description;
 
-    // Конструкторы
     public ProjectDTO() {}
 
     public ProjectDTO(String name, String description, Long createdById) {
@@ -15,7 +14,6 @@ public class ProjectDTO {
         this.createdById = createdById;
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

@@ -5,14 +5,14 @@ import java.time.LocalDateTime;
 public class TaskResponseDTO {
     private Long id;
     private String title;
-    private String description;
     private String status;
     private String priority;
+    private String description;
     private LocalDateTime deadline;
-    private LocalDateTime createdAt;
-    private ProjectResponseDTO project; // Теперь это ProjectResponseDTO без задач
     private UserResponseDTO author;
+    private LocalDateTime createdAt;
     private UserResponseDTO executor;
+    private ProjectResponseDTO project;
 
     public Long getId() {
         return id;
@@ -105,7 +105,7 @@ public class TaskResponseDTO {
         dto.setPriority(task.getPriority().name());
         dto.setDeadline(task.getDeadline());
         dto.setCreatedAt(task.getCreatedAt());
-        dto.setProject(ProjectResponseDTO.fromEntity(task.getProject())); // Без задач
+        dto.setProject(ProjectResponseDTO.fromEntity(task.getProject()));
         dto.setAuthor(UserResponseDTO.fromEntity(task.getAuthor()));
         dto.setExecutor(UserResponseDTO.fromEntity(task.getExecutor()));
         return dto;

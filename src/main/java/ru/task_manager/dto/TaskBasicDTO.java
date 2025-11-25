@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 public class TaskBasicDTO {
     private Long id;
     private String title;
-    private String description;
     private String status;
     private String priority;
+    private String description;
     private LocalDateTime deadline;
     private LocalDateTime createdAt;
     private UserResponseDTO executor;
@@ -89,7 +89,6 @@ public class TaskBasicDTO {
         dto.setCreatedAt(task.getCreatedAt());
         dto.setExecutor(UserResponseDTO.fromEntity(task.getExecutor()));
 
-        // НЕ включаем проект и автора чтобы избежать циклических ссылок
         return dto;
     }
 }

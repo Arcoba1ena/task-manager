@@ -1,13 +1,12 @@
 package ru.task_manager.repository;
 
+import java.util.List;
+import ru.task_manager.entity.Task;
+import ru.task_manager.entity.TaskStatus;
+import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.task_manager.entity.Task;
-import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.task_manager.entity.TaskStatus;
-
-import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {

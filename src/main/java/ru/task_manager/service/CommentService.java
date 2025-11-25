@@ -1,23 +1,19 @@
 package ru.task_manager.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import ru.task_manager.dto.CommentDTO;
-import ru.task_manager.dto.CommentResponseDTO;
-import ru.task_manager.entity.Comment;
-import ru.task_manager.entity.Task;
-import ru.task_manager.entity.User;
-import ru.task_manager.repository.CommentRepository;
-import ru.task_manager.repository.TaskRepository;
-import ru.task_manager.repository.UserRepository;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import ru.task_manager.entity.Task;
+import ru.task_manager.entity.User;
+import ru.task_manager.dto.CommentDTO;
+import ru.task_manager.entity.Comment;
+import org.springframework.stereotype.Service;
+import ru.task_manager.repository.TaskRepository;
+import ru.task_manager.repository.UserRepository;
+import ru.task_manager.repository.CommentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class CommentService {
-
     @Autowired
     private CommentRepository commentRepository;
 
@@ -32,19 +28,17 @@ public class CommentService {
     }
 
     public Comment createComment(CommentDTO commentDTO, User author) {
-        // Проверяем существование задачи
         Optional<Task> task = taskRepository.findById(commentDTO.getTaskId());
         if (task.isEmpty()) {
             throw new RuntimeException("Задача не найдена");
         }
 
-        // Создаем комментарий
         Comment comment = new Comment();
         comment.setText(commentDTO.getText());
         comment.setTask(task.get());
         comment.setAuthor(author);
 
-        return commentRepository.save(comment); // Возвращаем Comment, а не DTO
+        return commentRepository.save(comment);
     }
 
     public Comment updateComment(Long commentId, CommentDTO commentDTO, User currentUser) {
@@ -52,13 +46,12 @@ public class CommentService {
         if (existingComment.isPresent()) {
             Comment comment = existingComment.get();
 
-            // Проверяем, является ли пользователь автором комментария
             if (!comment.getAuthor().getId().equals(currentUser.getId())) {
                 throw new RuntimeException("Вы можете редактировать только свои комментарии");
             }
 
             comment.setText(commentDTO.getText());
-            return commentRepository.save(comment); // Возвращаем Comment, а не DTO
+            return commentRepository.save(comment);
         }
         return null;
     }
@@ -66,7 +59,6 @@ public class CommentService {
     public boolean deleteComment(Long commentId, User currentUser) {
         Optional<Comment> comment = commentRepository.findById(commentId);
         if (comment.isPresent()) {
-            // Проверяем права: автор комментария или администратор/менеджер
             boolean isAuthor = comment.get().getAuthor().getId().equals(currentUser.getId());
             boolean isManagerOrAdmin = currentUser.getRole() == ru.task_manager.entity.Role.ADMIN ||
                     currentUser.getRole() == ru.task_manager.entity.Role.MANAGER;

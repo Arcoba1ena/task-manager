@@ -1,15 +1,14 @@
 package ru.task_manager.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import ru.task_manager.dto.UserBasicDTO;
+import java.util.List;
 import ru.task_manager.dto.UserDTO;
 import ru.task_manager.entity.User;
+import org.springframework.ui.Model;
+import ru.task_manager.dto.UserBasicDTO;
 import ru.task_manager.service.UserService;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Controller
 @RequestMapping("/admin/users")

@@ -4,15 +4,14 @@ import java.time.LocalDateTime;
 
 public class AttachmentDTO {
     private Long id;
-    private String filename;
-    private String originalFilename;
-    private String fileType;
-    private Long fileSize;
-    private LocalDateTime uploadedAt;
     private Long taskId;
+    private Long fileSize;
+    private String filename;
+    private String fileType;
+    private String originalFilename;
+    private LocalDateTime uploadedAt;
     private UserResponseDTO uploadedBy;
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

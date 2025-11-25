@@ -1,8 +1,7 @@
 package ru.task_manager.dto;
 
-import ru.task_manager.entity.Role;
-
 import java.time.LocalDateTime;
+import ru.task_manager.entity.Role;
 
 public class UserBasicDTO {
     private Long id;
@@ -12,10 +11,8 @@ public class UserBasicDTO {
     private String fullName;
     private LocalDateTime createdAt;
 
-    // Конструкторы
     public UserBasicDTO() {}
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -34,7 +31,6 @@ public class UserBasicDTO {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    // Статический метод для преобразования из Entity
     public static UserBasicDTO fromEntity(ru.task_manager.entity.User user) {
         if (user == null) return null;
 

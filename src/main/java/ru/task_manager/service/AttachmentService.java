@@ -1,23 +1,21 @@
 package ru.task_manager.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import ru.task_manager.dto.AttachmentResponseDTO;
-import ru.task_manager.entity.Attachment;
-import ru.task_manager.entity.Task;
-import ru.task_manager.entity.User;
-import ru.task_manager.repository.AttachmentRepository;
-import ru.task_manager.repository.TaskRepository;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.io.IOException;
+import ru.task_manager.entity.User;
+import ru.task_manager.entity.Task;
 import java.util.stream.Collectors;
+import ru.task_manager.entity.Attachment;
+import org.springframework.stereotype.Service;
+import ru.task_manager.dto.AttachmentResponseDTO;
+import ru.task_manager.repository.TaskRepository;
+import org.springframework.web.multipart.MultipartFile;
+import ru.task_manager.repository.AttachmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class AttachmentService {
-
     @Autowired
     private AttachmentRepository attachmentRepository;
 
@@ -33,10 +31,8 @@ public class AttachmentService {
             throw new RuntimeException("Задача не найдена");
         }
 
-        // Сохраняем файл на диск
         String storedFilename = fileStorageService.storeFile(file);
 
-        // Создаем запись в БД
         Attachment attachment = new Attachment();
         attachment.setFilename(storedFilename);
         attachment.setOriginalFilename(file.getOriginalFilename());
@@ -66,15 +62,12 @@ public class AttachmentService {
         if (attachment.isPresent()) {
             Attachment att = attachment.get();
 
-            // Проверяем права: автор вложения или администратор/менеджер
             boolean isAuthor = att.getUploadedBy().getId().equals(currentUser.getId());
             boolean isAdminOrManager = currentUser.getRole() == ru.task_manager.entity.Role.ADMIN ||
                     currentUser.getRole() == ru.task_manager.entity.Role.MANAGER;
 
             if (isAuthor || isAdminOrManager) {
-                // Удаляем файл с диска
                 fileStorageService.deleteFile(att.getFilename());
-                // Удаляем запись из БД
                 attachmentRepository.deleteById(attachmentId);
                 return true;
             } else {

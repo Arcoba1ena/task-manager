@@ -24,7 +24,6 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
 
-    // Конструкторы
     public Comment() {
         this.createdAt = LocalDateTime.now();
     }
@@ -36,7 +35,6 @@ public class Comment {
         this.author = author;
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

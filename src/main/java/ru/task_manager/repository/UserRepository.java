@@ -2,7 +2,6 @@ package ru.task_manager.repository;
 
 import java.util.List;
 import java.util.Optional;
-
 import ru.task_manager.entity.Role;
 import ru.task_manager.entity.User;
 import org.springframework.stereotype.Repository;

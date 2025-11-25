@@ -4,13 +4,12 @@ import ru.task_manager.entity.Role;
 
 public class UserDTO {
     private Long id;
+    private Role role;
+    private String email;
     private String username;
     private String password;
-    private String email;
-    private Role role;
     private String fullName;
 
-    // Конструкторы
     public UserDTO() {}
 
     public UserDTO(String username, String password, String email, Role role, String fullName) {
@@ -21,7 +20,6 @@ public class UserDTO {
         this.fullName = fullName;
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

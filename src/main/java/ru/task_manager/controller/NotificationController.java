@@ -1,24 +1,22 @@
 package ru.task_manager.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
+import java.util.List;
+import java.security.Principal;
+import ru.task_manager.entity.User;
+import org.springframework.ui.Model;
 import org.springframework.http.HttpStatus;
+import ru.task_manager.dto.NotificationDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.task_manager.dto.NotificationDTO;
-import ru.task_manager.entity.User;
 import ru.task_manager.repository.UserRepository;
 import ru.task_manager.service.NotificationService;
-
-import java.security.Principal;
-import java.util.List;
-import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Controller
 @RequestMapping("/notifications")
 public class NotificationController {
-
     @Autowired
     private NotificationService notificationService;
 
@@ -109,14 +107,11 @@ public class NotificationController {
 
             System.out.println("Marking all notifications as read for user: " + currentUser.getUsername());
 
-            // Получаем количество непрочитанных до обновления
             long unreadCountBefore = notificationService.getUnreadCount(currentUser);
             System.out.println("Unread count before: " + unreadCountBefore);
 
-            // Вызываем сервис
             notificationService.markAllAsRead(currentUser);
 
-            // Получаем количество непрочитанных после обновления
             long unreadCountAfter = notificationService.getUnreadCount(currentUser);
             System.out.println("Unread count after: " + unreadCountAfter);
 
@@ -130,7 +125,6 @@ public class NotificationController {
             System.err.println("ERROR in markAllAsRead: " + e.getMessage());
             e.printStackTrace();
 
-            // Более детальная информация об ошибке
             String errorMessage = "Ошибка при пометке всех уведомлений как прочитанных: " + e.getMessage();
             if (e.getCause() != null) {
                 errorMessage += " (Cause: " + e.getCause().getMessage() + ")";

@@ -1,24 +1,21 @@
 package ru.task_manager.dto;
 
-import ru.task_manager.entity.Comment;
+import java.time.LocalDateTime;
 import ru.task_manager.entity.Role;
 import ru.task_manager.entity.User;
-
-import java.time.LocalDateTime;
+import ru.task_manager.entity.Comment;
 
 public class CommentResponseDTO {
     private Long id;
     private String text;
-    private LocalDateTime createdAt;
-    private UserResponseDTO author;
     private Long taskId;
     private boolean canEdit;
     private boolean canDelete;
+    private UserResponseDTO author;
+    private LocalDateTime createdAt;
 
-    // Конструкторы
     public CommentResponseDTO() {}
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -40,7 +37,6 @@ public class CommentResponseDTO {
     public boolean isCanDelete() { return canDelete; }
     public void setCanDelete(boolean canDelete) { this.canDelete = canDelete; }
 
-    // Статический метод для преобразования из Entity
     public static CommentResponseDTO fromEntity(Comment comment, User currentUser) {
         if (comment == null) return null;
 
@@ -51,7 +47,6 @@ public class CommentResponseDTO {
         dto.setAuthor(UserResponseDTO.fromEntity(comment.getAuthor()));
         dto.setTaskId(comment.getTask() != null ? comment.getTask().getId() : null);
 
-        // Определяем права доступа
         if (currentUser != null) {
             boolean isAuthor = comment.getAuthor().getId().equals(currentUser.getId());
             boolean isAdminOrManager = currentUser.getRole() == Role.ADMIN ||

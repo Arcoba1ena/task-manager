@@ -1,12 +1,11 @@
 package ru.task_manager.config;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import ru.task_manager.entity.User;
-
-import java.util.Collection;
 import java.util.List;
+import java.util.Collection;
+import ru.task_manager.entity.User;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class CustomUserDetails implements UserDetails {
     private final User user;
@@ -50,7 +49,6 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    // Дополнительные методы для доступа к данным пользователя
     public String getFullName() {
         return user.getFullName();
     }

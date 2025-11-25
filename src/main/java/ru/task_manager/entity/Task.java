@@ -1,10 +1,10 @@
 package ru.task_manager.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.List;
+import java.util.ArrayList;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tasks")
@@ -47,7 +47,6 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    // Конструкторы
     public Task() {
         this.createdAt = LocalDateTime.now();
         this.status = TaskStatus.TO_DO;
@@ -63,7 +62,6 @@ public class Task {
         this.executor = executor;
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

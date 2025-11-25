@@ -1,24 +1,20 @@
 package ru.task_manager.service;
 
-import ru.task_manager.dto.ProjectResponseDTO;
-import ru.task_manager.dto.ProjectWithTasksDTO;
-import ru.task_manager.entity.Project;
-import ru.task_manager.repository.ProjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import ru.task_manager.dto.ProjectDTO;
-
 import ru.task_manager.entity.User;
-
+import ru.task_manager.entity.Project;
+import ru.task_manager.dto.ProjectDTO;
+import org.springframework.stereotype.Service;
+import ru.task_manager.dto.ProjectResponseDTO;
+import ru.task_manager.dto.ProjectWithTasksDTO;
 import ru.task_manager.repository.UserRepository;
+import ru.task_manager.repository.ProjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class ProjectService {
-
     @Autowired
     private ProjectRepository projectRepository;
 
@@ -51,7 +47,6 @@ public class ProjectService {
         project.setName(projectDTO.getName());
         project.setDescription(projectDTO.getDescription());
 
-        // Устанавливаем создателя проекта
         if (projectDTO.getCreatedById() != null) {
             Optional<User> createdBy = userRepository.findById(projectDTO.getCreatedById());
             createdBy.ifPresent(project::setCreatedBy);

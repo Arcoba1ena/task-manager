@@ -11,19 +11,19 @@ public class Attachment {
     private Long id;
 
     @Column(nullable = false)
-    private String filename; // Уникальное имя файла на сервере
+    private String filename;
 
     @Column(name = "original_filename", nullable = false)
-    private String originalFilename; // Оригинальное имя файла
+    private String originalFilename;
 
     @Column(name = "file_type", nullable = false)
-    private String fileType; // MIME type
+    private String fileType;
 
     @Column(name = "file_size")
-    private Long fileSize; // Размер в байтах
+    private Long fileSize;
 
     @Column(name = "file_path")
-    private String filePath; // Путь к файлу
+    private String filePath;
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
@@ -36,12 +36,10 @@ public class Attachment {
     @JoinColumn(name = "uploaded_by")
     private User uploadedBy;
 
-    // Конструкторы
     public Attachment() {
         this.uploadedAt = LocalDateTime.now();
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

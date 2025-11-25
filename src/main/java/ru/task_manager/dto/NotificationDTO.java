@@ -4,15 +4,14 @@ import java.time.LocalDateTime;
 
 public class NotificationDTO {
     private Long id;
+    private String type;
+    private Long taskId;
+    private boolean read;
     private String title;
     private String message;
-    private String type;
-    private boolean read;
-    private LocalDateTime createdAt;
-    private Long taskId;
     private String taskTitle;
+    private LocalDateTime createdAt;
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

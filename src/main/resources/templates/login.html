@@ -243,7 +243,6 @@
                 Вход в систему
             </h2>
 
-            <!-- Ошибка только после попытки входа -->
             <div th:if="${loginError}" class="alert alert-error">
                 <i data-lucide="alert-circle"></i>
                 <div>
@@ -252,7 +251,6 @@
                 </div>
             </div>
 
-            <!-- Успешный логаут -->
             <div th:if="${param.logout}" class="alert alert-success">
                 <i data-lucide="check-circle"></i>
                 <div>
@@ -275,7 +273,6 @@
                 </button>
             </form>
 
-            <!-- Красивая кнопка "На главную" -->
             <a href="/" class="link-back">
                 <i data-lucide="arrow-left"></i>
                 На главную

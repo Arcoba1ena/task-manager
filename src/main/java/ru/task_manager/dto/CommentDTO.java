@@ -5,13 +5,12 @@ import java.time.LocalDateTime;
 public class CommentDTO {
     private Long id;
     private String text;
-    private LocalDateTime createdAt;
     private Long taskId;
     private Long authorId;
     private String authorName;
     private String authorRole;
+    private LocalDateTime createdAt;
 
-    // Конструкторы
     public CommentDTO() {}
 
     public CommentDTO(String text, Long taskId) {
@@ -19,7 +18,6 @@ public class CommentDTO {
         this.taskId = taskId;
     }
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

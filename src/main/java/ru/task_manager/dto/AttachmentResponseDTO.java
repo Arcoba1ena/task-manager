@@ -4,15 +4,14 @@ import java.time.LocalDateTime;
 
 public class AttachmentResponseDTO {
     private Long id;
-    private String originalFilename;
-    private String fileType;
     private Long fileSize;
-    private LocalDateTime uploadedAt;
-    private UserResponseDTO uploadedBy;
+    private String fileType;
     private String downloadUrl;
+    private String originalFilename;
+    private LocalDateTime uploadedAt;
     private String formattedFileSize;
+    private UserResponseDTO uploadedBy;
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -37,7 +36,6 @@ public class AttachmentResponseDTO {
     public String getFormattedFileSize() { return formattedFileSize; }
     public void setFormattedFileSize(String formattedFileSize) { this.formattedFileSize = formattedFileSize; }
 
-    // Статический метод для преобразования из Entity
     public static AttachmentResponseDTO fromEntity(ru.task_manager.entity.Attachment attachment) {
         if (attachment == null) return null;
 
