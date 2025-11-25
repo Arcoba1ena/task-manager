@@ -344,9 +344,7 @@
 
 <main>
     <div class="container">
-        <div class="page-header">
-            <p>Добро пожаловать, <strong th:text="${#authentication?.name}">Пользователь</strong>!</p>
-        </div>
+        <div class="page-header"></div>
 
         <div class="stats-grid">
             <div class="stat-card stat-total"><div class="num" th:text="${totalTasks}">0</div><div class="label">Всего задач</div></div>
@@ -356,7 +354,7 @@
         </div>
 
         <div class="chart-card">
-            <h3 class="chart-title">Статистика по задачам</h3>
+            <h1 class="chart-title">Статистика по задачам</h1>
             <div class="chart-wrapper"><canvas id="taskChart"></canvas></div>
             <div class="chart-toggle-wrapper">
                 <button id="chartToggleBtn" onclick="toggleChartType()" class="chart-toggle-btn">
