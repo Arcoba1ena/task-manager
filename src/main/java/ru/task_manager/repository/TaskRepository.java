@@ -19,7 +19,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT COUNT(t) FROM Task t WHERE t.status = :status")
     long countByStatus(@Param("status") TaskStatus status);
 
-    // Альтернатива - используем короткие имена (если enum в том же пакете что и Task)
     @Query("SELECT COUNT(t) FROM Task t WHERE t.status = 'TO_DO'")
     long countTodoTasks();
 
@@ -29,7 +28,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT COUNT(t) FROM Task t WHERE t.status = 'DONE'")
     long countDoneTasks();
 
-    // Или используем нативные запросы как запасной вариант
     @Query(value = "SELECT COUNT(*) FROM tasks WHERE status = 'TO_DO'", nativeQuery = true)
     long countTodoTasksNative();
 

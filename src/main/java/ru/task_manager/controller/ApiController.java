@@ -52,7 +52,6 @@ public class ApiController {
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
         if (currentUser.getRole() == Role.EXECUTOR) {
-            // Исполнитель получает только свои задачи
             List<Task> userTasks = taskService.getTasksByExecutor(currentUser);
             return userTasks.stream()
                     .map(TaskResponseDTO::fromEntity)

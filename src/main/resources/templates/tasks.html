@@ -631,12 +631,10 @@
         color: #e2e8f0 !important;
     }
 
-    /* Исправление плейсхолдера в комментариях */
     #commentsModal .form-control::placeholder {
         color: rgba(255,255,255,0.6) !important;
     }
 
-    /* Текст "Комментариев пока нет" - такой же цвет как у плейсхолдера */
     #commentsList .text-muted {
         color: rgba(255,255,255,0.6) !important;
     }
@@ -663,7 +661,6 @@
     padding: 0.5rem 0;
     }
 
-    /* Компактные стили для кнопок редактирования */
     .comment-edit-actions {
     display: flex;
     gap: 0.5rem;
@@ -694,7 +691,6 @@
         color: #e2e8f0 !important;
     }
 
-    /* Исправление раздела вложений */
     #attachmentsSection {
         color: #e2e8f0 !important;
     }
@@ -746,7 +742,6 @@
         flex-shrink: 0;
     }
 
-    /* Кнопки вложений - исправленные */
     .attachment-actions .btn {
         background: rgba(255,255,255,0.1) !important;
         border: 1px solid rgba(255,255,255,0.2) !important;
@@ -782,7 +777,6 @@
         background-color: rgba(59, 130, 246, 0.2);
     }
 
-    /* Исправление текста в разделе вложений */
     .upload-area p {
         color: #e2e8f0 !important;
     }
@@ -811,7 +805,6 @@
         color: #e2e8f0 !important;
     }
 
-    /* Красивое сообщение о необходимости сохранения задачи */
     .save-task-message {
         background: rgba(59, 130, 246, 0.1);
         border: 1px solid rgba(59, 130, 246, 0.3);
@@ -927,7 +920,6 @@
     display: none;
 }
 
-/* Гарантированное отображение счетчиков когда они не пустые */
 .attachment-badge:not(:empty) {
     display: flex !important;
     visibility: visible !important;
@@ -940,7 +932,6 @@
     opacity: 1 !important;
 }
 
-/* Усиленные стили для видимости при наведении на карточку */
 .task-card:hover .attachment-badge:not(:empty),
 .task-card:hover .comment-badge:not(:empty) {
     display: flex !important;
@@ -948,7 +939,6 @@
     opacity: 1 !important;
 }
 
-/* Альтернативный вариант: всегда показывать счетчики если есть содержимое */
 .attachment-badge[style*="display: none"]:not(:empty) {
     display: flex !important;
 }
@@ -957,7 +947,6 @@
     display: flex !important;
 }
 
-/* Мощное переопределение Bootstrap стилей для плейсхолдеров */
 #taskModal input::-webkit-input-placeholder,
 #taskModal textarea::-webkit-input-placeholder {
     color: rgba(255, 255, 255, 0.7) !important;
@@ -982,7 +971,6 @@
     opacity: 1 !important;
 }
 
-/* Принудительное применение стилей к конкретным полям */
 #taskTitle::placeholder,
 #taskDescription::placeholder {
     color: rgba(255, 255, 255, 0.7) !important;
@@ -1404,9 +1392,7 @@
                             <!-- Список вложений -->
                             <div>
                                 <h6>Прикрепленные файлы</h6>
-                                <div id="attachmentsList" class="attachments-container">
-                                    <!-- Вложения будут загружаться здесь -->
-                                </div>
+                                <div id="attachmentsList" class="attachments-container"></div>
                                 <div id="noAttachmentsMessage" class="text-center text-muted py-4">
                                     <i class="fas fa-paperclip fa-2x mb-2"></i>
                                     <p>Нет прикрепленных файлов</p>
@@ -1646,11 +1632,9 @@ function editTask(taskId) {
     currentTaskId = taskId;
     currentTaskIdForAttachments = taskId;
 
-    // ОБНОВЛЕНО: Принудительно загружаем и обновляем счетчик вложений при открытии задачи
     if (attachmentCounts[taskId] === undefined) {
         loadAttachments(taskId);
     } else {
-        // Если данные уже есть, все равно обновляем бейдж
         updateAttachmentBadge(taskId, attachmentCounts[taskId] || 0);
     }
 
@@ -1812,7 +1796,6 @@ function loadComments(taskId) {
         .then(response => response.json())
         .then(comments => {
             displayComments(comments);
-            // Обновляем ТОЛЬКО счетчик комментариев
             updateCommentCount(taskId, comments.length);
         })
         .catch(error => {
@@ -1998,7 +1981,6 @@ function submitComment() {
     })
     .then(comment => {
         document.getElementById('commentText').value = '';
-        // Перезагружаем комментарии - это обновит счетчик через loadComments
         loadComments(currentCommentsTaskId);
     })
     .catch(error => {
@@ -2011,10 +1993,8 @@ function updateCommentCount(taskId, count) {
     const badges = document.querySelectorAll(`.comment-badge[data-task-id="${taskId}"]`);
     badges.forEach(badge => {
         badge.textContent = count;
-        // Всегда показываем бейдж если есть комментарии
         badge.style.display = count > 0 ? 'flex' : 'none';
 
-        // Добавляем анимацию при изменении
         if (count > 0) {
             badge.style.animation = 'pulse 0.5s ease-in-out';
             setTimeout(() => {
@@ -2030,7 +2010,6 @@ function loadCommentCounts() {
         fetch(`/api/tasks/${taskId}/comments`)
             .then(response => response.json())
             .then(comments => {
-                // Обновляем ТОЛЬКО счетчик комментариев
                 updateCommentCount(taskId, comments.length);
             })
             .catch(error => console.error('Error loading comment count for task ' + taskId + ':', error));
@@ -2183,15 +2162,12 @@ function uploadFile(file) {
         progressBar.classList.add('bg-success');
         uploadStatus.textContent = `Файл "${file.name}" успешно загружен`;
 
-        // ОБНОВЛЕНО: Принудительно обновляем счетчик вложений после успешной загрузки
         const currentCount = attachmentCounts[currentTaskIdForAttachments] || 0;
         const newCount = currentCount + 1;
         attachmentCounts[currentTaskIdForAttachments] = newCount;
 
-        // Обновляем бейдж немедленно
         updateAttachmentBadge(currentTaskIdForAttachments, newCount);
 
-        // Затем перезагружаем список вложений для актуальности
         loadAttachments(currentTaskIdForAttachments);
 
         setTimeout(() => {
@@ -2214,11 +2190,9 @@ function updateAttachmentBadge(taskId, count) {
     const badges = document.querySelectorAll(`.attachment-badge[data-task-id="${taskId}"]`);
 
     badges.forEach(badge => {
-        // ОБНОВЛЕНО: Убеждаемся, что счетчик обновляется корректно
         badge.textContent = count;
         badge.style.display = count > 0 ? 'flex' : 'none';
 
-        // Добавляем визуальную обратную связь при изменении
         if (count > 0) {
             badge.style.animation = 'pulse 0.5s ease-in-out';
             setTimeout(() => {
@@ -2226,14 +2200,12 @@ function updateAttachmentBadge(taskId, count) {
             }, 500);
         }
 
-        // ОБНОВЛЕНО: Принудительно показываем бейдж, если есть вложения
         if (count > 0) {
             badge.style.visibility = 'visible';
             badge.style.opacity = '1';
         }
     });
 
-    // ОБНОВЛЕНО: Логируем для отладки (можно удалить в продакшене)
     console.log(`Updated attachment badge for task ${taskId}: ${count} attachments`);
 }
 
@@ -2249,7 +2221,6 @@ function loadAttachments(taskId) {
             const count = attachments.length;
             attachmentCounts[taskId] = count;
 
-            // ОБНОВЛЕНО: Всегда обновляем счетчик, даже если это не текущая задача в модальном окне
             updateAttachmentBadge(taskId, count);
 
             if (taskId === currentTaskIdForAttachments) {
@@ -2259,7 +2230,6 @@ function loadAttachments(taskId) {
         })
         .catch(error => {
             console.error('Error loading attachments:', error);
-            // ОБНОВЛЕНО: При ошибке устанавливаем счетчик в 0
             updateAttachmentBadge(taskId, 0);
 
             if (taskId === currentTaskIdForAttachments) {
@@ -2344,16 +2314,13 @@ function deleteAttachment(attachmentId) {
             return response.json().then(error => { throw new Error(error.message); });
         }
 
-        // ОБНОВЛЕНО: Немедленно обновляем счетчик после удаления
         if (currentTaskIdForAttachments) {
             const currentCount = attachmentCounts[currentTaskIdForAttachments] || 0;
             const newCount = Math.max(0, currentCount - 1);
             attachmentCounts[currentTaskIdForAttachments] = newCount;
 
-            // Обновляем бейдж немедленно
             updateAttachmentBadge(currentTaskIdForAttachments, newCount);
 
-            // Затем перезагружаем список для актуальности
             loadAttachments(currentTaskIdForAttachments);
         }
 

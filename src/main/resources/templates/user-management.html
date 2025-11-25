@@ -1159,14 +1159,12 @@
 
     // Инициализация
     document.addEventListener('DOMContentLoaded', () => {
-        // Закрытие выпадающих меню при клике вне их
         window.onclick = function(e) {
             if (!e.target.closest('.profile-dropdown')) {
                 document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
             }
         };
 
-        // Закрытие модальных окон при клике вне их
         UserManager.elements.userModal.addEventListener('click', function(e) {
             if (e.target === UserManager.elements.userModal) {
                 UserManager.hideUserModal();
@@ -1179,7 +1177,6 @@
             }
         });
 
-        // Обновление счетчика уведомлений
         UserManager.updateNotificationCounter();
         setInterval(() => UserManager.updateNotificationCounter(), 30000);
     });
