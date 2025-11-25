@@ -20,7 +20,11 @@
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -35,6 +39,7 @@
             inset: 0;
             z-index: -2;
         }
+
         .bg-animation::before {
             content: '';
             position: absolute;
@@ -44,7 +49,17 @@
                 radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
             animation: breathe 22s ease-in-out infinite;
         }
-        @keyframes breathe { 0%,100% { opacity: .6; transform: scale(1); } 50% { opacity: .9; transform: scale(1.03); } }
+
+        @keyframes breathe {
+            0%, 100% {
+                opacity: .6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: .9;
+                transform: scale(1.03);
+            }
+        }
 
         .content-overlay {
             position: fixed;
@@ -54,7 +69,7 @@
             z-index: -1;
         }
 
-        /* Полная шапка — как в dashboard */
+        /* Навигация */
         nav {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(20px);
@@ -65,6 +80,7 @@
             top: 0;
             z-index: 1000;
         }
+
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -73,6 +89,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar-brand {
             font-family: 'Manrope', sans-serif;
             font-weight: 800;
@@ -89,12 +106,14 @@
             align-items: center;
             gap: 1rem;
         }
+
         .nav-menu {
             display: flex;
             gap: 0.8rem;
             align-items: center;
         }
-        .nav-menu a {
+
+        .nav-link {
             color: rgba(255,255,255,0.9);
             font-weight: 500;
             text-decoration: none;
@@ -106,23 +125,34 @@
             transition: var(--transition);
             white-space: nowrap;
         }
-        .nav-menu a:hover {
-            background: rgba(255,255,255,0.15);
-            color: white;
-        }
-        .nav-menu a.active {
+
+        .nav-link:hover,
+        .nav-link.active {
             background: rgba(255,255,255,0.15);
             color: white;
         }
 
-        /* Уведомления в nav */
-        .notification-bell {
-            position: relative;
+        .icon-button {
             padding: 0.65rem;
             border-radius: 12px;
             transition: var(--transition);
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .notification-bell:hover { background: rgba(255,255,255,0.15); }
+
+        .icon-button:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .notification-bell {
+            position: relative;
+        }
+
         .notification-counter {
             position: absolute;
             top: -6px;
@@ -139,10 +169,11 @@
             justify-content: center;
         }
 
-        /* Дропдаун профиля */
+        /* Выпадающее меню */
         .profile-dropdown {
             position: relative;
         }
+
         .dropdown-toggle {
             background: none;
             border: none;
@@ -155,7 +186,10 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        .dropdown-toggle:hover { background: rgba(255,255,255,0.15); }
+
+        .dropdown-toggle:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
         .dropdown-menu {
             position: absolute;
@@ -174,12 +208,14 @@
             transform: translateY(-10px);
             transition: all 0.3s ease;
         }
+
         .dropdown-menu.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
-        .dropdown-menu a, .dropdown-menu button {
+
+        .dropdown-item {
             display: block;
             width: 100%;
             padding: 0.9rem 1.2rem;
@@ -189,16 +225,30 @@
             border: none;
             font-size: 0.95rem;
             transition: background 0.2s;
+            cursor: pointer;
         }
-        .dropdown-menu a:hover, .dropdown-menu button:hover {
+
+        .dropdown-item:hover {
             background: rgba(255,255,255,0.1);
         }
 
-        main { padding-top: 100px; padding-bottom: 4rem; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        /* Основной контент */
+        main {
+            padding-top: 100px;
+            padding-bottom: 4rem;
+        }
 
-        /* Уведомления */
-        .page-header { text-align: center; margin-bottom: 3rem; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
         .page-header h1 {
             font-family: 'Manrope', sans-serif;
             font-size: 3.2rem;
@@ -207,10 +257,13 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .page-header p { font-size: 1.1rem; opacity: 0.8; }
 
-        .actions { display: flex; gap: 1rem; justify-content: flex-end; margin-bottom: 2rem; }
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
 
+        /* Кнопки */
         .btn {
             padding: 0.8rem 1.8rem;
             border-radius: 9999px;
@@ -224,25 +277,87 @@
             color: white;
             border: none;
         }
+
         .btn-primary {
             background: linear-gradient(135deg, #60a5fa, #3b82f6);
             box-shadow: 0 10px 30px rgba(59,130,246,0.4);
         }
-        .btn-primary:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(59,130,246,0.5); }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(59,130,246,0.5);
+        }
 
         .btn-secondary {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
         }
-        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
 
         .btn-danger {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             box-shadow: 0 10px 30px rgba(239,68,68,0.4);
         }
-        .btn-danger:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(239,68,68,0.5); }
 
-        .notification-list { display: grid; gap: 1.5rem; }
+        .btn-danger:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(239,68,68,0.5);
+        }
+
+        .btn-soft-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .btn-soft-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .btn-soft-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .btn-soft-success:hover {
+            background: rgba(34, 197, 94, 0.25);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.2);
+        }
+
+        /* Уведомления */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .unread-info {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .notification-list {
+            display: grid;
+            gap: 1.5rem;
+        }
 
         .notification-card {
             background: var(--card-bg);
@@ -253,31 +368,74 @@
             transition: var(--transition);
             position: relative;
         }
-        .notification-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
 
-        .notification-card.unread { border-left: 4px solid #3b82f6; }
-        .notification-card.read { opacity: 0.8; border-left: 4px solid rgba(255,255,255,0.2); }
+        .notification-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
 
-        .notification-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
-        .notification-title { font-size: 1.1rem; font-weight: 600; margin: 0; }
+        .notification-card.unread {
+            border-left: 4px solid #3b82f6;
+        }
 
-        .notification-actions { display: flex; gap: 0.5rem; position: absolute; top: 1rem; right: 1rem; opacity: 0; transition: opacity 0.2s; }
-        .notification-card:hover .notification-actions { opacity: 1; }
+        .notification-card.read {
+            opacity: 0.8;
+            border-left: 4px solid rgba(255,255,255,0.2);
+        }
 
-        .action-btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+        .notification-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .notification-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+
+        .notification-actions .btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .badge-new {
+            background: #3b82f6;
+            color: white;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
 
         .no-notifications {
             text-align: center;
             padding: 4rem 0;
             opacity: 0.7;
         }
-        .no-notifications i { font-size: 3rem; margin-bottom: 1rem; display: block; }
 
-        /* Спиннер */
+        .no-notifications i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Загрузка */
         .loading-spinner {
             text-align: center;
             padding: 3rem 0;
         }
+
         .spinner {
             width: 40px;
             height: 40px;
@@ -287,11 +445,28 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 1rem;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Кастом тосты */
-        .toast-container { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 1100; width: max-content; max-width: 90%; }
-        .custom-toast {
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Уведомления (тосты) */
+        .toast-container {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+            width: max-content;
+            max-width: 90%;
+        }
+
+        .toast {
             background: var(--card-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--card-border);
@@ -305,15 +480,45 @@
             animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 3.7s;
             opacity: 0;
         }
-        .custom-toast.show { opacity: 1; }
-        .custom-toast.success { border-color: rgba(52, 211, 153, 0.4); color: #a7f3d0; }
-        .custom-toast.error { border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
-        .custom-toast.info { border-color: rgba(96, 165, 250, 0.4); color: #bfdbfe; }
 
-        @keyframes toastIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes toastOut { to { transform: translateY(50px); opacity: 0; } }
+        .toast.show {
+            opacity: 1;
+        }
 
-        /* Модалы */
+        .toast-success {
+            border-color: rgba(52, 211, 153, 0.4);
+            color: #a7f3d0;
+        }
+
+        .toast-error {
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .toast-info {
+            border-color: rgba(96, 165, 250, 0.4);
+            color: #bfdbfe;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Модальные окна */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -327,7 +532,11 @@
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
         }
-        .modal-overlay.show { opacity: 1; visibility: visible; }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
 
         .modal-content {
             background: rgba(15, 23, 42, 0.95);
@@ -341,159 +550,83 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             transform: scale(0.95);
             transition: transform 0.3s;
+            position: relative;
         }
-        .modal-overlay.show .modal-content { transform: scale(1); }
 
-        .modal-header { margin-bottom: 1.5rem; }
-        .modal-header h5 { font-size: 1.4rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
 
-        .modal-body i { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
-        .modal-body h6 { margin-bottom: 0.5rem; }
-        .modal-body p { font-size: 0.9rem; opacity: 0.8; }
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
 
-        .modal-footer { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
+        .modal-header h5 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
 
-        .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; transition: color 0.2s; }
-        .modal-close:hover { color: white; }
+        .modal-body i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
 
+        .modal-body h6 {
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-body p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        /* Адаптивность */
         @media (max-width: 992px) {
             .nav-menu { gap: 0.5rem; }
-            .nav-menu a { padding: 0.6rem 1rem; font-size: 0.95rem; }
+            .nav-link { padding: 0.6rem 1rem; font-size: 0.95rem; }
         }
+
         @media (max-width: 768px) {
             .page-header h1 { font-size: 2.5rem; }
-            .actions { justify-content: center; flex-wrap: wrap; }
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-buttons {
+                justify-content: center;
+            }
+            .actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
         }
-
-        /* Спокойная красная кнопка */
-.btn-soft-danger {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #fca5a5;
-    padding: 0.8rem 1.8rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    transition: var(--transition);
-}
-.btn-soft-danger:hover {
-    background: rgba(239, 68, 68, 0.25);
-    color: white;
-    transform: translateY(-3px);
-}
-
-/* Красивая кнопка "Прочитать все" в шапке */
-.btn-mark-all {
-    color: #93c5fd;
-    font-weight: 600;
-    text-decoration: none;
-    padding: 0.4rem 1rem;
-    border-radius: 9999px;
-    background: rgba(59, 130, 246, 0.2);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    transition: var(--transition);
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.btn-mark-all:hover {
-    background: rgba(59, 130, 246, 0.35);
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* Выравнивание кнопок в карточке уведомления */
-.notification-actions {
-    display: flex;
-    gap: 0.8rem;
-    align-items: center;
-    margin-top: 1rem;
-    justify-content: flex-end;
-}
-
-.notification-actions .btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-}
-
-.badge-new {
-    background: #3b82f6;
-    color: white;
-    padding: 0.25rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-/* === ДОБАВЬ В <style> (в самый низ) === */
-.header-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-
-.unread-info {
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-.filter-buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.mark-all-btn {
-    background: linear-gradient(135deg, #34d399, #10b981) !important;
-    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
-}
-
-.mark-all-btn:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.5);
-}
-
-@media (max-width: 768px) {
-    .header-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .filter-buttons {
-        justify-content: center;
-    }
-}
-
-/* Стеклянная зелёная кнопка — в одном стиле с "Удалить прочитанные" */
-.btn-soft-success {
-    background: rgba(34, 197, 94, 0.15);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #86efac;
-    padding: 0.8rem 1.8rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    transition: var(--transition);
-}
-
-.btn-soft-success:hover {
-    background: rgba(34, 197, 94, 0.25);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.2);
-}
-    .nav-menu a.active {
-    background: rgba(255,255,255,0.15);
-    color: white;
-}
     </style>
 </head>
 <body>
@@ -509,15 +642,15 @@
 
         <div class="nav-right">
             <div class="nav-menu">
-                <a href="/dashboard"><i data-lucide="layout-dashboard"></i>Панель управления</a>
-                <a href="/tasks"><i data-lucide="check-square"></i>Задачи</a>
-                <a href="/projects" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
+                <a href="/dashboard" class="nav-link"><i data-lucide="layout-dashboard"></i>Панель управления</a>
+                <a href="/tasks" class="nav-link"><i data-lucide="check-square"></i>Задачи</a>
+                <a href="/projects" class="nav-link" th:unless="${#authentication?.principal?.role == 'EXECUTOR'}">
                     <i data-lucide="folders"></i>Проекты
                 </a>
-                <a href="/admin/users" th:if="${#authentication?.principal?.role == 'ADMIN'}">
+                <a href="/admin/users" class="nav-link" th:if="${#authentication?.principal?.role == 'ADMIN'}">
                     <i data-lucide="users"></i>Пользователи
                 </a>
-                <a href="/notifications" class="notification-bell active">
+                <a href="/notifications" class="nav-link icon-button notification-bell active">
                     <i data-lucide="bell"></i>
                     <span class="notification-counter" id="notif-counter" style="display:none;">0</span>
                 </a>
@@ -536,7 +669,7 @@
                         </div>
                     </div>
                     <form th:action="@{/logout}" method="post">
-                        <button type="submit" style="width:100%; text-align:left;">
+                        <button type="submit" class="dropdown-item">
                             <i data-lucide="log-out"></i> Выйти
                         </button>
                     </form>
@@ -551,9 +684,9 @@
         <div class="page-header">
             <h1>Уведомления</h1>
             <div class="header-actions">
-        <span class="unread-info">
-            Непрочитанных: <strong th:text="${unreadCount}">0</strong>
-        </span>
+                <span class="unread-info">
+                    Непрочитанных: <strong th:text="${unreadCount}">0</strong>
+                </span>
 
                 <div class="filter-buttons">
                     <button class="btn btn-secondary" onclick="loadNotifications('all')">
@@ -593,20 +726,16 @@
     </div>
 </main>
 
-<!-- Кастом тост контейнер -->
+<!-- Контейнер для уведомлений -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Модал для "Прочитать все" -->
+<!-- Модальные окна -->
 <div id="confirmMarkAllModal" class="modal-overlay">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('confirmMarkAllModal')"><i data-lucide="x"></i></button>
-        <div class="modal-header">
-            <h5><i data-lucide="help-circle"></i> Подтверждение</h5>
-        </div>
         <div class="modal-body">
             <i data-lucide="mail-open"></i>
-            <h6>Пометить все уведомления как прочитанные?</h6>
-            <p class="small">Это действие нельзя отменить</p>
+            <h2>Пометить все уведомления как прочитанные?</h2>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal('confirmMarkAllModal')">
@@ -619,16 +748,11 @@
     </div>
 </div>
 
-<!-- Модал для удаления одного -->
 <div id="confirmDeleteModal" class="modal-overlay">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('confirmDeleteModal')"><i data-lucide="x"></i></button>
-        <div class="modal-header">
-            <h5><i data-lucide="alert-triangle"></i> Удаление уведомления</h5>
-        </div>
         <div class="modal-body">
-            <h6>Вы уверены, что хотите удалить это уведомление?</h6>
-            <p class="small">Это действие нельзя отменить</p>
+            <h2>Вы уверены, что хотите удалить это уведомление?</h2>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal('confirmDeleteModal')">
@@ -641,57 +765,59 @@
     </div>
 </div>
 
-<!-- Модал для удаления всех прочитанных -->
 <div id="confirmDeleteAllReadModal" class="modal-overlay">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('confirmDeleteAllReadModal')"><i data-lucide="x"></i></button>
-        <div class="modal-header">
-            <h5><i data-lucide="alert-triangle"></i> Удаление прочитанных уведомлений</h5>
-        </div>
         <div class="modal-body">
-            <i data-lucide="trash-2"></i>
-            <h6>Удалить все прочитанные уведомления?</h6>
-            <p class="small">Это действие нельзя отменить. Будут удалены все уведомления, помеченные как
-                прочитанные.</p>
+            <h2>Удалить все прочитанные уведомления?</h2>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal('confirmDeleteAllReadModal')">
                 <i data-lucide="x"></i> Отмена
             </button>
-            <button id="confirmDeleteAllReadBtn" class="btn btn-danger">
-                <i data-lucide="trash-2"></i> Удалить все прочитанные
+            <button id="confirmDeleteAllReadBtn" class="btn btn-soft-danger">
+                <i data-lucide="trash-2"></i> Удалить
             </button>
         </div>
     </div>
 </div>
 
 <script>
+    // Инициализация иконок
     lucide.createIcons();
 
-    // === Дропдаун профиля ===
+    // Переменные для состояния приложения
+    const NotificationState = {
+        currentFilter: 'all',
+        notificationsUpdateInterval: null,
+        notificationToDelete: null,
+        notificationCounter: document.getElementById('notif-counter')
+    };
+
+    // Функции для работы с выпадающим меню
     function toggleDropdown() {
         document.getElementById('profileMenu').classList.toggle('show');
     }
-    window.onclick = function(e) {
-        if (!e.target.closest('.profile-dropdown')) {
-            document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
-        }
+
+    function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList.remove('show'));
     }
 
-    // === Модалы ===
+    // Функции для работы с модальными окнами
     function showModal(id) {
         document.getElementById(id).classList.add('show');
         document.body.style.overflow = 'hidden';
     }
+
     function closeModal(id) {
         document.getElementById(id).classList.remove('show');
         document.body.style.overflow = '';
     }
 
-    // === Тосты ===
+    // Функции для уведомлений (тостов)
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
-        toast.className = `custom-toast ${type} show`;
+        toast.className = `toast ${type} show`;
         const icons = { success: 'check-circle', error: 'alert-circle', info: 'info' };
         toast.innerHTML = `<i data-lucide="${icons[type]}"></i> ${message}`;
         document.getElementById('toastContainer').appendChild(toast);
@@ -699,12 +825,7 @@
         setTimeout(() => toast.remove(), 4000);
     }
 
-    // === Основные переменные ===
-    let currentFilter = 'all';
-    let notificationsUpdateInterval;
-    let notificationToDelete = null;
-
-    // === API ===
+    // API функции
     async function apiFetch(url, options = {}) {
         const response = await fetch(url, {
             headers: { 'Content-Type': 'application/json', ...options.headers },
@@ -714,15 +835,15 @@
         return response;
     }
 
-    // === Инициализация ===
+    // Инициализация системы уведомлений
     function initNotificationSystem() {
         loadNotifications('all');
-        notificationsUpdateInterval = setInterval(updateNotificationCounter, 30000);
+        NotificationState.notificationsUpdateInterval = setInterval(updateNotificationCounter, 30000);
     }
 
-    // === Загрузка уведомлений ===
+    // Загрузка уведомлений
     async function loadNotifications(filter) {
-        currentFilter = filter;
+        NotificationState.currentFilter = filter;
         const url = filter === 'unread'
             ? '/notifications/api/notifications/unread'
             : '/notifications/api/notifications';
@@ -742,7 +863,7 @@
         }
     }
 
-    // === Отображение ===
+    // Отображение уведомлений
     function displayNotifications(notifications) {
         const container = document.getElementById('notificationsList');
         container.innerHTML = '';
@@ -790,7 +911,7 @@
         lucide.createIcons();
     }
 
-    // === ВСЁ, ЧТО НУЖНО ДЛЯ "ПЕРЕЙТИ К ЗАДАЧЕ" ===
+    // Функции для работы с уведомлениями
     async function openTaskFromNotification(taskId, notificationId) {
         try {
             localStorage.setItem('openTaskId', taskId);
@@ -807,13 +928,12 @@
         }
     }
 
-    // === Остальные функции ===
     async function markAsRead(id) {
         try {
             await fetch(`/notifications/api/notifications/${id}/read`, { method: 'POST' });
             updateNotificationUI(id);
             updateNotificationCounter();
-            if (currentFilter === 'unread') loadNotifications('unread');
+            if (NotificationState.currentFilter === 'unread') loadNotifications('unread');
             showToast('Пометили как прочитанное', 'success');
         } catch (err) {
             showToast('Ошибка', 'error');
@@ -823,7 +943,8 @@
     function updateNotificationUI(id) {
         const card = document.querySelector(`[data-notification-id="${id}"]`);
         if (card) {
-            card.classList.remove('unread'); card.classList.add('read');
+            card.classList.remove('unread');
+            card.classList.add('read');
             const badge = card.querySelector('.badge-new');
             if (badge) badge.remove();
             const btn = card.querySelector('.btn-secondary');
@@ -837,7 +958,7 @@
             closeModal('confirmMarkAllModal');
             try {
                 await fetch('/notifications/api/notifications/read-all', { method: 'POST' });
-                loadNotifications(currentFilter);
+                loadNotifications(NotificationState.currentFilter);
                 showToast('Все уведомления прочитаны', 'success');
             } catch (err) {
                 showToast('Ошибка', 'error');
@@ -857,15 +978,15 @@
     }
 
     function confirmDeleteNotification(id) {
-        notificationToDelete = id;
+        NotificationState.notificationToDelete = id;
         showModal('confirmDeleteModal');
     }
 
     async function deleteNotification() {
         closeModal('confirmDeleteModal');
         try {
-            await apiFetch(`/notifications/api/notifications/${notificationToDelete}`, { method: 'DELETE' });
-            document.querySelector(`[data-notification-id="${notificationToDelete}"]`)?.remove();
+            await apiFetch(`/notifications/api/notifications/${NotificationState.notificationToDelete}`, { method: 'DELETE' });
+            document.querySelector(`[data-notification-id="${NotificationState.notificationToDelete}"]`)?.remove();
             updateNotificationCounter();
             showToast('Уведомление удалено', 'success');
         } catch (err) {
@@ -883,12 +1004,13 @@
             await apiFetch('/notifications/api/notifications/read', { method: 'DELETE' });
             document.querySelectorAll('.notification-card.read').forEach(c => c.remove());
             updateNotificationCounter();
-            showToast('Прочитанные удалены', 'success');
+            showToast('Все прочитанные сообщения удалены', 'success');
         } catch (err) {
             showToast('Ошибка', 'error');
         }
     }
 
+    // Вспомогательные функции
     function getNotificationIcon(type) {
         const map = {
             TASK_CREATED: 'plus-circle',
@@ -915,11 +1037,17 @@
         });
     }
 
-    // Запуск
+    // Инициализация приложения
     document.addEventListener('DOMContentLoaded', () => {
         initNotificationSystem();
         document.getElementById('confirmDeleteBtn').onclick = deleteNotification;
         document.getElementById('confirmDeleteAllReadBtn').onclick = deleteAllReadNotifications;
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.profile-dropdown')) {
+                closeAllDropdowns();
+            }
+        });
     });
 </script>
 </body>
