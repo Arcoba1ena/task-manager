@@ -909,6 +909,36 @@
     font-size: 0.6rem;
     display: none;
 }
+
+/* Гарантированное отображение счетчиков когда они не пустые */
+.attachment-badge:not(:empty) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.comment-badge:not(:empty) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Усиленные стили для видимости при наведении на карточку */
+.task-card:hover .attachment-badge:not(:empty),
+.task-card:hover .comment-badge:not(:empty) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Альтернативный вариант: всегда показывать счетчики если есть содержимое */
+.attachment-badge[style*="display: none"]:not(:empty) {
+    display: flex !important;
+}
+
+.comment-badge[style*="display: none"]:not(:empty) {
+    display: flex !important;
+}
 </style>
 </head>
 <body>
@@ -1496,6 +1526,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     loadCommentCounts();
+    loadAttachmentCounts();
     initNotificationCounter();
     handleTaskOpeningFromNotification();
     setupSearchHotkeys();
@@ -1541,6 +1572,14 @@ function enableAllFields() {
 function editTask(taskId) {
     currentTaskId = taskId;
     currentTaskIdForAttachments = taskId;
+
+    // ОБНОВЛЕНО: Принудительно загружаем и обновляем счетчик вложений при открытии задачи
+    if (attachmentCounts[taskId] === undefined) {
+        loadAttachments(taskId);
+    } else {
+        // Если данные уже есть, все равно обновляем бейдж
+        updateAttachmentBadge(taskId, attachmentCounts[taskId] || 0);
+    }
 
     document.getElementById('taskModalTitle').textContent = 'Редактирование задачи';
 
@@ -2071,6 +2110,15 @@ function uploadFile(file) {
         progressBar.classList.add('bg-success');
         uploadStatus.textContent = `Файл "${file.name}" успешно загружен`;
 
+        // ОБНОВЛЕНО: Принудительно обновляем счетчик вложений после успешной загрузки
+        const currentCount = attachmentCounts[currentTaskIdForAttachments] || 0;
+        const newCount = currentCount + 1;
+        attachmentCounts[currentTaskIdForAttachments] = newCount;
+
+        // Обновляем бейдж немедленно
+        updateAttachmentBadge(currentTaskIdForAttachments, newCount);
+
+        // Затем перезагружаем список вложений для актуальности
         loadAttachments(currentTaskIdForAttachments);
 
         setTimeout(() => {
@@ -2091,19 +2139,29 @@ function uploadFile(file) {
 
 function updateAttachmentBadge(taskId, count) {
     const badges = document.querySelectorAll(`.attachment-badge[data-task-id="${taskId}"]`);
+
     badges.forEach(badge => {
+        // ОБНОВЛЕНО: Убеждаемся, что счетчик обновляется корректно
         badge.textContent = count;
-        // Всегда показываем бейдж если есть вложения
         badge.style.display = count > 0 ? 'flex' : 'none';
 
-        // Добавляем анимацию при изменении
+        // Добавляем визуальную обратную связь при изменении
         if (count > 0) {
             badge.style.animation = 'pulse 0.5s ease-in-out';
             setTimeout(() => {
                 badge.style.animation = '';
             }, 500);
         }
+
+        // ОБНОВЛЕНО: Принудительно показываем бейдж, если есть вложения
+        if (count > 0) {
+            badge.style.visibility = 'visible';
+            badge.style.opacity = '1';
+        }
     });
+
+    // ОБНОВЛЕНО: Логируем для отладки (можно удалить в продакшене)
+    console.log(`Updated attachment badge for task ${taskId}: ${count} attachments`);
 }
 
 function loadAttachments(taskId) {
@@ -2115,18 +2173,22 @@ function loadAttachments(taskId) {
             return response.json();
         })
         .then(attachments => {
-            attachmentCounts[taskId] = attachments.length;
+            const count = attachments.length;
+            attachmentCounts[taskId] = count;
+
+            // ОБНОВЛЕНО: Всегда обновляем счетчик, даже если это не текущая задача в модальном окне
+            updateAttachmentBadge(taskId, count);
 
             if (taskId === currentTaskIdForAttachments) {
                 displayAttachments(attachments);
-                updateAttachmentsCount(attachments.length);
+                updateAttachmentsCount(count);
             }
-
-            // Обновляем ТОЛЬКО счетчик вложений
-            updateAttachmentBadge(taskId, attachments.length);
         })
         .catch(error => {
             console.error('Error loading attachments:', error);
+            // ОБНОВЛЕНО: При ошибке устанавливаем счетчик в 0
+            updateAttachmentBadge(taskId, 0);
+
             if (taskId === currentTaskIdForAttachments) {
                 document.getElementById('attachmentsList').innerHTML =
                     '<div class="alert alert-danger">Ошибка загрузки вложений: ' + error.message + '</div>';
@@ -2208,9 +2270,20 @@ function deleteAttachment(attachmentId) {
         if (!response.ok) {
             return response.json().then(error => { throw new Error(error.message); });
         }
+
+        // ОБНОВЛЕНО: Немедленно обновляем счетчик после удаления
         if (currentTaskIdForAttachments) {
+            const currentCount = attachmentCounts[currentTaskIdForAttachments] || 0;
+            const newCount = Math.max(0, currentCount - 1);
+            attachmentCounts[currentTaskIdForAttachments] = newCount;
+
+            // Обновляем бейдж немедленно
+            updateAttachmentBadge(currentTaskIdForAttachments, newCount);
+
+            // Затем перезагружаем список для актуальности
             loadAttachments(currentTaskIdForAttachments);
         }
+
         showToast('Файл успешно удален!', 'success');
     })
     .catch(error => {
@@ -2223,13 +2296,7 @@ function loadAttachmentCounts() {
     document.querySelectorAll('.task-card').forEach(card => {
         const taskId = card.getAttribute('data-task-id');
         if (taskId) {
-            fetch(`/api/tasks/${taskId}/attachments`)
-                .then(response => response.json())
-                .then(attachments => {
-                    updateAttachmentBadge(taskId, attachments.length);
-                    attachmentCounts[taskId] = attachments.length;
-                })
-                .catch(error => console.error('Error loading attachment count for task ' + taskId + ':', error));
+            loadAttachments(taskId);
         }
     });
 }
