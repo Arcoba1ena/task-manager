@@ -912,17 +912,15 @@
     // Функции для работы с уведомлениями
     async function openTaskFromNotification(taskId, notificationId) {
         try {
-            localStorage.setItem('openTaskId', taskId);
-            localStorage.setItem('openTaskSource', 'notification');
-
             if (notificationId) {
                 await fetch(`/notifications/api/notifications/${notificationId}/read`, { method: 'POST' });
-                updateNotificationCounter();
+                updateNotificationCounter();  // Обновляем счётчик
             }
         } catch (err) {
             console.warn('Не удалось пометить как прочитанное:', err);
         } finally {
-            window.location.href = '/tasks';
+            // Передаём ID через URL-параметр (без localStorage)
+            window.location.href = `/tasks?openTask=${taskId}`;
         }
     }
 

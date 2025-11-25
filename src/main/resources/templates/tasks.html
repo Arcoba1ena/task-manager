@@ -1341,7 +1341,7 @@
                                             <!-- Динамически заполняем исполнителей -->
                                             <option th:each="executor : ${executors}"
                                                     th:value="${executor.id}"
-                                                    th:text="${executor.fullName} + ' (' + ${executor.role} + ')'">
+                                                    th:text="${executor.fullName}">
                                             </option>
                                         </select>
                                     </div>
